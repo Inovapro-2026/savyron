@@ -146,32 +146,32 @@ export default function ConversationDetailPage() {
       <Sidebar />
       {/* Direita: chat em altura total */}
       <div className="lg:pl-64">
-        <div className="flex h-dvh flex-col bg-[#F5F7FA]">
+        <div className="flex h-dvh flex-col bg-[#020409]">
           {/* Header fixo */}
-          <header className="sticky top-0 z-10 border-b border-[#E6E8F0] bg-white/95 backdrop-blur-md">
+          <header className="sticky top-0 z-10 border-b border-white/10 bg-[#080D18]/90 backdrop-blur-xl">
             <div className="flex items-center gap-2 px-3 py-3 sm:px-6">
               <Link
                 href="/inbox"
                 aria-label="Voltar às mensagens"
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#E6E8F0] bg-white text-[#475569] transition-colors hover:bg-slate-50 hover:text-[#0F172A] active:scale-95 shadow-xs"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-[#0C1427]/70 text-[#A8B3C7] transition-all hover:border-[#00E5FF]/40 hover:bg-[#121B32] hover:text-white active:scale-95 shadow-sm"
               >
                 <ArrowLeft className="h-4.5 w-4.5" />
               </Link>
 
               {conversation.isLoading ? (
                 <div className="flex h-9 items-center pl-2">
-                  <Spinner />
+                  <Spinner className="text-[#00E5FF]" />
                 </div>
               ) : data ? (
                 <>
                   {/* Identidade */}
                   <div className="flex min-w-0 flex-1 items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#6366F1] to-[#8B5CF6] text-sm font-bold text-white shadow-xs">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#00E5FF]/30 bg-gradient-to-tr from-[#008CFF] to-[#7C3CFF] text-sm font-black text-white shadow-[0_0_12px_rgba(0,140,255,0.3)]">
                       {(data.lead.name?.[0] ?? '?').toUpperCase()}
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="truncate font-bold text-[#0F172A]">{data.lead.name ?? 'Contato'}</span>
+                        <span className="truncate font-bold text-white">{data.lead.name ?? 'Contato'}</span>
                         <Badge tone={data.human_handled ? 'blue' : 'violet'} className="px-2 py-0.5">
                           {data.human_handled ? <User className="mr-1 inline h-2.5 w-2.5" /> : <Bot className="mr-1 inline h-2.5 w-2.5" />}
                           {data.human_handled ? 'Manual' : `IA (${data.ai_provider ?? '—'})`}
@@ -180,7 +180,7 @@ export default function ConversationDetailPage() {
                           {data.status === 'OPEN' ? 'Aberta' : 'Encerrada'}
                         </Badge>
                       </div>
-                      <div className="truncate text-xs text-[#64748B]">
+                      <div className="truncate text-xs text-[#A8B3C7]">
                         {data.lead.business_name ? `${data.lead.business_name} · ` : ''}
                         {data.lead.phone ?? data.lead.email ?? ''}
                         {data.lead.city ? ` · ${data.lead.city}/${data.lead.state ?? ''}` : ''}
@@ -213,10 +213,10 @@ export default function ConversationDetailPage() {
             <div className="mx-auto w-full max-w-3xl space-y-3 px-3 py-6 sm:px-4">
               {conversation.isLoading ? (
                 <div className="flex justify-center py-16">
-                  <Spinner />
+                  <Spinner className="text-[#00E5FF]" />
                 </div>
               ) : data && data.messages.length === 0 ? (
-                <div className="py-16 text-center text-sm text-[#64748B]">Nenhuma mensagem ainda.</div>
+                <div className="py-16 text-center text-sm text-[#A8B3C7]">Nenhuma mensagem ainda.</div>
               ) : (
                 data?.messages.map((m) => <MessageBubble key={m.id} message={m} />)
               )}
@@ -226,10 +226,10 @@ export default function ConversationDetailPage() {
           </main>
 
           {/* Composer fixo no rodapé */}
-          <footer className="sticky bottom-0 z-10 border-t border-[#E6E8F0] bg-white/95 px-3 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3 backdrop-blur-md sm:px-6">
+          <footer className="sticky bottom-0 z-10 border-t border-white/10 bg-[#080D18]/90 px-3 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3 backdrop-blur-xl sm:px-6">
             <div className="mx-auto w-full max-w-3xl">
               {data && !humanMode && (
-                <p className="mb-2 text-center text-[11px] text-[#64748B]">
+                <p className="mb-2 text-center text-[11px] text-[#A8B3C7]">
                   {data.status === 'OPEN' ? 'A IA está de prontidão. Assuma a conversa para responder manualmente.' : 'Conversa encerrada.'}
                 </p>
               )}
@@ -251,7 +251,7 @@ export default function ConversationDetailPage() {
                     }}
                     placeholder={humanMode ? 'Digite sua resposta manual…' : 'Modo manual: assuma a conversa para responder'}
                     rows={1}
-                    className="min-h-[44px] w-full resize-none rounded-2xl border border-[#D1D5DB] bg-white px-4 py-2.5 text-sm text-[#0F172A] placeholder-[#94A3B8] focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/20 focus:outline-none disabled:cursor-not-allowed disabled:border-[#E2E8F0] disabled:bg-slate-50 disabled:text-[#94A3B8]"
+                    className="min-h-[44px] w-full resize-none rounded-2xl border border-white/10 bg-[#050914] px-4 py-2.5 text-sm text-white placeholder-[#64748B] focus:border-[#00E5FF] focus:ring-2 focus:ring-[#00E5FF]/20 focus:shadow-[0_0_15px_rgba(0,229,255,0.2)] focus:outline-none disabled:cursor-not-allowed disabled:border-white/5 disabled:bg-[#03060C] disabled:text-[#64748B]"
                   />
                 </div>
                 <Button onClick={() => void send()} loading={sending} disabled={!humanMode || !draft.trim()} className="h-[44px] w-[44px] shrink-0 rounded-2xl !p-0 flex items-center justify-center shadow-xs" aria-label="Enviar mensagem">

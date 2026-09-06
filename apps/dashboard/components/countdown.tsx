@@ -64,7 +64,7 @@ export function NextSendCountdown({
   if (variant === 'compact') {
     if (status === 'PAUSED') {
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50/80 px-2.5 py-1 text-xs font-semibold text-amber-700">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-300">
           <Pause className="h-3 w-3" /> Campanha pausada
         </span>
       );
@@ -72,7 +72,7 @@ export function NextSendCountdown({
 
     if (status === 'FINISHED') {
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-[#64748B]">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-[#A8B3C7]">
           <CheckCircle2 className="h-3 w-3" /> Campanha encerrada
         </span>
       );
@@ -80,7 +80,7 @@ export function NextSendCountdown({
 
     if (!targetAt || !timeData) {
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-[#64748B]">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-[#A8B3C7]">
           <Clock className="h-3 w-3" /> Aguardando disparo
         </span>
       );
@@ -88,17 +88,17 @@ export function NextSendCountdown({
 
     if (timeData.isZero) {
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-[#EEF2FF] px-2.5 py-1 text-xs font-semibold text-[#6366F1] animate-pulse">
-          <Send className="h-3 w-3" /> Enviando agora...
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#00E5FF]/40 bg-[#00E5FF]/10 px-3 py-1 text-xs font-bold text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.25)] animate-pulse">
+          <Send className="h-3 w-3" /> Disparando agora...
         </span>
       );
     }
 
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#C7D2FE] bg-[#EEF2FF] px-3 py-1 text-xs font-bold text-[#6366F1] shadow-xs">
-        <Clock className="h-3.5 w-3.5" />
-        <span>Próximo em</span>
-        <span className="font-mono tracking-wider font-extrabold text-[#0F172A]">
+      <span className="inline-flex items-center gap-2 rounded-full border border-[#008CFF]/30 bg-[#080D18]/90 px-3.5 py-1 text-xs font-bold text-white shadow-[0_0_15px_rgba(0,140,255,0.15)]">
+        <Clock className="h-3.5 w-3.5 text-[#00E5FF]" />
+        <span className="text-[#A8B3C7]">Próximo em</span>
+        <span className="font-mono tracking-wider font-black text-[#00E5FF]">
           {timeData.hours}:{timeData.minutes}:{timeData.seconds}
         </span>
       </span>
@@ -108,17 +108,17 @@ export function NextSendCountdown({
   // Prominent variant (para a página de detalhes da campanha)
   if (status === 'PAUSED') {
     return (
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50/70 to-white p-5 shadow-xs">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-950/30 via-[#080D18]/80 to-amber-950/30 p-5 shadow-[0_0_20px_rgba(255,176,32,0.15)] backdrop-blur-xl">
         <div className="flex items-center gap-3.5">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-100/80 text-amber-700">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-500/20 text-amber-400 shadow-[0_0_12px_rgba(255,176,32,0.3)]">
             <Pause className="h-5 w-5" />
           </div>
           <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-amber-700">Status do Envio</div>
-            <div className="text-base font-bold text-[#0F172A]">Campanha Pausada</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-amber-400">Status do Envio</div>
+            <div className="text-base font-bold text-white">Campanha Pausada</div>
           </div>
         </div>
-        <p className="text-xs text-[#64748B] text-center sm:text-right">
+        <p className="text-xs text-[#A8B3C7] text-center sm:text-right">
           Inicie a campanha para retomar o contador e a fila de envios.
         </p>
       </div>
@@ -127,17 +127,17 @@ export function NextSendCountdown({
 
   if (status === 'FINISHED') {
     return (
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-[#E6E8F0] bg-[#F8FAFC] p-5 shadow-xs">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-white/10 bg-[#080D18]/80 p-5 shadow-sm backdrop-blur-xl">
         <div className="flex items-center gap-3.5">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-200/80 text-[#64748B]">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-[#A8B3C7]">
             <CheckCircle2 className="h-5 w-5" />
           </div>
           <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-[#64748B]">Status do Envio</div>
-            <div className="text-base font-bold text-[#0F172A]">Campanha Encerrada</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[#64748B]">Status do Envio</div>
+            <div className="text-base font-bold text-white">Campanha Encerrada</div>
           </div>
         </div>
-        <p className="text-xs text-[#64748B] text-center sm:text-right">
+        <p className="text-xs text-[#A8B3C7] text-center sm:text-right">
           Todos os disparos programados foram finalizados.
         </p>
       </div>
@@ -147,25 +147,26 @@ export function NextSendCountdown({
   const isSendingNow = timeData?.isZero ?? false;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-[#C7D2FE] bg-gradient-to-br from-white via-[#F8FAFC] to-[#EEF2FF] p-5 shadow-xs transition-all">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="relative overflow-hidden rounded-3xl border border-[#008CFF]/30 bg-gradient-to-br from-[#080D18]/95 via-[#0A1226]/90 to-[#080D18]/95 p-5 shadow-[0_0_35px_rgba(0,140,255,0.15)] backdrop-blur-xl transition-all">
+      <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[#00E5FF]/10 blur-2xl" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
         {/* Header com ícone e label */}
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#EEF2FF] text-[#6366F1] shadow-xs">
-            <Clock className="h-5 w-5 animate-pulse" />
+        <div className="flex items-center gap-3.5">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#00E5FF]/30 bg-[#00E5FF]/10 text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.25)]">
+            <Clock className="h-6 w-6 animate-pulse" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-extrabold uppercase tracking-wider text-[#6366F1]">
-                Próximo Envio
+              <span className="text-xs font-black uppercase tracking-wider text-[#00E5FF]">
+                Próximo Envio Automático
               </span>
-              <span className="flex h-2 w-2 rounded-full bg-[#10B981] animate-ping" />
+              <span className="flex h-2 w-2 rounded-full bg-[#00E5A0] shadow-[0_0_8px_#00E5A0] animate-ping" />
             </div>
-            <div className="text-xs font-medium text-[#64748B]">
+            <div className="text-xs font-medium text-[#A8B3C7] mt-0.5">
               {isSendingNow
                 ? 'Processando disparo de mensagem...'
                 : timeData
-                ? 'Aguardando próximo disparo'
+                ? 'Cadência neural ativa em tempo real'
                 : 'Aguardando agendamento na fila'}
             </div>
           </div>
@@ -176,47 +177,47 @@ export function NextSendCountdown({
           <div className="flex items-center justify-center gap-2">
             {/* Horas */}
             <div className="flex flex-col items-center">
-              <div className="flex h-12 min-w-12 items-center justify-center rounded-xl border border-[#E6E8F0] bg-white px-2.5 shadow-xs">
-                <span className="font-mono text-2xl font-black tracking-tight text-[#0F172A]">
+              <div className="flex h-13 min-w-13 items-center justify-center rounded-2xl border border-white/10 bg-[#050914] px-3.5 shadow-inner">
+                <span className="font-mono text-2xl font-black tracking-tight text-white">
                   {timeData.hours}
                 </span>
               </div>
-              <span className="mt-1 text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">HORAS</span>
+              <span className="mt-1 text-[9px] font-bold uppercase tracking-wider text-[#64748B]">HORAS</span>
             </div>
 
-            <span className="mb-4 text-xl font-bold text-[#6366F1]">:</span>
+            <span className="mb-4 text-xl font-bold text-[#00E5FF] animate-pulse">:</span>
 
             {/* Minutos */}
             <div className="flex flex-col items-center">
-              <div className="flex h-12 min-w-12 items-center justify-center rounded-xl border border-[#E6E8F0] bg-white px-2.5 shadow-xs">
-                <span className="font-mono text-2xl font-black tracking-tight text-[#0F172A]">
+              <div className="flex h-13 min-w-13 items-center justify-center rounded-2xl border border-white/10 bg-[#050914] px-3.5 shadow-inner">
+                <span className="font-mono text-2xl font-black tracking-tight text-white">
                   {timeData.minutes}
                 </span>
               </div>
-              <span className="mt-1 text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">MIN</span>
+              <span className="mt-1 text-[9px] font-bold uppercase tracking-wider text-[#64748B]">MIN</span>
             </div>
 
-            <span className="mb-4 text-xl font-bold text-[#6366F1]">:</span>
+            <span className="mb-4 text-xl font-bold text-[#00E5FF] animate-pulse">:</span>
 
             {/* Segundos */}
             <div className="flex flex-col items-center">
-              <div className="flex h-12 min-w-12 items-center justify-center rounded-xl border border-[#C7D2FE] bg-gradient-to-b from-white to-[#EEF2FF] px-2.5 shadow-xs ring-1 ring-[#6366F1]/20">
-                <span className="font-mono text-2xl font-black tracking-tight text-[#6366F1]">
+              <div className="flex h-13 min-w-13 items-center justify-center rounded-2xl border border-[#00E5FF]/50 bg-gradient-to-b from-[#008CFF]/20 to-[#00E5FF]/20 px-3.5 shadow-[0_0_20px_rgba(0,229,255,0.25)] ring-1 ring-[#00E5FF]/40">
+                <span className="font-mono text-2xl font-black tracking-tight text-[#00E5FF]">
                   {timeData.seconds}
                 </span>
               </div>
-              <span className="mt-1 text-[10px] font-bold uppercase tracking-wider text-[#6366F1]">SEG</span>
+              <span className="mt-1 text-[9px] font-bold uppercase tracking-wider text-[#00E5FF]">SEG</span>
             </div>
           </div>
         ) : isSendingNow ? (
-          <div className="flex items-center gap-2.5 rounded-xl border border-[#C7D2FE] bg-[#EEF2FF] px-4 py-2.5 text-[#6366F1]">
-            <Send className="h-4 w-4 animate-bounce" />
-            <span className="text-sm font-bold">Enviando agora...</span>
+          <div className="flex items-center gap-2.5 rounded-2xl border border-[#00E5FF]/40 bg-[#00E5FF]/10 px-5 py-3 text-[#00E5FF] shadow-[0_0_20px_rgba(0,229,255,0.25)]">
+            <Send className="h-5 w-5 animate-bounce" />
+            <span className="text-sm font-black tracking-wide uppercase">Enviando agora...</span>
           </div>
         ) : (
           <div className="text-center sm:text-right">
-            <span className="text-sm font-bold text-[#64748B]">— : — : —</span>
-            <div className="text-[11px] text-[#94A3B8]">fila em espera</div>
+            <span className="text-sm font-mono font-bold text-[#64748B]">— : — : —</span>
+            <div className="text-[11px] text-[#64748B]">fila em espera</div>
           </div>
         )}
       </div>

@@ -200,49 +200,57 @@ export default function EmpresaIaPage() {
 
   return (
     <DashboardShell title="Configuração da IA">
-      <div className="mb-6">
-        <h1 className="heading-strong text-xl">Configuração da IA</h1>
-        <p className="text-sm text-zinc-500">
-          Descreva sua empresa e o comportamento da IA em um único lugar — tudo é
-          aplicado automaticamente ao agente de atendimento.
-        </p>
-      </div>
-
       <div className="space-y-6">
-        <Card>
-          <CardHeader
-            title="Dados da empresa"
-            subtitle="Campo único: informações da empresa + regras de comportamento da IA"
-          />
-          <div className="space-y-4 p-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#008CFF]/10 border border-[#008CFF]/30 text-[#00E5FF] shadow-[0_0_12px_rgba(0,140,255,0.2)]">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-white">Configuração da IA & Conhecimento</h1>
+            <p className="text-xs text-slate-400">
+              Descreva sua empresa e as diretrizes comportamentais da IA em um único lugar — aplicadas em tempo real ao motor neural
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-[#080D18]/80 p-6 backdrop-blur-xl shadow-xl space-y-5">
+          <div className="border-b border-white/5 pb-4">
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-[#00E5FF] shadow-[0_0_8px_#00E5FF]" />
+              Dados Principais da Empresa
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">Informações fundamentais utilizadas pela IA para responder clientes e leads</p>
+          </div>
+
+          <div className="space-y-4">
             <Input
               label="Nome da empresa"
               value={fieldValue("name", settings?.name)}
               onChange={(e) => setField("name", e.target.value)}
-              placeholder="Ex.: Barbearia Central"
+              placeholder="Ex.: Savyron Enterprise"
               disabled={isLoading}
             />
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-zinc-700">
-                  Segmento
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                  Segmento de Atuação
                 </label>
                 <select
                   value={fieldValue("segment", settings?.segment)}
                   onChange={(e) => setField("segment", e.target.value)}
                   disabled={isLoading}
-                  className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-500/60"
+                  className="w-full rounded-xl border border-white/10 bg-[#020409]/70 px-3 py-2.5 text-sm text-white outline-none focus:border-[#008CFF]"
                 >
-                  <option value="">Selecione...</option>
+                  <option value="" className="bg-[#080D18]">Selecione...</option>
                   {SEGMENTS.map((s) => (
-                    <option key={s} value={s}>
+                    <option key={s} value={s} className="bg-[#080D18]">
                       {s}
                     </option>
                   ))}
                 </select>
               </div>
               <Input
-                label="Telefone"
+                label="Telefone Comercial"
                 value={fieldValue("phone", settings?.phone)}
                 onChange={(e) => setField("phone", e.target.value)}
                 placeholder="(11) 99999-0000"
@@ -250,7 +258,7 @@ export default function EmpresaIaPage() {
               />
             </div>
             <Input
-              label="E-mail"
+              label="E-mail de Contato"
               type="email"
               value={fieldValue("email", settings?.email)}
               onChange={(e) => setField("email", e.target.value)}
@@ -258,13 +266,13 @@ export default function EmpresaIaPage() {
               disabled={isLoading}
             />
             <div>
-              <div className="mb-1.5 flex items-center justify-between gap-2">
-                <label className="block text-sm font-medium text-zinc-700">
-                  Descrição da empresa/instrução de comportamento da IA
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  Descrição da empresa / Diretrizes da IA
                 </label>
                 <Link
                   href="/ai/prompt-guide"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600 transition-colors hover:bg-emerald-500/20"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#00E5FF]/40 bg-[#00E5FF]/10 px-2.5 py-1 text-xs font-semibold text-[#00E5FF] transition-all hover:bg-[#00E5FF]/20 shadow-[0_0_10px_rgba(0,229,255,0.15)]"
                 >
                   <BookOpen className="h-3.5 w-3.5" />
                   Guia de prompts
@@ -277,47 +285,44 @@ export default function EmpresaIaPage() {
                 maxLength={15000}
                 rows={10}
                 placeholder="Descreva sua empresa (o que faz, produtos ou serviços) e como a IA deve se comportar: tom de voz, postura e regras de atendimento. Use o modelo do Guia de prompts: descrição geral, posicionamento, principais recursos, principal objetivo e como a IA deve falar."
-                className="w-full resize-y rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-500/60"
+                className="w-full resize-y rounded-xl border border-white/10 bg-[#020409]/70 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-[#008CFF] focus:ring-1 focus:ring-[#008CFF]"
               />
-              <p className="mt-1 flex items-center justify-between gap-2 text-[11px] text-zinc-500">
+              <p className="mt-1 flex items-center justify-between gap-2 text-[11px] text-slate-500">
                 <span>
-                  Campo único para dados da empresa + regras de comportamento da
-                  IA (até 15.000 caracteres).
+                  Campo único para dados da empresa + regras de comportamento da IA.
                 </span>
-                <span className="text-zinc-400">
-                  {fieldValue("description", settings?.description).length} /{" "}
-                  15000
+                <span className="text-slate-400 font-mono">
+                  {fieldValue("description", settings?.description).length} / 15000
                 </span>
               </p>
             </div>
           </div>
-        </Card>
+        </div>
 
-
-        <Card>
+        <div className="rounded-2xl border border-white/10 bg-[#080D18]/80 backdrop-blur-xl shadow-xl overflow-hidden">
           <button
             type="button"
             onClick={() => setShowDetails((v) => !v)}
-            className="flex w-full items-center justify-between gap-3 px-5 pt-5 text-left"
+            className="flex w-full items-center justify-between gap-3 p-6 text-left hover:bg-white/[0.02] transition-colors"
             aria-expanded={showDetails}
           >
             <div>
-              <h3 className="font-bold text-foreground">Mais detalhes</h3>
-              <p className="mt-0.5 text-xs text-zinc-500">
-                Opcional — deixe a IA ainda mais precisa sobre seu negócio
+              <h3 className="font-bold text-white text-base">Mais detalhes operacionais</h3>
+              <p className="mt-0.5 text-xs text-slate-400">
+                Opcional — configure endereço, redes, público-alvo e regras adicionais
               </p>
             </div>
             {showDetails ? (
-              <ChevronUp className="h-5 w-5 text-zinc-400" />
+              <ChevronUp className="h-5 w-5 text-slate-400" />
             ) : (
-              <ChevronDown className="h-5 w-5 text-zinc-400" />
+              <ChevronDown className="h-5 w-5 text-slate-400" />
             )}
           </button>
           {showDetails ? (
-            <div className="space-y-4 p-5">
-              <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-4 p-6 pt-0 border-t border-white/5">
+              <div className="grid gap-4 sm:grid-cols-2 pt-4">
                 <Input
-                  label="Site"
+                  label="Site Oficial"
                   value={fieldValue("site", settings?.website)}
                   onChange={(e) => setField("site", e.target.value)}
                   placeholder="https://..."
@@ -333,14 +338,14 @@ export default function EmpresaIaPage() {
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Input
-                  label="Horário de atendimento"
+                  label="Horário de Atendimento"
                   value={fieldValue("horario", settings?.opening_hours)}
                   onChange={(e) => setField("horario", e.target.value)}
                   placeholder="Seg a Sex 9h–18h, Sáb 9h–13h"
                   disabled={isLoading}
                 />
                 <Input
-                  label="Localização"
+                  label="Localização / Endereço"
                   value={fieldValue("localizacao", settings?.address)}
                   onChange={(e) => setField("localizacao", e.target.value)}
                   placeholder="Rua, número, bairro, cidade..."
@@ -348,7 +353,7 @@ export default function EmpresaIaPage() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-zinc-700">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
                   Público-alvo
                 </label>
                 <textarea
@@ -357,11 +362,11 @@ export default function EmpresaIaPage() {
                   disabled={isLoading}
                   rows={2}
                   placeholder="Ex.: Pequenas e médias empresas, profissionais autônomos, lojas..."
-                  className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-500/60"
+                  className="w-full rounded-xl border border-white/10 bg-[#020409]/70 px-3 py-2 text-sm text-white placeholder-slate-500 outline-none focus:border-[#008CFF]"
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-zinc-700">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
                   Problemas que a empresa resolve
                 </label>
                 <textarea
@@ -370,11 +375,11 @@ export default function EmpresaIaPage() {
                   disabled={isLoading}
                   rows={2}
                   placeholder="Ex.: Falta de novos leads, prospecção manual, baixa produtividade..."
-                  className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-500/60"
+                  className="w-full rounded-xl border border-white/10 bg-[#020409]/70 px-3 py-2 text-sm text-white placeholder-slate-500 outline-none focus:border-[#008CFF]"
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-zinc-700">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
                   Diferenciais da empresa
                 </label>
                 <textarea
@@ -383,12 +388,12 @@ export default function EmpresaIaPage() {
                   disabled={isLoading}
                   rows={2}
                   placeholder="Ex.: Automação com IA, prospecção integrada, CRM, agentes inteligentes..."
-                  className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-500/60"
+                  className="w-full rounded-xl border border-white/10 bg-[#020409]/70 px-3 py-2 text-sm text-white placeholder-slate-500 outline-none focus:border-[#008CFF]"
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-zinc-700">
-                  Posicionamento
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                  Posicionamento de Mercado
                 </label>
                 <textarea
                   value={fieldValue("posicionamento", settings?.positioning)}
@@ -396,19 +401,19 @@ export default function EmpresaIaPage() {
                   disabled={isLoading}
                   rows={2}
                   placeholder="Ex.: Uma plataforma de inteligência comercial e automação de vendas, não apenas um CRM."
-                  className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-500/60"
+                  className="w-full rounded-xl border border-white/10 bg-[#020409]/70 px-3 py-2 text-sm text-white placeholder-slate-500 outline-none focus:border-[#008CFF]"
                 />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Input
-                  label="Área de atendimento"
+                  label="Área de Atendimento"
                   value={fieldValue("area_atendimento", settings?.service_area)}
                   onChange={(e) => setField("area_atendimento", e.target.value)}
                   placeholder="Ex.: Todo o Brasil, São Paulo, Online"
                   disabled={isLoading}
                 />
                 <Input
-                  label="Objetivo principal"
+                  label="Objetivo Principal"
                   value={fieldValue("objetivo", settings?.business_objectives)}
                   onChange={(e) => setField("objetivo", e.target.value)}
                   placeholder="Ex.: Gerar leads, vender produtos, agendar atendimentos"
@@ -416,7 +421,7 @@ export default function EmpresaIaPage() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-zinc-700">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
                   Instruções adicionais para a IA
                 </label>
                 <textarea
@@ -424,46 +429,44 @@ export default function EmpresaIaPage() {
                   onChange={(e) => setField("instrucoes", e.target.value)}
                   disabled={isLoading}
                   maxLength={15000}
-                  rows={6}
+                  rows={4}
                   placeholder="Ex.: Sempre envie o link da vitrine quando o cliente demonstrar intenção de compra."
-                  className="w-full resize-y rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-500/60"
+                  className="w-full resize-y rounded-xl border border-white/10 bg-[#020409]/70 px-3 py-2.5 text-sm text-white placeholder-slate-500 outline-none focus:border-[#008CFF]"
                 />
-                <p className="mt-1 text-right text-[11px] text-zinc-400">
-                  {fieldValue("instrucoes", settings?.additional_instructions).length}{" "}
-                  / 15000
+                <p className="mt-1 text-right text-[11px] text-slate-400 font-mono">
+                  {fieldValue("instrucoes", settings?.additional_instructions).length} / 15000
                 </p>
               </div>
             </div>
           ) : null}
-        </Card>
+        </div>
 
-
-        <Card>
+        <div className="rounded-2xl border border-white/10 bg-[#080D18]/80 p-6 backdrop-blur-xl shadow-xl">
           <div className="flex flex-col gap-4">
             {applyError ? (
-              <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
+              <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                 <span>{applyError}</span>
               </div>
             ) : null}
 
-            <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2 text-sm">
                 {aiStatus.data?.configured ? (
-                  <>
-                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
-                    <span className="font-medium text-emerald-600">
-                      IA configurada
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="flex items-center gap-1.5 rounded-full border border-[#00E5A0]/30 bg-[#00E5A0]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#00E5A0] shadow-[0_0_10px_rgba(0,229,160,0.2)]">
+                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                      IA Ativa & Sincronizada
                     </span>
                     {formattedLastApplied ? (
-                      <span className="text-zinc-500">
-                        · Última atualização: {formattedLastApplied}
+                      <span className="text-xs text-slate-400">
+                        · Atualizado em: <span className="text-slate-300 font-medium">{formattedLastApplied}</span>
                       </span>
                     ) : null}
-                  </>
+                  </div>
                 ) : (
-                  <span className="flex items-center gap-2 text-zinc-500">
-                    <Building2 className="h-4 w-4 shrink-0 text-zinc-400" />
+                  <span className="flex items-center gap-2 text-xs text-slate-400">
+                    <Building2 className="h-4 w-4 shrink-0 text-slate-500" />
                     IA ainda não configurada
                   </span>
                 )}
@@ -472,22 +475,20 @@ export default function EmpresaIaPage() {
               <Button
                 onClick={() => void apply()}
                 loading={applying}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto shadow-[0_0_15px_rgba(0,140,255,0.35)]"
               >
-                <Sparkles className="mr-2 h-4 w-4" />
+                <Sparkles className="mr-2 h-4 w-4 text-[#00E5FF]" />
                 {aiStatus.data?.configured
                   ? "Atualizar configuração da IA"
                   : "Aplicar informações na IA"}
               </Button>
             </div>
 
-            <p className="text-[11px] text-zinc-500">
-              Ao aplicar, os dados acima são enviados para a IA do seu
-              atendimento. Reenviar o formulário apenas atualiza a configuração
-              — não cria nada novo.
+            <p className="text-[11px] text-slate-500">
+              Ao aplicar, os dados acima são sintetizados e gravados no motor de atendimento do Savyron.
             </p>
           </div>
-        </Card>
+        </div>
       </div>
     </DashboardShell>
   );

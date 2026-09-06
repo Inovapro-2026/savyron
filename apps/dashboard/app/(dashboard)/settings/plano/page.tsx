@@ -95,119 +95,125 @@ export default function PlanosPage() {
 
   return (
     <DashboardShell title="Planos">
-      <div className="mb-6">
-        <h1 className="heading-strong text-xl">Planos</h1>
-        <p className="text-sm text-zinc-500">
-          Gerencie sua assinatura e renovação
-        </p>
-      </div>
-
-      <div className="mx-auto max-w-xl">
-        <Card className="overflow-hidden">
-          <div className="h-1.5 bg-gradient-to-r from-emerald-500 via-violet-500 to-blue-500" />
-          <div className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10">
-                <Crown className="h-6 w-6 text-emerald-600" />
-              </div>
-              <div>
-                <div className="text-xs text-zinc-500">Plano ativo</div>
-                <div className="text-xl font-bold text-zinc-900">
-                  {sub?.plan_name ?? "SAVYRON Profissional"}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-5 flex flex-wrap items-center gap-2">
-              {active ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600">
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Ativo
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-600">
-                  <XCircle className="h-3.5 w-3.5" /> Expirado
-                </span>
-              )}
-              {sub?.plan_price ? (
-                <span className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs text-zinc-600">
-                  R$ {sub.plan_price.toFixed(2).replace(".", ",")}
-                  {sub.plan_name?.toLowerCase().includes("mensal")
-                    ? ""
-                    : "/mês"}
-                </span>
-              ) : null}
-            </div>
-
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <div className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50/60 p-4">
-                <CalendarClock className="h-5 w-5 shrink-0 text-zinc-500" />
-                <div>
-                  <div className="text-xs text-zinc-500">Renovação em</div>
-                  <div className="font-semibold text-zinc-900">
-                    {formattedExpiry}
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50/60 p-4">
-                <CreditCard className="h-5 w-5 shrink-0 text-zinc-500" />
-                <div>
-                  <div className="text-xs text-zinc-500">Status do período</div>
-                  <div
-                    className={`font-semibold ${expired ? "text-red-600" : "text-emerald-600"}`}
-                  >
-                    {countdown || "—"}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {expired ? (
-              <div className="mt-4 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-600">
-                Seu plano expirou. Para continuar usando o SAVYRON e não perder
-                suas campanhas e dados, renove sua assinatura agora.
-              </div>
-            ) : null}
-
-            {expired && usePix ? (
-              <div className="mt-5">
-                <PixCheckout
-                  title="Renove via PIX"
-                  onPaid={() => status.refetch()}
-                />
-              </div>
-            ) : !showPix ? (
-              <>
-                <Button
-                  onClick={() =>
-                    usePix ? setShowPix(true) : void renew()
-                  }
-                  loading={renewing}
-                  className="mt-5 w-full"
-                >
-                  <CreditCard className="mr-2 h-4 w-4" />
-                  {expired ? "Renovar Assinatura" : "Gerenciar Pagamento"}
-                </Button>
-                <p className="mt-2 text-center text-[11px] text-zinc-500">
-                  O pagamento é feito com segurança via PIX. O acesso renovado é
-                  liberado automaticamente após a confirmação.
-                </p>
-              </>
-            ) : (
-              <div className="mt-5">
-                <PixCheckout
-                  title="Pagamento via PIX"
-                  onPaid={() => status.refetch()}
-                />
-              </div>
-            )}
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#008CFF]/10 border border-[#008CFF]/30 text-[#00E5FF] shadow-[0_0_12px_rgba(0,140,255,0.2)]">
+            <Crown className="h-5 w-5" />
           </div>
-        </Card>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-white">Plano & Assinatura</h1>
+            <p className="text-xs text-slate-400">
+              Gerencie sua assinatura, créditos operacionais e renovações automáticas
+            </p>
+          </div>
+        </div>
 
-        {!status.isLoading && !sub ? (
-          <Card className="mt-4 p-6 text-center text-sm text-zinc-500">
-            Nenhuma assinatura ativa encontrada para esta empresa.
-          </Card>
-        ) : null}
+        <div className="mx-auto max-w-xl">
+          <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#080D18]/90 backdrop-blur-xl shadow-2xl relative">
+            <div className="h-1 bg-gradient-to-r from-[#008CFF] via-[#00E5FF] to-[#00E5A0]" />
+            <div className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#008CFF]/20 to-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.2)]">
+                  <Crown className="h-6 w-6" />
+                </div>
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Plano Ativo</div>
+                  <div className="text-xl font-extrabold text-white tracking-tight">
+                    {sub?.plan_name ?? "SAVYRON Enterprise AI"}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-5 flex flex-wrap items-center gap-2">
+                {active ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-[#00E5A0]/30 bg-[#00E5A0]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#00E5A0] shadow-[0_0_10px_rgba(0,229,160,0.2)]">
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Assinatura Ativa
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FF3366]/30 bg-[#FF3366]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#FF3366] shadow-[0_0_10px_rgba(255,51,102,0.2)]">
+                    <XCircle className="h-3.5 w-3.5" /> Expirado
+                  </span>
+                )}
+                {sub?.plan_price ? (
+                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-300">
+                    R$ {sub.plan_price.toFixed(2).replace(".", ",")}
+                    {sub.plan_name?.toLowerCase().includes("mensal")
+                      ? ""
+                      : "/mês"}
+                  </span>
+                ) : null}
+              </div>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                  <CalendarClock className="h-5 w-5 shrink-0 text-[#00E5FF]" />
+                  <div>
+                    <div className="text-xs text-slate-400">Renovação em</div>
+                    <div className="font-bold text-white text-sm">
+                      {formattedExpiry}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                  <CreditCard className="h-5 w-5 shrink-0 text-[#00E5A0]" />
+                  <div>
+                    <div className="text-xs text-slate-400">Status do ciclo</div>
+                    <div
+                      className={`font-bold text-sm ${expired ? "text-[#FF3366]" : "text-[#00E5A0]"}`}
+                    >
+                      {countdown || "—"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {expired ? (
+                <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                  Seu plano expirou. Para continuar usando o SAVYRON e não perder
+                  suas campanhas e dados, renove sua assinatura agora.
+                </div>
+              ) : null}
+
+              {expired && usePix ? (
+                <div className="mt-5">
+                  <PixCheckout
+                    title="Renove via PIX"
+                    onPaid={() => status.refetch()}
+                  />
+                </div>
+              ) : !showPix ? (
+                <>
+                  <Button
+                    onClick={() =>
+                      usePix ? setShowPix(true) : void renew()
+                    }
+                    loading={renewing}
+                    className="mt-5 w-full shadow-[0_0_15px_rgba(0,140,255,0.35)]"
+                  >
+                    <CreditCard className="mr-2 h-4 w-4" />
+                    {expired ? "Renovar Assinatura" : "Gerenciar Pagamento"}
+                  </Button>
+                  <p className="mt-2 text-center text-[11px] text-slate-400">
+                    O pagamento é processado instantaneamente via PIX com segurança bancária.
+                  </p>
+                </>
+              ) : (
+                <div className="mt-5">
+                  <PixCheckout
+                    title="Pagamento via PIX"
+                    onPaid={() => status.refetch()}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {!status.isLoading && !sub ? (
+            <div className="mt-4 rounded-2xl border border-white/10 bg-[#080D18]/80 p-6 text-center text-sm text-slate-400 backdrop-blur-xl">
+              Nenhuma assinatura ativa encontrada para esta empresa.
+            </div>
+          ) : null}
+        </div>
       </div>
     </DashboardShell>
   );

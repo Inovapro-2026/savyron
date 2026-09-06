@@ -133,10 +133,10 @@ export default function SignupPage() {
         </Link>
       </div>
       <div className="w-full">
-        <h1 className="mb-1 text-center font-display text-2xl font-bold text-zinc-900">
+        <h1 className="mb-1 text-center font-display text-2xl font-bold tracking-tight text-white">
           Criar conta no SAVYRON
         </h1>
-        <p className="mb-6 text-center text-sm text-zinc-500">
+        <p className="mb-6 text-center text-sm text-slate-400">
           Cadastre sua empresa, verifique seu e-mail e escolha seu plano
         </p>
 
@@ -144,28 +144,28 @@ export default function SignupPage() {
           {(["email", "details", "plan"] as Step[]).map((s, i) => (
             <div key={s} className="flex items-center gap-2">
               <span
-                className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-medium ${
+                className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold transition-all ${
                   step === s || (step !== "email" && i === 0)
-                    ? "bg-emerald-500 text-zinc-900"
-                    : "bg-zinc-100 text-zinc-500"
+                    ? "bg-[#00E5A0] text-black shadow-[0_0_10px_rgba(0,229,160,0.4)]"
+                    : "bg-white/10 text-slate-400 border border-white/5"
                 }`}
               >
                 {i + 1}
               </span>
-              <span className={step === s ? "text-zinc-700" : "text-zinc-500"}>
+              <span className={step === s ? "text-white font-medium" : "text-slate-500"}>
                 {s === "email"
                   ? "E-mail"
                   : s === "details"
                     ? "Empresa"
                     : "Plano"}
               </span>
-              {i < 2 && <span className="h-px w-6 bg-zinc-100" />}
+              {i < 2 && <span className="h-px w-6 bg-white/10" />}
             </div>
           ))}
         </div>
 
         {error ? (
-          <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
+          <div className="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
             {error}
           </div>
         ) : null}
@@ -194,26 +194,26 @@ export default function SignupPage() {
                     placeholder="000000"
                     required
                   />
-                  <div className="text-xs text-zinc-500">
+                  <div className="text-xs text-slate-400">
                     Enviamos um código para{" "}
-                    <span className="text-zinc-700">{email}</span>. Ele expira
+                    <span className="text-white font-medium">{email}</span>. Ele expira
                     em 10 minutos.
                   </div>
                   {codeResendTimer > 0 ? (
-                    <div className="text-xs text-zinc-500">
+                    <div className="text-xs text-slate-500">
                       Reenviar em {codeResendTimer}s
                     </div>
                   ) : (
                     <button
                       type="button"
                       onClick={sendCode}
-                      className="text-xs font-medium text-emerald-600 hover:text-emerald-600"
+                      className="text-xs font-semibold text-[#00E5A0] hover:text-[#00E5FF] transition-colors"
                       disabled={sendingCode}
                     >
                       Reenviar código
                     </button>
                   )}
-                  <Button type="submit" className="w-full" loading={loading}>
+                  <Button type="submit" className="w-full shadow-[0_0_20px_rgba(0,140,255,0.3)]" loading={loading}>
                     Verificar e continuar
                   </Button>
                 </>
@@ -279,7 +279,7 @@ export default function SignupPage() {
               />
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full shadow-[0_0_20px_rgba(0,140,255,0.3)]"
                 disabled={
                   !businessName.trim() ||
                   !responsibleName.trim() ||
@@ -303,11 +303,11 @@ export default function SignupPage() {
           />
         )}
 
-        <p className="mt-6 text-center text-sm text-zinc-500">
+        <p className="mt-6 text-center text-sm text-slate-400">
           Já tem conta?{" "}
           <Link
             href="/login"
-            className="font-medium text-emerald-600 hover:text-emerald-600"
+            className="font-semibold text-[#00E5FF] hover:text-[#008CFF] transition-colors"
           >
             Entrar
           </Link>

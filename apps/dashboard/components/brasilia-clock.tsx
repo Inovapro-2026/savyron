@@ -33,14 +33,14 @@ export function BrasiliaClock() {
   const { time, date } = formatBrasilia(now);
 
   return (
-    <div className="inline-flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-2">
+    <div className="inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-[#080D18]/80 px-4 py-2.5 backdrop-blur-md shadow-sm">
       <span className="relative flex h-2.5 w-2.5">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#00E5A0] opacity-60" />
+        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#00E5A0] shadow-[0_0_8px_#00E5A0]" />
       </span>
-      <div className="font-mono text-lg font-semibold tabular-nums text-zinc-900">{time}</div>
-      <div className="border-l border-zinc-200 pl-3 text-[11px] uppercase tracking-wide text-zinc-500">
-        {date} <span className="text-zinc-500">· Brasília</span>
+      <div className="font-mono text-base font-black tabular-nums text-white tracking-wider">{time}</div>
+      <div className="border-l border-white/10 pl-3 text-[10px] font-bold uppercase tracking-wider text-[#A8B3C7]">
+        {date} <span className="text-[#00E5FF]">· Brasília</span>
       </div>
     </div>
   );

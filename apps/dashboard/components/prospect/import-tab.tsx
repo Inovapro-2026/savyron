@@ -223,15 +223,17 @@ export function ImportTab() {
 
         {mode === "file" ? (
           <div
-            className="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-zinc-200 bg-white p-10 text-center transition-colors hover:border-emerald-500"
+            className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#008CFF]/30 bg-[#0C1427]/60 p-10 text-center transition-all duration-200 hover:border-[#00E5FF]/60 hover:bg-[#0E1A33] hover:shadow-[0_0_25px_rgba(0,229,255,0.15)]"
             onClick={() => fileInputRef.current?.click()}
           >
-            <FileSpreadsheet className="mb-3 h-10 w-10 text-emerald-600" />
-            <div className="text-sm font-medium text-zinc-700">
-              {file ? file.name : "Clique para escolher um arquivo"}
+            <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#00E5FF]/30 bg-[#00E5FF]/10 text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.2)]">
+              <FileSpreadsheet className="h-7 w-7" />
             </div>
-            <div className="mt-1 text-xs text-zinc-500">
-              CSV ou Excel (.xlsx). Máx. 5MB.
+            <div className="text-sm font-semibold text-white">
+              {file ? file.name : "Clique para escolher um arquivo ou arraste até aqui"}
+            </div>
+            <div className="mt-1.5 text-xs text-[#A8B3C7]">
+              Planilhas CSV ou Excel (.xlsx, .xls) • Máximo 5MB
             </div>
             <input
               ref={fileInputRef}
@@ -252,30 +254,30 @@ export function ImportTab() {
         )}
 
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <label className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-3">
+          <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#0C1427]/60 p-3.5 cursor-pointer hover:border-[#00E5FF]/40 transition-colors">
             <input
               type="checkbox"
               checked={isTest}
               onChange={(e) => setIsTest(e.target.checked)}
-              className="h-4 w-4 accent-emerald-500"
+              className="h-4 w-4 accent-[#00E5FF] rounded"
             />
             <div>
-              <div className="text-sm font-medium text-zinc-700">
-                Modo teste
+              <div className="text-xs font-bold text-white">
+                Modo Teste
               </div>
-              <div className="text-[11px] text-zinc-500">
-                Importa apenas 5 leads
+              <div className="text-[11px] text-[#A8B3C7]">
+                Importa apenas os primeiros 5 leads
               </div>
             </div>
           </label>
           <div className="sm:col-span-2">
-            <label className="label">Importar para campanha (opcional)</label>
+            <label className="label">Importar para Campanha (opcional)</label>
             <select
               value={campaignId}
               onChange={(e) => setCampaignId(e.target.value)}
               className="input"
             >
-              <option value="">Sem campanha (apenas leads)</option>
+              <option value="">Sem campanha vinculada (apenas banco de leads)</option>
               {campaigns.data?.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name} — {c.status}
@@ -291,7 +293,7 @@ export function ImportTab() {
             loading={loading}
             disabled={mode === "file" ? !file : !text.trim()}
           >
-            Calcular prévia
+            Calcular Prévia
           </Button>
         </div>
       </Card>
@@ -300,55 +302,63 @@ export function ImportTab() {
         <Card>
           <CardHeader
             title={`Prévia — ${preview.filename}`}
-            subtitle={`${preview.total} linhas processadas`}
+            subtitle={`${preview.total} linhas processadas no arquivo`}
           />
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {counts.map((c) => (
               <div
                 key={c.label}
-                className="rounded-xl border border-zinc-200 bg-white p-3 text-center"
+                className="rounded-2xl border border-white/10 bg-[#0C1427]/70 p-3.5 text-center shadow-sm"
               >
                 <div
-                  className={`font-display text-2xl font-bold ${c.tone === "emerald" ? "text-emerald-600" : c.tone === "amber" ? "text-amber-600" : c.tone === "red" ? "text-red-600" : "text-zinc-900"}`}
+                  className={`font-display text-2xl font-black ${
+                    c.tone === "emerald"
+                      ? "text-[#00E5A0]"
+                      : c.tone === "amber"
+                        ? "text-[#FFB020]"
+                        : c.tone === "red"
+                          ? "text-[#FF3366]"
+                          : "text-white"
+                  }`}
                 >
                   {c.value}
                 </div>
-                <div className="text-[11px] text-zinc-500">{c.label}</div>
+                <div className="text-[11px] font-semibold text-[#A8B3C7] mt-0.5">{c.label}</div>
               </div>
             ))}
           </div>
 
-          <div className="mt-4 overflow-x-auto rounded-xl border border-zinc-200">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-white text-[11px] uppercase tracking-wider text-zinc-500">
+          <div className="mt-4 overflow-x-auto rounded-2xl border border-white/10 bg-[#080D18]/80">
+            <table className="w-full text-left text-xs">
+              <thead className="border-b border-white/10 bg-[#0D152A] text-[10px] uppercase tracking-wider text-[#A8B3C7]">
                 <tr>
-                  <th className="px-4 py-3">Nome</th>
-                  <th className="px-4 py-3">Telefone</th>
-                  <th className="px-4 py-3">E-mail</th>
-                  <th className="px-4 py-3">Empresa</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Detalhes</th>
+                  <th className="px-4 py-3 font-semibold">Nome</th>
+                  <th className="px-4 py-3 font-semibold">Telefone</th>
+                  <th className="px-4 py-3 font-semibold">E-mail</th>
+                  <th className="px-4 py-3 font-semibold">Empresa</th>
+                  <th className="px-4 py-3 font-semibold">Status</th>
+                  <th className="px-4 py-3 font-semibold">Detalhes</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-white/5">
                 {preview.rows.slice(0, 50).map((row, i) => (
                   <tr
                     key={i}
-                    className="border-t border-zinc-200 hover:bg-zinc-100"
+                    className="hover:bg-[#0E1A33]/50 transition-colors"
                   >
-                    <td className="px-4 py-2.5 text-zinc-700">
+                    <td className="px-4 py-3 font-medium text-white">
                       {row.name ?? "—"}
                     </td>
-                    <td className="px-4 py-2.5 text-zinc-500">
+                    <td className="px-4 py-3 text-[#A8B3C7]">
                       {row.phone ?? "—"}
                     </td>
-                    <td className="px-4 py-2.5 text-zinc-500">
+                    <td className="px-4 py-3 text-[#A8B3C7]">
                       {row.email ?? "—"}
                     </td>
-                    <td className="px-4 py-2.5 text-zinc-500">
+                    <td className="px-4 py-3 text-[#A8B3C7]">
                       {row.businessName ?? "—"}
                     </td>
-                    <td className="px-4 py-2.5">
+                    <td className="px-4 py-3">
                       <Badge
                         tone={
                           row.status === "NEW"
@@ -365,7 +375,7 @@ export function ImportTab() {
                             : "Inválido"}
                       </Badge>
                     </td>
-                    <td className="max-w-[200px] px-4 py-2.5 text-[11px] text-zinc-500">
+                    <td className="max-w-[200px] px-4 py-3 text-[11px] text-[#64748B]">
                       {row.errors.join(", ") || row.duplicateReasons.join(", ")}
                     </td>
                   </tr>
@@ -374,7 +384,7 @@ export function ImportTab() {
             </table>
           </div>
 
-          <div className="mt-4 flex flex-col-reverse justify-end gap-2 sm:flex-row">
+          <div className="mt-4 flex flex-col-reverse justify-end gap-2.5 sm:flex-row">
             <Button variant="outline" onClick={() => setPreview(null)}>
               Cancelar
             </Button>
@@ -383,27 +393,29 @@ export function ImportTab() {
               loading={confirming}
               disabled={preview.newLeads === 0}
             >
-              Confirmar importação ({preview.newLeads} leads)
+              Confirmar Importação ({preview.newLeads} leads)
             </Button>
           </div>
         </Card>
       ) : null}
 
       {canAdmin ? (
-        <Card className="border-red-500/30">
+        <Card className="border-red-500/30 shadow-[0_0_20px_rgba(255,51,102,0.15)]">
           <CardHeader
             title="Limpar leads importados"
             subtitle="Ação destrutiva de alto risco — restrita ao proprietário/admin"
           />
           <div className="flex flex-wrap items-center justify-between gap-3 p-5">
             <div className="flex items-center gap-3">
-              <Users className="h-5 w-5 text-zinc-500" />
-              <div className="text-sm text-zinc-600">
-                <strong className="text-zinc-900">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-500/15 text-red-400">
+                <Users className="h-5 w-5" />
+              </div>
+              <div className="text-xs text-[#A8B3C7]">
+                <strong className="text-white">
                   {importedCounts.data?.total_imported ?? 0}
                 </strong>{" "}
                 leads importados ·{" "}
-                <strong className="text-amber-600">
+                <strong className="text-amber-400">
                   {importedCounts.data?.in_queue ?? 0}
                 </strong>{" "}
                 na fila (aguardando envio)
@@ -431,16 +443,16 @@ export function ImportTab() {
         message={
           <span>
             Você está prestes a excluir{" "}
-            <strong className="text-red-600">
+            <strong className="text-rose-400 font-semibold">
               {importedCounts.data?.total_imported ?? 0} leads importados
             </strong>{" "}
             desta empresa (
-            <strong className="text-amber-600">
+            <strong className="text-amber-400 font-semibold">
               {importedCounts.data?.in_queue ?? 0} na fila
             </strong>
             ). Conversas, mensagens, opt-outs e gerações de IA vinculados também
             serão removidos. Digite{" "}
-            <strong className="text-zinc-900">EXCLUIR</strong> para confirmar.
+            <strong className="text-white font-mono bg-white/10 px-1.5 py-0.5 rounded">EXCLUIR</strong> para confirmar.
             Esta ação não pode ser desfeita.
           </span>
         }

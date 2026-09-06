@@ -141,47 +141,51 @@ export default function AdminSettingsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="heading-strong text-xl">
-          Configurações
-        </h1>
-        <p className="text-sm text-zinc-500">
-          Configurações globais da plataforma
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#008CFF]/10 border border-[#008CFF]/25 text-[11px] font-semibold text-[#00E5FF] mb-2 uppercase tracking-wider">
+          Infraestrutura & Provedores
+        </div>
+        <h1 className="text-3xl font-black tracking-tight text-white">Configurações Globais</h1>
+        <p className="text-sm text-slate-400">
+          Chaves criptografadas de provedores de IA e variáveis de runtime da plataforma.
         </p>
       </div>
+
       {error ? (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
+        <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-3 text-sm text-rose-400 backdrop-blur-md">
           {error}
         </div>
       ) : null}
 
       {/* Chaves de API */}
-      <div>
-        <div className="mb-3 flex items-center gap-2">
-          <KeyRound className="h-5 w-5 text-emerald-600" />
-          <h2 className="heading-strong text-lg">Chaves de API</h2>
+      <div className="space-y-4">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#008CFF]/30 bg-[#008CFF]/15 text-[#00E5FF]">
+            <KeyRound className="h-4 w-4" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-white">Pool de Chaves de API (IA & Voz)</h2>
+            <p className="text-xs text-slate-400">
+              Chaves usadas pelo Agente de Voz (ElevenLabs, Groq, OpenAI). Rotação automática em caso de rate limit.
+            </p>
+          </div>
         </div>
-        <p className="mb-4 text-sm text-zinc-500">
-          Chaves usadas pelo Agente de Voz (ElevenLabs e Groq). Armazenadas
-          criptografadas. Quando a chave ativa atingir o limite, o sistema
-          tenta automaticamente a próxima chave cadastrada.
-        </p>
 
-        <Card className="mb-4 p-4">
+        <Card className="border border-white/10 bg-[#080D18]/90 p-5 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
           <form
             onSubmit={addApiKey}
             className="flex flex-col gap-3 sm:flex-row sm:items-end"
           >
-            <div className="sm:w-44">
-              <label className="label">Provedor</label>
+            <div className="sm:w-48">
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-300">Provedor</label>
               <select
                 value={newKeyProvider}
                 onChange={(e) => setNewKeyProvider(e.target.value)}
-                className="input"
+                className="w-full rounded-xl border border-white/10 bg-[#020409]/70 px-3.5 py-2.5 text-sm text-slate-100 outline-none focus:border-[#008CFF]/60"
               >
                 {PROVIDERS.map((p) => (
-                  <option key={p.id} value={p.id}>
+                  <option key={p.id} value={p.id} className="bg-[#080D18]">
                     {p.label}
                   </option>
                 ))}
@@ -192,69 +196,68 @@ export default function AdminSettingsPage() {
                 label="Rótulo (opcional)"
                 value={newKeyLabel}
                 onChange={(e) => setNewKeyLabel(e.target.value)}
-                placeholder="ex.: Chave principal"
+                placeholder="ex.: Chave Principal Produção"
               />
             </div>
             <div className="flex-[2]">
               <Input
-                label="Valor da chave"
+                label="Valor da Chave"
                 value={newKeyValue}
                 onChange={(e) => setNewKeyValue(e.target.value)}
-                placeholder="sk_... (apenas os últimos 4 caracteres serão exibidos depois)"
+                placeholder="sk_... (criptografada em repouso)"
                 type="password"
                 autoComplete="off"
                 required
               />
             </div>
-            <Button type="submit" loading={savingKey}>
-              <Plus className="h-4 w-4" /> Adicionar
+            <Button type="submit" loading={savingKey} className="bg-gradient-to-r from-[#008CFF] to-[#00E5FF] text-black font-semibold">
+              <Plus className="mr-1.5 h-4 w-4" /> Adicionar Chave
             </Button>
           </form>
         </Card>
 
         {apiKeys.length === 0 ? (
-          <Card className="p-4 text-sm text-zinc-500">
-            Nenhuma chave de API cadastrada. As chaves do{" "}
-            <code className="text-xs">.env</code> são usadas como fallback
-            inicial.
-          </Card>
+          <div className="rounded-2xl border border-white/10 bg-[#080D18]/80 p-6 text-sm text-slate-400 backdrop-blur-md">
+            Nenhuma chave de API adicional cadastrada no banco. As chaves do arquivo <code className="font-mono text-[#00E5FF]">.env</code> continuam ativas como fallback global.
+          </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {PROVIDERS.map((provider) => {
               const keys = apiKeys.filter((k) => k.provider === provider.id);
               if (keys.length === 0) return null;
               return (
-                <Card key={provider.id} className="p-4">
-                  <div className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-400">
+                <Card key={provider.id} className="border border-white/10 bg-[#080D18]/80 p-5 backdrop-blur-md">
+                  <div className="mb-3 text-xs font-bold uppercase tracking-wider text-[#00E5FF] flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#00E5FF]" />
                     {provider.label}
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2.5">
                     {keys.map((k) => (
                       <div
                         key={k.id}
-                        className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#E6E8F0] bg-white px-3 py-2.5"
+                        className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#020409]/60 p-4 transition-all hover:border-white/20"
                       >
                         <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <code className="text-sm font-semibold text-zinc-800">
-                              {k.key_suffix}
+                          <div className="flex items-center gap-2.5">
+                            <code className="font-mono text-sm font-bold text-cyan-300">
+                              •••• {k.key_suffix}
                             </code>
                             <span
-                              className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                              className={`rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
                                 k.status === "ACTIVE"
-                                  ? "bg-emerald-100 text-emerald-700"
-                                  : "bg-red-100 text-red-600"
+                                  ? "border-[#00E5A0]/30 bg-[#00E5A0]/10 text-[#00E5A0] shadow-[0_0_8px_rgba(0,229,160,0.15)]"
+                                  : "border-rose-500/30 bg-rose-500/10 text-rose-400"
                               }`}
                             >
                               {k.status === "ACTIVE" ? "Ativa" : "Esgotada"}
                             </span>
                           </div>
-                          <div className="text-[11px] text-zinc-500">
-                            {k.label ? `${k.label} · ` : ""}criada em{" "}
+                          <div className="mt-1 text-xs text-slate-400">
+                            {k.label ? <span className="text-slate-200">{k.label} · </span> : ""}cadastrada em{" "}
                             {new Date(k.created_at).toLocaleDateString("pt-BR")}
                           </div>
                           {k.last_error ? (
-                            <div className="mt-1 max-w-md truncate text-[11px] text-red-500">
+                            <div className="mt-1 max-w-md truncate font-mono text-[11px] text-rose-400">
                               {k.last_error}
                             </div>
                           ) : null}
@@ -264,17 +267,19 @@ export default function AdminSettingsPage() {
                             <Button
                               size="sm"
                               variant="outline"
+                              className="border-[#00E5A0]/30 text-[#00E5A0] hover:bg-[#00E5A0]/10"
                               onClick={() => void reactivateApiKey(k.id)}
                             >
-                              <RotateCcw className="h-3.5 w-3.5" /> Reativar
+                              <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reativar
                             </Button>
                           ) : null}
                           <Button
                             size="sm"
                             variant="ghost"
+                            className="text-slate-400 hover:text-rose-400 hover:bg-rose-500/10"
                             onClick={() => void removeApiKey(k.id)}
                           >
-                            <Trash2 className="h-3.5 w-3.5" /> Remover
+                            <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
                       </div>
@@ -288,15 +293,15 @@ export default function AdminSettingsPage() {
       </div>
 
       {/* Configurações chave/valor genéricas */}
-      <div>
-        <div className="mb-3">
-          <h2 className="heading-strong text-lg">Configurações chave/valor</h2>
-          <p className="text-sm text-zinc-500">
-            Pares chave/valor genéricos da plataforma
+      <div className="space-y-4 pt-4 border-t border-white/10">
+        <div>
+          <h2 className="text-lg font-bold text-white">Parâmetros de Runtime (Chave / Valor)</h2>
+          <p className="text-xs text-slate-400">
+            Flags e variáveis globais da plataforma armazenadas de forma dinâmica.
           </p>
         </div>
 
-        <Card className="p-4">
+        <Card className="border border-white/10 bg-[#080D18]/90 p-5 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
           <form
             onSubmit={save}
             className="flex flex-col gap-3 sm:flex-row sm:items-end"
@@ -315,26 +320,31 @@ export default function AdminSettingsPage() {
                 label="Valor"
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
-                placeholder="ex.: 30"
+                placeholder="ex.: 50"
                 required
               />
             </div>
-            <Button type="submit" loading={saving}>
-              Salvar
+            <Button type="submit" loading={saving} className="bg-gradient-to-r from-[#008CFF] to-[#00E5FF] text-black font-semibold">
+              Salvar Parâmetro
             </Button>
           </form>
         </Card>
 
         {loading ? (
-          <div className="text-sm text-zinc-500">Carregando...</div>
+          <div className="flex h-32 items-center justify-center">
+            <div className="flex items-center gap-3 text-sm text-slate-400">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#008CFF] border-t-transparent" />
+              Carregando configurações...
+            </div>
+          </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {settings.map((s) => (
-              <Card key={s.key} className="p-3">
+              <Card key={s.key} className="border border-white/10 bg-[#080D18]/80 p-4 backdrop-blur-md transition-all hover:border-white/20">
                 {editingKey === s.key ? (
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
                     <div className="flex-1">
-                      <div className="label">{s.key}</div>
+                      <div className="mb-1 text-xs font-mono font-bold text-[#00E5FF]">{s.key}</div>
                       <Input
                         value={editValue}
                         onChange={(e) => setEditValue(e.target.value)}
@@ -343,6 +353,7 @@ export default function AdminSettingsPage() {
                     <div className="flex gap-2">
                       <Button
                         size="sm"
+                        className="bg-[#008CFF] text-white"
                         onClick={() => void saveEdit(s.key)}
                         loading={saving}
                       >
@@ -351,6 +362,7 @@ export default function AdminSettingsPage() {
                       <Button
                         size="sm"
                         variant="outline"
+                        className="border-white/10 text-slate-300"
                         onClick={() => setEditingKey(null)}
                       >
                         Cancelar
@@ -358,10 +370,10 @@ export default function AdminSettingsPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <code className="text-xs text-emerald-600">{s.key}</code>
-                      <div className="truncate text-sm text-zinc-700">
+                      <code className="font-mono text-xs font-bold text-[#00E5FF]">{s.key}</code>
+                      <div className="mt-0.5 truncate font-mono text-sm text-slate-200">
                         {s.value}
                       </div>
                     </div>
@@ -369,6 +381,7 @@ export default function AdminSettingsPage() {
                       <Button
                         size="sm"
                         variant="outline"
+                        className="border-white/10 text-slate-300 hover:bg-white/5"
                         onClick={() => {
                           setEditingKey(s.key);
                           setEditValue(s.value);
@@ -379,6 +392,7 @@ export default function AdminSettingsPage() {
                       <Button
                         size="sm"
                         variant="ghost"
+                        className="text-slate-400 hover:text-rose-400 hover:bg-rose-500/10"
                         onClick={() => void remove(s.key)}
                       >
                         Remover
@@ -389,7 +403,9 @@ export default function AdminSettingsPage() {
               </Card>
             ))}
             {settings.length === 0 && (
-              <div className="text-sm text-zinc-500">Nenhuma configuração.</div>
+              <div className="rounded-2xl border border-white/10 bg-[#080D18]/80 p-6 text-center text-sm text-slate-500 backdrop-blur-md">
+                Nenhum parâmetro de runtime cadastrado.
+              </div>
             )}
           </div>
         )}

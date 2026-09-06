@@ -1,31 +1,46 @@
 /* ==========================================================================
-   DASHBOARD — tema interno do painel SAVYRON (Light Profissional).
-   Importado APENAS no layout do grupo `(dashboard)`.
+   DASHBOARD — DESIGN SYSTEM FUTURISTA CYBER AI (SAVYRON).
+   Fundo Preto + Neon + Tecnologia + Glassmorphism + Cyber AI.
    ========================================================================== */
 
-/* 1. Fundo geral limpo e corporativo */
+/* 1. Fundo geral Cyber AI */
 .dashboard-wrapper {
   position: relative;
   min-height: 100vh;
   width: 100%;
-  background-color: #F5F7FA;
+  background-color: #020409;
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(0, 140, 255, 0.08), transparent 42%),
+    radial-gradient(circle at 82% 88%, rgba(124, 60, 255, 0.06), transparent 42%),
+    radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.02), transparent 60%);
+  background-attachment: fixed;
+  color: #FFFFFF;
 }
 
 /* 2. Área de conteúdo do painel */
 .dashboard-dark-theme {
-  color: #0F172A;
+  color: #FFFFFF;
 }
 
-/* 3. Cards internos — branco puro com sombra suave e borda sutil */
+/* 3. Cards internos — Glassmorphism com borda neon suave */
 .dashboard-dark-theme .card {
-  background: #FFFFFF;
-  border: 1px solid #E6E8F0;
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
-  color: #0F172A;
+  background: rgba(8, 13, 24, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(0, 153, 255, 0.22);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 140, 255, 0.03);
+  color: #FFFFFF;
   border-radius: 16px;
+  transition: all 0.25s ease-out;
 }
 
-/* 4. Títulos e cabeçalhos em alto contraste */
+.dashboard-dark-theme .card:hover {
+  background: rgba(10, 18, 34, 0.95);
+  border-color: rgba(0, 229, 255, 0.4);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65), 0 0 20px rgba(0, 140, 255, 0.15);
+}
+
+/* 4. Títulos e cabeçalhos */
 .dashboard-dark-theme .heading-strong,
 .dashboard-dark-theme .card h1,
 .dashboard-dark-theme .card h2,
@@ -33,67 +48,71 @@
 .dashboard-dark-theme .card h4,
 .dashboard-dark-theme .card h5,
 .dashboard-dark-theme .card h6 {
-  color: #0F172A;
+  color: #FFFFFF;
   font-weight: 700;
 }
 
 .dashboard-dark-theme .label {
-  color: #0F172A;
+  color: #A8B3C7;
   font-weight: 600;
 }
 
 /* 5. Textos secundários */
-.dashboard-dark-theme .text-muted-foreground {
-  color: #64748B;
+.dashboard-dark-theme .text-muted-foreground,
+.dashboard-dark-theme [class*="text-slate-400"],
+.dashboard-dark-theme [class*="text-zinc-400"] {
+  color: #A8B3C7;
 }
 
 /* 6. Inputs / selects / textareas */
 .dashboard-dark-theme .input,
 .dashboard-dark-theme select,
 .dashboard-dark-theme textarea {
-  background: #FFFFFF;
-  border: 1px solid #D1D5DB;
-  color: #0F172A;
-  border-radius: 10px;
+  background: #050914;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  color: #FFFFFF;
+  border-radius: 12px;
 }
 .dashboard-dark-theme .input::placeholder,
 .dashboard-dark-theme textarea::placeholder {
-  color: #94A3B8;
+  color: #64748B;
 }
 .dashboard-dark-theme .input:focus,
 .dashboard-dark-theme select:focus,
 .dashboard-dark-theme textarea:focus {
-  border-color: #6366F1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-  background: #FFFFFF;
+  border-color: #008CFF;
+  box-shadow: 0 0 0 3px rgba(0, 140, 255, 0.12), 0 0 15px rgba(0, 140, 255, 0.25);
+  background: #080D18;
 }
 
 /* 7. Sidebar */
 .dashboard-wrapper aside {
-  background: #FFFFFF;
-  border-color: #E6E8F0;
-  color: #334155;
-  box-shadow: 1px 0 3px rgba(15, 23, 42, 0.02);
+  background: #020409;
+  border-color: rgba(0, 153, 255, 0.18);
+  color: #A8B3C7;
+  box-shadow: 1px 0 20px rgba(0, 0, 0, 0.8), inset -1px 0 0 rgba(0, 153, 255, 0.1);
 }
 
 .dashboard-wrapper aside a,
 .dashboard-wrapper aside button {
-  color: #475569;
+  color: #A8B3C7;
 }
 
 .dashboard-wrapper aside a:hover,
 .dashboard-wrapper aside button:hover {
-  background: #F8FAFC;
-  color: #0F172A;
+  background: rgba(0, 140, 255, 0.08);
+  color: #FFFFFF;
 }
 
-/* Item ativo na sidebar: destaque roxo/índigo suave */
+/* Item ativo na sidebar: destaque neon cyber */
 .dashboard-wrapper aside a[class*="text-emerald-600"],
 .dashboard-wrapper aside a[class*="text-brand"],
 .dashboard-wrapper aside a[class*="active"],
 .dashboard-wrapper aside .nav-item-active {
-  background: #EEF2FF !important;
-  color: #6366F1 !important;
+  background: linear-gradient(90deg, rgba(0, 140, 255, 0.22), rgba(0, 140, 255, 0.04)) !important;
+  border-left: 2px solid #00E5FF !important;
+  box-shadow: 0 0 18px rgba(0, 140, 255, 0.18) !important;
+  color: #FFFFFF !important;
   font-weight: 600;
 }
 
@@ -101,18 +120,20 @@
 .dashboard-wrapper aside a[class*="text-brand"]:hover,
 .dashboard-wrapper aside a[class*="active"]:hover,
 .dashboard-wrapper aside .nav-item-active:hover {
-  background: #E0E7FF !important;
+  background: linear-gradient(90deg, rgba(0, 140, 255, 0.30), rgba(0, 140, 255, 0.08)) !important;
 }
 
 /* 8. Topbar */
 .dashboard-wrapper header {
-  background: #FFFFFF;
-  border-color: #E6E8F0;
+  background: rgba(2, 4, 9, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-color: rgba(0, 140, 255, 0.15);
 }
 
 .dashboard-wrapper header h1,
 .dashboard-wrapper header .heading-strong {
-  color: #0F172A;
+  color: #FFFFFF;
 }
 
 /* 9. Tabelas */
@@ -123,45 +144,73 @@
 }
 
 .dashboard-dark-theme table th {
-  background: #F8FAFC;
-  color: #475569;
+  background: #080D18;
+  color: #A8B3C7;
   font-weight: 600;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid #E6E8F0;
+  border-bottom: 1px solid rgba(0, 153, 255, 0.2);
 }
 
 .dashboard-dark-theme table td {
-  background: #FFFFFF;
-  border-bottom: 1px solid #F1F5F9;
-  color: #334155;
+  background: rgba(5, 9, 20, 0.65);
+  border-bottom: 1px solid rgba(0, 153, 255, 0.1);
+  color: #FFFFFF;
 }
 
 .dashboard-dark-theme table tr:hover td {
-  background: #F8FAFC;
+  background: rgba(0, 140, 255, 0.06);
 }
 
 /* 10. Cards da listagem de Mensagens (Inbox) */
 .dashboard-dark-theme .inbox-card {
-  background: #FFFFFF;
-  border: 1px solid #E6E8F0;
-  color: #0F172A;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  background: rgba(8, 13, 24, 0.82);
+  border: 1px solid rgba(0, 153, 255, 0.22);
+  color: #FFFFFF;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .dashboard-dark-theme .inbox-card:hover {
-  background: #FFFFFF;
-  border-color: #C7D2FE;
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.1);
+  background: rgba(10, 18, 34, 0.95);
+  border-color: rgba(0, 229, 255, 0.45);
+  box-shadow: 0 8px 30px rgba(0, 140, 255, 0.18);
 }
 
 /* 11. Bottom nav mobile */
 .dashboard-wrapper nav[class*="bottom"],
 .dashboard-wrapper nav[class*="fixed inset-x-0 bottom-0"] {
-  background: #FFFFFF;
-  border-color: #E6E8F0;
-  box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.04);
+  background: rgba(2, 4, 9, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-color: rgba(0, 140, 255, 0.18);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.8);
+}
+
+/* 12. Adaptação de classes herdadas para o tema escuro unificado */
+.dashboard-dark-theme [class*="text-[#0F172A]"],
+.dashboard-dark-theme [class*="text-zinc-900"],
+.dashboard-dark-theme [class*="text-slate-900"] {
+  color: #FFFFFF !important;
+}
+
+.dashboard-dark-theme [class*="text-[#475569]"],
+.dashboard-dark-theme [class*="text-[#334155]"],
+.dashboard-dark-theme [class*="text-zinc-700"] {
+  color: #A8B3C7 !important;
+}
+
+.dashboard-dark-theme [class*="text-[#64748B]"],
+.dashboard-dark-theme [class*="text-[#94A3B8]"],
+.dashboard-dark-theme [class*="text-zinc-500"] {
+  color: #8E9BAE !important;
+}
+
+.dashboard-dark-theme [class*="border-[#E6E8F0]"],
+.dashboard-dark-theme [class*="border-[#D1D5DB]"],
+.dashboard-dark-theme [class*="border-slate-200"],
+.dashboard-dark-theme [class*="border-zinc-200"] {
+  border-color: rgba(0, 153, 255, 0.18) !important;
 }
 
 

@@ -82,11 +82,12 @@ function formatDuration(seconds: number): string {
 }
 
 const CHART_TOOLTIP_STYLE = {
-  backgroundColor: "#fff",
-  border: "1px solid #e4e4e7",
-  borderRadius: "10px",
+  backgroundColor: "#080D18",
+  border: "1px solid rgba(0, 229, 255, 0.3)",
+  borderRadius: "12px",
   fontSize: "12px",
-  boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+  color: "#FFFFFF",
+  boxShadow: "0 0 20px rgba(0, 229, 255, 0.2)",
 } as const;
 
 function MetricCard({
@@ -105,15 +106,15 @@ function MetricCard({
   return (
     <Card className="p-4">
       <div className="flex items-center gap-3">
-        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconClass}`}>
+        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${iconClass}`}>
           {icon}
         </div>
         <div className="min-w-0">
-          <div className="truncate text-xl font-bold leading-tight text-zinc-900">{value}</div>
-          <div className="truncate text-xs text-zinc-500">{label}</div>
+          <div className="truncate text-xl font-black leading-tight text-white">{value}</div>
+          <div className="truncate text-xs font-semibold text-[#A8B3C7] mt-0.5">{label}</div>
         </div>
       </div>
-      {hint ? <p className="mt-2 text-[11px] text-zinc-400">{hint}</p> : null}
+      {hint ? <p className="mt-2 text-[11px] text-[#64748B]">{hint}</p> : null}
     </Card>
   );
 }
@@ -180,41 +181,41 @@ export default function ClientesPage() {
       <div className="space-y-5">
         {/* Busca */}
         <div className="relative">
-          <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94A3B8]" />
+          <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#00E5FF]" />
           <input
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Buscar cliente por nome, telefone ou segmento..."
-            className="w-full rounded-2xl border border-[#D1D5DB] bg-white py-2.5 pl-10 pr-4 text-sm text-[#0F172A] placeholder-[#94A3B8] outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/20 shadow-xs"
+            className="w-full rounded-2xl border border-white/10 bg-[#080D18]/80 py-2.5 pl-10 pr-4 text-xs font-semibold text-white placeholder-[#64748B] outline-none focus:border-[#00E5FF] focus:ring-2 focus:ring-[#00E5FF]/20 shadow-sm"
           />
         </div>
 
         {/* Métricas */}
         <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
           <MetricCard
-            icon={<Users className="h-5 w-5 text-[#3B82F6]" />}
-            iconClass="bg-[#EFF6FF]"
+            icon={<Users className="h-5 w-5 text-[#00E5FF]" />}
+            iconClass="bg-cyan-500/15 border border-[#00E5FF]/30 shadow-[0_0_12px_rgba(0,229,255,0.2)]"
             label="Total de clientes"
             value={metrics?.totalClients ?? total}
             hint="com conversa vinculada"
           />
           <MetricCard
-            icon={<MessageSquare className="h-5 w-5 text-[#10B981]" />}
-            iconClass="bg-[#ECFDF5]"
+            icon={<MessageSquare className="h-5 w-5 text-[#00E5A0]" />}
+            iconClass="bg-emerald-500/15 border border-[#00E5A0]/30 shadow-[0_0_12px_rgba(0,229,160,0.2)]"
             label="Respostas recebidas"
             value={metrics ? metrics.metrics.totalResponses : "—"}
             hint={`últimos ${metrics?.windowDays ?? 30} dias`}
           />
           <MetricCard
-            icon={<Send className="h-5 w-5 text-[#8B5CF6]" />}
-            iconClass="bg-[#F5F3FF]"
+            icon={<Send className="h-5 w-5 text-[#7C3CFF]" />}
+            iconClass="bg-purple-500/15 border border-[#7C3CFF]/30 shadow-[0_0_12px_rgba(124,60,255,0.2)]"
             label="Mensagens enviadas"
             value={metrics ? metrics.metrics.totalSent : "—"}
             hint={`últimos ${metrics?.windowDays ?? 30} dias`}
           />
           <MetricCard
-            icon={<Clock className="h-5 w-5 text-[#F59E0B]" />}
-            iconClass="bg-[#FFFBEB]"
+            icon={<Clock className="h-5 w-5 text-[#FFB020]" />}
+            iconClass="bg-amber-500/15 border border-[#FFB020]/30 shadow-[0_0_12px_rgba(255,176,32,0.2)]"
             label="Tempo médio de resposta"
             value={metrics ? formatDuration(metrics.metrics.averageResponseTime) : "—"}
             hint="da mensagem do cliente à resposta"
@@ -227,66 +228,66 @@ export default function ClientesPage() {
             <button
               type="button"
               onClick={() => setShowAnalytics((v) => !v)}
-              className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-slate-50"
+              className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-white/5"
             >
               <div className="flex items-center gap-2.5">
-                <TrendingUp className="h-4 w-4 text-[#6366F1]" />
-                <span className="text-sm font-bold text-[#0F172A]">Análise de demanda</span>
-                <span className="text-[11px] text-[#64748B]">últimos {metrics.windowDays} dias</span>
+                <TrendingUp className="h-4 w-4 text-[#00E5FF]" />
+                <span className="text-sm font-bold text-white">Análise de Demanda</span>
+                <span className="text-[11px] text-[#A8B3C7]">últimos {metrics.windowDays} dias</span>
               </div>
-              <ChevronDown className={`h-4 w-4 text-[#94A3B8] transition-transform ${showAnalytics ? "rotate-180" : ""}`} />
+              <ChevronDown className={`h-4 w-4 text-[#64748B] transition-transform ${showAnalytics ? "rotate-180" : ""}`} />
             </button>
 
             {showAnalytics ? (
-              <div className="border-t border-[#F1F5F9] px-5 py-4">
+              <div className="border-t border-white/5 px-5 py-4">
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                   {/* Pico por dia */}
-                  <div className="flex items-center gap-4 rounded-2xl border border-[#E6E8F0] bg-[#F8FAFC] p-4">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#EFF6FF]">
-                      <Calendar className="h-5 w-5 text-[#3B82F6]" />
+                  <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-[#0C1427]/70 p-4">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-cyan-500/15 text-[#00E5FF]">
+                      <Calendar className="h-5 w-5" />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-xs font-medium text-[#64748B]">Dia com mais mensagens</div>
-                      <div className="truncate text-lg font-bold text-[#0F172A]">
+                      <div className="text-xs font-semibold text-[#A8B3C7]">Dia com mais mensagens</div>
+                      <div className="truncate text-lg font-bold text-white">
                         {metrics.peakDay?.label}
                       </div>
-                      <div className="text-xs text-[#64748B]">{metrics.peakDay?.count} mensagens</div>
+                      <div className="text-xs text-[#00E5FF] font-medium">{metrics.peakDay?.count} mensagens</div>
                     </div>
                   </div>
 
                   {/* Pico por horário */}
-                  <div className="flex items-center gap-4 rounded-2xl border border-[#E6E8F0] bg-[#F8FAFC] p-4">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#FFFBEB]">
-                      <Activity className="h-5 w-5 text-[#F59E0B]" />
+                  <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-[#0C1427]/70 p-4">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-500/15 text-[#FFB020]">
+                      <Activity className="h-5 w-5" />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-xs font-medium text-[#64748B]">Horário de pico</div>
-                      <div className="truncate text-lg font-bold text-[#0F172A]">
+                      <div className="text-xs font-semibold text-[#A8B3C7]">Horário de pico</div>
+                      <div className="truncate text-lg font-bold text-white">
                         {metrics.peakHour?.label} · {metrics.peakHour?.percentage}% das mensagens
                       </div>
-                      <div className="text-xs text-[#64748B]">{metrics.peakHour?.count} mensagens</div>
+                      <div className="text-xs text-[#FFB020] font-medium">{metrics.peakHour?.count} mensagens</div>
                     </div>
                   </div>
 
                   {/* Gráfico por dia da semana */}
-                  <div className="rounded-2xl border border-[#E6E8F0] p-4">
-                    <div className="mb-3 text-xs font-bold text-[#475569]">
+                  <div className="rounded-2xl border border-white/10 bg-[#080D18]/80 p-4">
+                    <div className="mb-3 text-xs font-bold text-white">
                       Mensagens por dia da semana
                     </div>
                     <ResponsiveContainer width="100%" height={220}>
                       <BarChart data={metrics.charts.byDay} margin={{ top: 4, right: 4, left: -18, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
-                        <XAxis dataKey="key" tick={{ fontSize: 11, fill: "#64748B" }} axisLine={false} tickLine={false} />
-                        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#64748B" }} axisLine={false} tickLine={false} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                        <XAxis dataKey="key" tick={{ fontSize: 11, fill: "#A8B3C7" }} axisLine={false} tickLine={false} />
+                        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#A8B3C7" }} axisLine={false} tickLine={false} />
                         <Tooltip
-                          cursor={{ fill: "rgba(99,102,241,0.06)" }}
+                          cursor={{ fill: "rgba(0,229,255,0.08)" }}
                           contentStyle={CHART_TOOLTIP_STYLE}
                           formatter={(value: number) => [value, "mensagens"]}
                           labelFormatter={(_, payload) => payload?.[0]?.payload?.label ?? ""}
                         />
                         <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                           {metrics.charts.byDay.map((d) => (
-                            <Cell key={d.key} fill={d.count === maxDayCount && d.count > 0 ? "#6366F1" : "#CBD5E1"} />
+                            <Cell key={d.key} fill={d.count === maxDayCount && d.count > 0 ? "#00E5FF" : "rgba(0,140,255,0.35)"} />
                           ))}
                         </Bar>
                       </BarChart>
@@ -294,21 +295,21 @@ export default function ClientesPage() {
                   </div>
 
                   {/* Gráfico por horário */}
-                  <div className="rounded-2xl border border-[#E6E8F0] p-4">
-                    <div className="mb-3 text-xs font-bold text-[#475569]">Mensagens por horário</div>
+                  <div className="rounded-2xl border border-white/10 bg-[#080D18]/80 p-4">
+                    <div className="mb-3 text-xs font-bold text-white">Mensagens por horário</div>
                     <ResponsiveContainer width="100%" height={220}>
                       <LineChart data={metrics.charts.byHour} margin={{ top: 4, right: 4, left: -18, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                         <XAxis
                           dataKey="label"
-                          tick={{ fontSize: 10, fill: "#94A3B8" }}
+                          tick={{ fontSize: 10, fill: "#64748B" }}
                           interval={3}
                           axisLine={false}
                           tickLine={false}
                         />
-                        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#64748B" }} axisLine={false} tickLine={false} />
+                        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#A8B3C7" }} axisLine={false} tickLine={false} />
                         <Tooltip
-                          cursor={{ stroke: "rgba(99,102,241,0.3)" }}
+                          cursor={{ stroke: "rgba(0,229,255,0.3)" }}
                           contentStyle={CHART_TOOLTIP_STYLE}
                           formatter={(value: number) => [value, "mensagens"]}
                           labelFormatter={(_, payload) => payload?.[0]?.payload?.label ?? ""}
@@ -316,15 +317,15 @@ export default function ClientesPage() {
                         <Line
                           type="monotone"
                           dataKey="count"
-                          stroke="#6366F1"
+                          stroke="#00E5FF"
                           strokeWidth={2.5}
                           dot={false}
-                          activeDot={{ r: 4, fill: "#6366F1" }}
+                          activeDot={{ r: 4, fill: "#00E5FF" }}
                           isAnimationActive={false}
                         />
                       </LineChart>
                     </ResponsiveContainer>
-                    <div className="mt-1 text-[11px] text-[#94A3B8]">
+                    <div className="mt-1 text-[11px] text-[#A8B3C7]">
                       Pico: {metrics.peakHour?.label} ({metrics.peakHour?.count} msgs)
                     </div>
                   </div>
@@ -339,11 +340,11 @@ export default function ClientesPage() {
           <InboxSkeletonCards count={8} />
         ) : clients.length > 0 ? (
           <>
-            <p className="text-xs font-medium text-[#64748B]">
+            <p className="text-xs font-semibold text-[#A8B3C7]">
               {total} cliente{total === 1 ? "" : "s"}
             </p>
             <Card className="overflow-hidden">
-              <div className="hidden grid-cols-12 items-center gap-4 border-b border-[#F1F5F9] bg-[#F8FAFC] px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-[#64748B] md:grid">
+              <div className="hidden grid-cols-12 items-center gap-4 border-b border-white/10 bg-[#0D152A] px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-[#A8B3C7] md:grid">
                 <div className="col-span-4">Cliente</div>
                 <div className="col-span-2">Segmento</div>
                 <div className="col-span-2">Status</div>
@@ -351,7 +352,7 @@ export default function ClientesPage() {
                 <div className="col-span-2">Última atividade</div>
               </div>
 
-              <ul className="divide-y divide-[#F1F5F9]">
+              <ul className="divide-y divide-white/5">
                 {clients.map((client) => {
                   const initials = (client.name?.trim()[0] ?? "?").toUpperCase();
                   return (
@@ -361,25 +362,25 @@ export default function ClientesPage() {
                         onClick={() => void openConversation(client)}
                         disabled={openingId === client.id}
                         aria-label={`Abrir conversa com ${client.name ?? "cliente"}`}
-                        className="group grid w-full grid-cols-2 items-center gap-2 px-5 py-3.5 text-left transition-colors hover:bg-slate-50 focus:outline-none focus-visible:bg-slate-50 disabled:opacity-60 md:grid-cols-12 md:gap-4"
+                        className="group grid w-full grid-cols-2 items-center gap-2 px-5 py-3.5 text-left transition-colors hover:bg-[#0E1A33]/50 focus:outline-none focus-visible:bg-[#0E1A33] disabled:opacity-60 md:grid-cols-12 md:gap-4"
                       >
                         {/* Cliente */}
                         <div className="col-span-2 flex min-w-0 items-center gap-3 md:col-span-4">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#6366F1] to-[#8B5CF6] text-xs font-bold text-white shadow-xs">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[#00E5FF]/30 bg-gradient-to-tr from-[#008CFF] to-[#7C3CFF] text-xs font-black text-white shadow-[0_0_10px_rgba(0,140,255,0.3)]">
                             {initials}
                           </div>
                           <div className="min-w-0">
-                            <div className="truncate font-bold text-[#0F172A]">
+                            <div className="truncate font-bold text-white">
                               {client.name ?? "Contato"}
                             </div>
-                            <div className="truncate text-xs text-[#64748B]">
+                            <div className="truncate text-xs text-[#A8B3C7]">
                               {client.phone ?? client.business_name ?? "—"}
                             </div>
                           </div>
                         </div>
 
                         {/* Segmento */}
-                        <div className="hidden min-w-0 truncate text-sm text-[#475569] md:col-span-2 md:block">
+                        <div className="hidden min-w-0 truncate text-xs text-[#A8B3C7] md:col-span-2 md:block">
                           {client.segment ?? client.business_name ?? "—"}
                         </div>
 
@@ -389,25 +390,25 @@ export default function ClientesPage() {
                         </div>
 
                         {/* Mensagens */}
-                        <div className="hidden text-sm font-medium text-[#475569] md:col-span-2 md:block">
+                        <div className="hidden text-xs font-semibold text-white md:col-span-2 md:block">
                           {client.message_count} msg{client.message_count === 1 ? "" : "s"}
                         </div>
 
                         {/* Última atividade */}
                         <div className="hidden items-center justify-between gap-2 md:col-span-2 md:flex">
-                          <span className="truncate text-xs text-[#64748B]">
+                          <span className="truncate text-xs text-[#A8B3C7]">
                             {formatRelativeTime(client.last_activity)}
                           </span>
-                          <ChevronRight className="h-4 w-4 shrink-0 text-[#CBD5E1] transition-colors group-hover:text-[#6366F1]" />
+                          <ChevronRight className="h-4 w-4 shrink-0 text-[#64748B] transition-colors group-hover:text-[#00E5FF]" />
                         </div>
 
                         {/* Linha inferior mobile */}
                         <div className="col-span-2 flex items-center gap-2 pt-0.5 md:hidden">
                           <StatusBadge status={client.status} />
-                          <span className="text-xs text-[#64748B]">
+                          <span className="text-xs text-white">
                             {client.message_count} msg
                           </span>
-                          <span className="ml-auto text-xs text-[#94A3B8]">
+                          <span className="ml-auto text-xs text-[#A8B3C7]">
                             {formatRelativeTime(client.last_activity)}
                           </span>
                         </div>
@@ -432,8 +433,8 @@ export default function ClientesPage() {
           </>
         ) : (
           <Card className="py-16 text-center">
-            <Users className="mx-auto mb-3 h-10 w-10 text-[#94A3B8]" />
-            <div className="text-sm font-medium text-[#64748B]">
+            <Users className="mx-auto mb-3 h-10 w-10 text-[#008CFF]/40 animate-pulse" />
+            <div className="text-sm font-semibold text-[#A8B3C7]">
               {search.trim()
                 ? "Nenhum cliente encontrado para esta busca."
                 : "Nenhum cliente cadastrado ainda."}

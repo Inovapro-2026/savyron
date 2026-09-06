@@ -73,41 +73,41 @@ export function auditActionLabel(action: string): string {
   return AUDIT_ACTION_LABELS[action] ?? action;
 }
 
-/** Classe de cor por categoria (prefixo da action). */
+/** Classe de cor e estilo por categoria (prefixo da action). */
 export function auditTone(action: string): string {
-  if (action.startsWith("support.")) return "text-orange-600";
+  if (action.startsWith("support.")) return "text-amber-300 border-amber-500/30 bg-amber-500/10 shadow-[0_0_8px_rgba(245,158,11,0.15)]";
   if (
     action.startsWith("payment.") ||
     action.startsWith("subscription.") ||
     action.startsWith("admin.subscription.")
   )
-    return "text-sky-600";
+    return "text-[#00E5FF] border-cyan-500/30 bg-cyan-500/10 shadow-[0_0_8px_rgba(0,229,255,0.15)]";
   if (
     action.startsWith("cakto.") ||
     action.startsWith("stripe.") ||
     action.startsWith("abacatepay.")
   )
-    return "text-blue-600";
+    return "text-[#008CFF] border-[#008CFF]/30 bg-[#008CFF]/10 shadow-[0_0_8px_rgba(0,140,255,0.15)]";
   if (
     action.startsWith("admin.user.") ||
     action.startsWith("ai.") ||
     action.startsWith("admin.plan.")
   )
-    return "text-violet-600";
+    return "text-[#A78BFA] border-purple-500/30 bg-purple-500/10 shadow-[0_0_8px_rgba(124,60,255,0.15)]";
   if (
     action.startsWith("admin.business.") ||
     action.startsWith("business.") ||
     action.startsWith("prospection.")
   )
-    return "text-emerald-600";
+    return "text-[#00E5A0] border-emerald-500/30 bg-emerald-500/10 shadow-[0_0_8px_rgba(0,229,160,0.15)]";
   if (
     action.startsWith("conversation.") ||
     action.startsWith("conversations.") ||
     action.startsWith("leads.") ||
     action.startsWith("whatsapp_groups.")
   )
-    return "text-red-600";
-  return "text-emerald-600";
+    return "text-rose-300 border-rose-500/30 bg-rose-500/10 shadow-[0_0_8px_rgba(244,63,94,0.15)]";
+  return "text-[#00E5A0] border-emerald-500/30 bg-emerald-500/10";
 }
 
 /** Rótulo legível de um campo de User.updated. */

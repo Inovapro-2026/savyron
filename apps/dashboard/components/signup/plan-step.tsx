@@ -54,7 +54,7 @@ export function PlanStep({
 }) {
   if (plans.length === 0) {
     return (
-      <div className="rounded-xl border border-zinc-200 bg-white p-6 text-center text-sm text-zinc-500">
+      <div className="rounded-xl border border-white/10 bg-[#080D18]/80 p-6 text-center text-sm text-slate-400">
         Carregando planos disponíveis...
       </div>
     );
@@ -72,44 +72,44 @@ export function PlanStep({
               type="button"
               onClick={() => onSelect(plan.id)}
               aria-pressed={selected}
-              className={`relative rounded-2xl border-2 p-5 text-left transition-all duration-150 ${
+              className={`relative rounded-2xl border-2 p-5 text-left transition-all duration-200 ${
                 selected
-                  ? "border-emerald-600 bg-emerald-500/5 shadow-lg shadow-emerald-900/5"
-                  : "border-zinc-200 bg-white shadow-sm hover:border-emerald-300 hover:shadow-md"
+                  ? "border-[#008CFF] bg-[#008CFF]/10 shadow-[0_0_20px_rgba(0,140,255,0.2)]"
+                  : "border-white/10 bg-[#080D18]/80 hover:border-white/20 hover:bg-[#080D18]"
               }`}
             >
               {highlighted ? (
-                <span className="absolute -top-3 left-5 rounded-full bg-emerald-600 px-3 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white">
+                <span className="absolute -top-3 left-5 rounded-full bg-gradient-to-r from-[#008CFF] to-[#7C3CFF] px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-[0_0_12px_rgba(0,140,255,0.4)]">
                   Mais popular
                 </span>
               ) : null}
 
               {selected ? (
-                <span className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600">
-                  <Check className="h-4 w-4 text-white" strokeWidth={3} />
+                <span className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-[#00E5A0] text-black shadow-[0_0_10px_rgba(0,229,160,0.5)]">
+                  <Check className="h-4 w-4 stroke-[3]" />
                 </span>
               ) : null}
 
               <div className="pr-8">
-                <div className="font-display text-lg font-bold text-zinc-900">
+                <div className="font-display text-lg font-bold text-white">
                   {plan.name}
                 </div>
                 <div className="mt-2 flex items-baseline gap-1">
-                  <span className="text-3xl font-black tracking-tight text-zinc-900">
+                  <span className="text-3xl font-black tracking-tight text-white">
                     R$ {plan.price.toFixed(2).replace(".", ",")}
                   </span>
-                  <span className="text-sm font-medium text-zinc-500">
+                  <span className="text-sm font-medium text-slate-400">
                     /mês
                   </span>
                 </div>
                 {plan.description ? (
-                  <div className="mt-1.5 text-sm text-zinc-500">
+                  <div className="mt-1.5 text-sm text-slate-400">
                     {plan.description}
                   </div>
                 ) : null}
               </div>
 
-              <div className="my-4 h-px bg-zinc-200" />
+              <div className="my-4 h-px bg-white/10" />
 
               <ul className="space-y-2">
                 {plan.features.map((f) => {
@@ -120,20 +120,20 @@ export function PlanStep({
                       key={f.feature}
                       className={`flex items-center gap-2 text-sm ${
                         f.enabled
-                          ? "text-zinc-700"
-                          : "text-zinc-400 line-through"
+                          ? "text-slate-200"
+                          : "text-slate-600 line-through"
                       }`}
                     >
                       <Check
                         className={`h-4 w-4 shrink-0 ${
-                          f.enabled ? "text-emerald-600" : "text-zinc-400"
+                          f.enabled ? "text-[#00E5A0]" : "text-slate-600"
                         }`}
                         strokeWidth={3}
                       />
                       <span className="min-w-0 flex-1">{label}</span>
                       <span
                         className={`shrink-0 font-medium ${
-                          limited ? "text-zinc-900" : "text-zinc-600"
+                          limited ? "text-white" : "text-slate-400"
                         }`}
                       >
                         {formatLimit(f.limit)}
@@ -147,14 +147,14 @@ export function PlanStep({
         })}
       </div>
 
-      <Button onClick={onContinue} className="w-full" loading={loading}>
+      <Button onClick={onContinue} className="w-full shadow-[0_0_20px_rgba(0,140,255,0.3)]" loading={loading}>
         Criar conta e seguir para o pagamento
       </Button>
-      <p className="text-center text-xs text-zinc-500">
+      <p className="text-center text-xs text-slate-400">
         Pagamento seguro via PIX · Cancele quando quiser
       </p>
       {error ? (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
+        <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
           {error}
         </div>
       ) : null}

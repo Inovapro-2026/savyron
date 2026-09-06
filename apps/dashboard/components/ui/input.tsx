@@ -19,11 +19,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           id={inputId}
-          className={`input ${error ? 'border-red-500/60' : ''} ${className}`}
+          className={`input ${error ? '!border-[#FF3366] !shadow-[0_0_12px_rgba(255,51,102,0.25)]' : ''} ${className}`}
           {...props}
         />
-        {error ? <p className="mt-1 text-[11px] font-medium text-red-600">{error}</p> : null}
-        {hint && !error ? <p className="mt-1 text-[11px] text-[#64748B]">{hint}</p> : null}
+        {error ? <p className="mt-1 text-[11px] font-medium text-[#FF3366]">{error}</p> : null}
+        {hint && !error ? <p className="mt-1 text-[11px] text-[#A8B3C7]">{hint}</p> : null}
       </div>
     );
   }
@@ -49,10 +49,10 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         <textarea
           ref={ref}
           id={id}
-          className={`input min-h-[120px] resize-y ${error ? 'border-red-500/60' : ''} ${className}`}
+          className={`input min-h-[120px] resize-y ${error ? '!border-[#FF3366] !shadow-[0_0_12px_rgba(255,51,102,0.25)]' : ''} ${className}`}
           {...props}
         />
-        {error ? <p className="mt-1 text-[11px] text-red-600">{error}</p> : null}
+        {error ? <p className="mt-1 text-[11px] font-medium text-[#FF3366]">{error}</p> : null}
       </div>
     );
   }

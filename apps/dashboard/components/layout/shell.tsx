@@ -68,7 +68,7 @@ export function DashboardShell({
   };
 
   return (
-    <div className={`dashboard-wrapper ${fullBleed ? "!bg-[#02051C]" : ""}`}>
+    <div className={`dashboard-wrapper ${fullBleed ? "!bg-[#020409]" : ""}`}>
       <Sidebar collapsed={collapsed} onToggleCollapsed={() => setCollapsed((v) => !v)} />
       <div className={`flex min-h-screen flex-col ${collapsed ? "lg:pl-20" : "lg:pl-64"} transition-[padding] duration-200`}>
         {!hideHeader && <Topbar title={title} />}
@@ -88,20 +88,20 @@ export function DashboardShell({
       </div>
 
       {expired ? (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-red-200 bg-white p-7 text-center shadow-2xl">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-600">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
+          <div className="w-full max-w-md rounded-2xl border border-[#FF3366]/40 bg-[#050914] p-7 text-center shadow-[0_0_35px_rgba(255,51,102,0.25)]">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#FF3366]/15 border border-[#FF3366]/30 text-[#FF3366] shadow-[0_0_15px_rgba(255,51,102,0.2)]">
               <Crown className="h-7 w-7" />
             </div>
-            <h2 className="mb-2 text-xl font-bold text-[#0F172A]">
+            <h2 className="mb-2 text-xl font-bold text-white tracking-tight">
               Seu plano expirou
             </h2>
-            <p className="mb-6 text-sm text-[#64748B]">
+            <p className="mb-6 text-sm text-[#A8B3C7]">
               Seu plano profissional expirou. Para continuar utilizando o
               SAVYRON e não perder suas campanhas e dados, realize a renovação
               agora.
             </p>
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <Button onClick={() => void renew()} className="w-full">
                 <CreditCard className="mr-2 h-4 w-4" />
                 Renovar Assinatura

@@ -43,13 +43,17 @@ export default function ChangePasswordPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-4">
-      <div className="mb-8">
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-[#020409] px-4 overflow-hidden">
+      {/* Ambient background glows */}
+      <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-96 w-96 rounded-full bg-[#008CFF]/15 blur-[120px]" />
+      <div className="pointer-events-none absolute -bottom-40 right-1/4 h-80 w-80 rounded-full bg-[#7C3CFF]/15 blur-[120px]" />
+
+      <div className="relative z-10 mb-8">
         <Logo />
       </div>
-      <div className="w-full max-w-sm">
-        <h1 className="mb-1 text-center font-display text-2xl font-bold text-zinc-900">Trocar senha</h1>
-        <p className="mb-6 text-center text-sm text-zinc-500">Por segurança, defina uma nova senha antes de continuar.</p>
+      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-white/10 bg-[#080D18]/90 p-8 shadow-2xl backdrop-blur-xl">
+        <h1 className="mb-1 text-center font-display text-2xl font-bold tracking-tight text-white">Trocar senha</h1>
+        <p className="mb-6 text-center text-sm text-slate-400">Por segurança, defina uma nova senha antes de continuar.</p>
         <form onSubmit={submit} className="space-y-4">
           <Input label="Senha atual" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
           <Input
@@ -62,9 +66,9 @@ export default function ChangePasswordPage() {
           />
           <Input label="Confirmar nova senha" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
           {error ? (
-            <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">{error}</div>
+            <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">{error}</div>
           ) : null}
-          <Button type="submit" className="w-full" loading={loading}>
+          <Button type="submit" className="w-full shadow-[0_0_20px_rgba(0,140,255,0.3)]" loading={loading}>
             Salvar e continuar
           </Button>
         </form>

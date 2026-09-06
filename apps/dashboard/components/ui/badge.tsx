@@ -12,15 +12,15 @@ type BadgeTone =
   | 'brand';
 
 const TONE_CLASSES: Record<BadgeTone, string> = {
-  zinc: 'bg-slate-100 text-slate-700 border border-slate-200/80',
-  emerald: 'bg-emerald-50 text-emerald-700 border border-emerald-200/80',
-  amber: 'bg-amber-50 text-amber-700 border border-amber-200/80',
-  blue: 'bg-blue-50 text-blue-700 border border-blue-200/80',
-  sky: 'bg-sky-50 text-sky-700 border border-sky-200/80',
-  red: 'bg-red-50 text-red-700 border border-red-200/80',
-  violet: 'bg-indigo-50 text-indigo-700 border border-indigo-200/80',
-  whatsapp: 'bg-emerald-50 text-emerald-700 border border-emerald-200/80',
-  brand: 'bg-indigo-50 text-indigo-700 border border-indigo-200/80',
+  zinc: 'bg-[#080D18] text-[#A8B3C7] border border-[rgba(0,153,255,0.2)]',
+  emerald: 'bg-[#00E5A0]/15 text-[#00E5A0] border border-[#00E5A0]/35 shadow-[0_0_10px_rgba(0,229,160,0.15)]',
+  amber: 'bg-[#FFB020]/15 text-[#FFB020] border border-[#FFB020]/35 shadow-[0_0_10px_rgba(255,176,32,0.15)]',
+  blue: 'bg-[#008CFF]/15 text-[#00E5FF] border border-[#008CFF]/35 shadow-[0_0_10px_rgba(0,140,255,0.15)]',
+  sky: 'bg-[#00E5FF]/15 text-[#00E5FF] border border-[#00E5FF]/35 shadow-[0_0_10px_rgba(0,229,255,0.15)]',
+  red: 'bg-[#FF3366]/15 text-[#FF3366] border border-[#FF3366]/35 shadow-[0_0_10px_rgba(255,51,102,0.15)]',
+  violet: 'bg-[#7C3CFF]/15 text-[#C084FC] border border-[#7C3CFF]/35 shadow-[0_0_10px_rgba(124,60,255,0.15)]',
+  whatsapp: 'bg-[#00E5A0]/15 text-[#00E5A0] border border-[#00E5A0]/35 shadow-[0_0_10px_rgba(0,229,160,0.15)]',
+  brand: 'bg-[#008CFF]/15 text-[#00E5FF] border border-[#008CFF]/35 shadow-[0_0_10px_rgba(0,140,255,0.15)]',
 };
 
 export function Badge({ tone = 'zinc', children, className = '' }: { tone?: BadgeTone; children: React.ReactNode; className?: string }) {

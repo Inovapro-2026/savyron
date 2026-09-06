@@ -15,10 +15,15 @@ import {
   Mail,
   Share2,
   Clock,
-  CheckCircle2,
-  AlertTriangle,
   Minus,
   Plus,
+  Cpu,
+  Zap,
+  ShieldCheck,
+  Bot,
+  Activity,
+  Sparkles,
+  Radio,
 } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { DashboardShell } from '@/components/layout/shell';
@@ -150,13 +155,13 @@ export default function DashboardPage() {
   const chartData = useMemo(() => {
     if (waCount === 0 && emailCount === 0) {
       return [
-        { name: 'WhatsApp', value: 66.7, color: '#10B981' },
-        { name: 'E-mail', value: 33.3, color: '#3B82F6' },
+        { name: 'WhatsApp', value: 66.7, color: '#00E5A0' },
+        { name: 'E-mail', value: 33.3, color: '#00E5FF' },
       ];
     }
     return [
-      { name: 'WhatsApp', value: waCount, color: '#10B981' },
-      { name: 'E-mail', value: emailCount, color: '#3B82F6' },
+      { name: 'WhatsApp', value: waCount, color: '#00E5A0' },
+      { name: 'E-mail', value: emailCount, color: '#00E5FF' },
     ];
   }, [waCount, emailCount]);
 
@@ -180,41 +185,70 @@ export default function DashboardPage() {
     <DashboardShell title="Dashboard">
       {loading ? (
         <div className="flex justify-center py-24">
-          <Spinner className="h-8 w-8" />
+          <Spinner className="h-8 w-8 text-[#00E5FF]" />
         </div>
       ) : (
-        <div className="space-y-6 pb-4">
-          {/* Header row: Título, subtítulo e pill de período */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight text-[#0F172A]">Dashboard</h2>
-              <p className="mt-0.5 text-xs text-[#64748B]">Visão geral do seu funil comercial</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="inline-flex items-center gap-2 rounded-2xl border border-[#E6E8F0] bg-white px-3.5 py-2 text-xs font-semibold text-[#0F172A] shadow-xs">
-                <Calendar className="h-4 w-4 text-[#6366F1]" />
-                <span>{todayFormatted}</span>
-                <ChevronDown className="h-3.5 w-3.5 text-[#94A3B8]" />
+        <div className="space-y-6 pb-6">
+          {/* Cyber AI Hero Section */}
+          <div className="relative overflow-hidden rounded-3xl border border-[#00E5FF]/25 bg-gradient-to-r from-[#050A18]/90 via-[#0A122A]/85 to-[#050A18]/90 p-6 md:p-8 backdrop-blur-xl shadow-[0_0_40px_rgba(0,140,255,0.15)]">
+            {/* Ambient background glows */}
+            <div className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-[#008CFF]/15 blur-3xl" />
+            <div className="pointer-events-none absolute -right-20 -bottom-20 h-64 w-64 rounded-full bg-[#7C3CFF]/15 blur-3xl" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:28px_28px] opacity-30" />
+
+            <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-2xl space-y-2">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#00E5FF]/30 bg-[#00E5FF]/10 px-3 py-1 text-[11px] font-semibold text-[#00E5FF] shadow-[0_0_12px_rgba(0,229,255,0.25)]">
+                  <Sparkles className="h-3.5 w-3.5 animate-pulse text-[#00E5FF]" />
+                  <span className="tracking-wider uppercase">Plataforma Neural Ativa</span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#00E5A0] shadow-[0_0_8px_#00E5A0]" />
+                </div>
+
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-white">
+                  SAVYRON <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] via-[#008CFF] to-[#7C3CFF]">AI ENGINE</span>
+                </h1>
+                <p className="text-xs md:text-sm text-[#A8B3C7] leading-relaxed">
+                  Sistema autônomo de alta performance para prospecção, qualificação neural e conversão de clientes 24 horas por dia.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Date range picker pill */}
+                <div className="inline-flex items-center gap-2.5 rounded-2xl border border-[#008CFF]/30 bg-[#080E20]/90 px-4 py-2.5 text-xs font-semibold text-white shadow-[0_0_20px_rgba(0,140,255,0.2)] backdrop-blur-md">
+                  <Calendar className="h-4 w-4 text-[#00E5FF]" />
+                  <span>{todayFormatted}</span>
+                  <ChevronDown className="h-3.5 w-3.5 text-[#64748B]" />
+                </div>
+
+                <div className="inline-flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-950/30 px-3.5 py-2.5 text-xs font-semibold text-emerald-400">
+                  <Activity className="h-4 w-4 text-emerald-400 animate-pulse" />
+                  <span>Live Feed</span>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Banner de status do WhatsApp Baileys */}
           {!wa.data?.connected ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-xs text-amber-800 shadow-xs">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-950/40 to-[#0A1020]/60 p-4 text-xs text-amber-200 shadow-[0_0_20px_rgba(255,176,32,0.15)] backdrop-blur-md">
               <div className="flex items-center gap-2.5">
-                <MessageCircle className="h-4.5 w-4.5 text-amber-600 shrink-0" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400 shadow-[0_0_12px_rgba(255,176,32,0.3)]">
+                  <MessageCircle className="h-4.5 w-4.5" />
+                </div>
                 <span>
-                  <strong>WhatsApp desconectado:</strong> escaneie o QR Code em Configurações para iniciar os envios.
+                  <strong className="text-amber-300">WhatsApp Baileys desconectado:</strong> Escaneie o QR Code em Configurações para habilitar a automação neural.
                 </span>
               </div>
-              <Link href="/settings" className="font-semibold text-amber-900 underline hover:text-amber-950">
-                Conectar agora
+              <Link
+                href="/settings"
+                className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-1.5 font-semibold text-amber-300 transition-all hover:bg-amber-500/20 hover:text-white hover:shadow-[0_0_12px_rgba(255,176,32,0.3)]"
+              >
+                Conectar agora &rarr;
               </Link>
             </div>
           ) : null}
 
-          {/* Row 1: 6 KPI Cards correspondentes à imagem de referência */}
+          {/* Row 1: 6 KPI HUD Cards */}
           <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
             <MetricCard
               icon={Users}
@@ -238,7 +272,7 @@ export default function DashboardPage() {
               value={metrics.data?.messages_sent_today ?? 0}
               tone="emerald"
               badge="+100%"
-              hint="Mensagens enviadas"
+              hint="Mensagens disparadas"
             />
             <MetricCard
               icon={MessageSquareReply}
@@ -253,8 +287,8 @@ export default function DashboardPage() {
               label="Interessados"
               value={metrics.data?.interested ?? 0}
               tone="cyan"
-              badge="0%"
-              hint="Leads interessados"
+              badge="Alta IA"
+              hint="Qualificados com interesse"
             />
             <MetricCard
               icon={XCircle}
@@ -267,49 +301,85 @@ export default function DashboardPage() {
           </div>
 
           {/* Row 2: Progresso da fila & Desempenho dos canais */}
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
             {/* Progresso da fila */}
-            <div className="rounded-2xl border border-[#E6E8F0] bg-white p-6 shadow-[0_4px_20px_rgba(15,23,42,0.04)] lg:col-span-7 flex flex-col justify-between">
-              <div>
-                <h3 className="text-base font-bold text-[#0F172A]">Progresso da fila</h3>
-                <p className="mt-0.5 text-xs text-[#64748B]">Acompanhe o processamento dos leads</p>
+            <div className="relative overflow-hidden rounded-2xl border border-[#008CFF]/20 bg-[#080D18]/85 p-6 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.5)] lg:col-span-7 flex flex-col justify-between">
+              {/* Corner tech accent */}
+              <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-[#00E5FF]/10 blur-xl" />
+              <div className="flex items-center justify-between pb-4 border-b border-white/5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#00E5FF]/30 bg-[#00E5FF]/10 text-[#00E5FF] shadow-[0_0_12px_rgba(0,229,255,0.2)]">
+                    <Cpu className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-white tracking-tight">Progresso da Fila</h3>
+                    <p className="text-xs text-[#A8B3C7]">Acompanhe o processamento contínuo dos leads</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-950/30 px-2.5 py-1 text-[11px] font-medium text-emerald-400">
+                  <Radio className="h-3 w-3 animate-pulse text-emerald-400" />
+                  <span>Em Execução</span>
+                </div>
               </div>
 
-              <div className="my-8 space-y-3">
+              <div className="my-8 space-y-4">
                 <Progress
                   value={processedQueue}
                   max={Math.max(1, totalQueue)}
                   tone="gradient"
-                  className="h-3"
+                  className="h-3.5 shadow-[0_0_15px_rgba(0,229,255,0.25)]"
                 />
-                <div className="flex items-center justify-between text-xs font-semibold text-[#64748B]">
-                  <span>{processedQueue} processados</span>
-                  <span>{pendingQueue} na fila</span>
+                <div className="flex items-center justify-between text-xs font-semibold">
+                  <span className="flex items-center gap-1.5 text-white">
+                    <span className="h-2 w-2 rounded-full bg-[#00E5FF] shadow-[0_0_8px_#00E5FF]" />
+                    {processedQueue} processados
+                  </span>
+                  <span className="flex items-center gap-1.5 text-[#A8B3C7]">
+                    <span className="h-2 w-2 rounded-full bg-[#FFB020] shadow-[0_0_8px_#FFB020]" />
+                    {pendingQueue} na fila
+                  </span>
                 </div>
               </div>
 
-              <div className="text-[11px] text-[#94A3B8]">
-                {activeCampaign ? `Campanha ativa: ${activeCampaign.name}` : 'Nenhuma campanha em execução no momento.'}
+              <div className="flex items-center justify-between pt-4 border-t border-white/5 text-[11px] text-[#64748B]">
+                <div className="flex items-center gap-2">
+                  <span className="text-white font-medium">Status:</span>
+                  <span className="text-[#A8B3C7]">
+                    {activeCampaign ? `Campanha ativa: ${activeCampaign.name}` : 'Nenhuma campanha em execução no momento.'}
+                  </span>
+                </div>
+                <div className="text-[#00E5FF] font-medium">
+                  {Math.round((processedQueue / Math.max(1, totalQueue)) * 100)}% concluído
+                </div>
               </div>
             </div>
 
             {/* Desempenho dos canais (Donut Chart) */}
-            <div className="rounded-2xl border border-[#E6E8F0] bg-white p-6 shadow-[0_4px_20px_rgba(15,23,42,0.04)] lg:col-span-5">
-              <h3 className="text-base font-bold text-[#0F172A]">Desempenho dos canais</h3>
-              <p className="mt-0.5 text-xs text-[#64748B]">Envios por canal no período</p>
+            <div className="relative overflow-hidden rounded-2xl border border-[#008CFF]/20 bg-[#080D18]/85 p-6 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.5)] lg:col-span-5 flex flex-col justify-between">
+              <div className="pointer-events-none absolute -left-8 -top-8 h-24 w-24 rounded-full bg-[#7C3CFF]/10 blur-xl" />
+              <div className="flex items-center justify-between pb-4 border-b border-white/5">
+                <div>
+                  <h3 className="text-base font-bold text-white tracking-tight">Desempenho dos Canais</h3>
+                  <p className="text-xs text-[#A8B3C7]">Distribuição de disparos no período</p>
+                </div>
+                <span className="rounded-full border border-[#008CFF]/30 bg-[#008CFF]/10 px-2.5 py-0.5 text-[10px] font-semibold text-[#00E5FF]">
+                  CANAIS
+                </span>
+              </div>
 
-              <div className="mt-4 flex items-center justify-between">
-                <div className="relative h-36 w-36 shrink-0">
+              <div className="my-auto flex items-center justify-between py-4">
+                <div className="relative h-36 w-36 shrink-0 flex items-center justify-center">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
                         data={chartData}
                         dataKey="value"
                         nameKey="name"
-                        innerRadius={38}
-                        outerRadius={56}
-                        stroke="#FFFFFF"
-                        strokeWidth={3}
+                        innerRadius={42}
+                        outerRadius={60}
+                        stroke="#080D18"
+                        strokeWidth={4}
                         isAnimationActive={false}
                       >
                         {chartData.map((entry, index) => (
@@ -318,44 +388,62 @@ export default function DashboardPage() {
                       </Pie>
                     </PieChart>
                   </ResponsiveContainer>
-                </div>
-
-                <div className="space-y-2.5 pl-4 text-xs">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-sm bg-[#10B981]" />
-                      <span className="font-medium text-[#334155]">WhatsApp</span>
-                    </div>
-                    <span className="font-bold text-[#0F172A]">{waCount > 0 || emailCount > 0 ? `${waPct}%` : '66.7%'}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-sm bg-[#3B82F6]" />
-                      <span className="font-medium text-[#334155]">E-mail</span>
-                    </div>
-                    <span className="font-bold text-[#0F172A]">{waCount > 0 || emailCount > 0 ? `${emailPct}%` : '33.3%'}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-sm bg-[#F59E0B]" />
-                      <span className="font-medium text-[#334155]">Ambos</span>
-                    </div>
-                    <span className="font-bold text-[#0F172A]">0%</span>
+                  {/* Central HUD readout */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span className="text-base font-black text-white leading-none tracking-tight">
+                      {waCount + emailCount}
+                    </span>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-[#00E5FF]">
+                      Total
+                    </span>
                   </div>
                 </div>
+
+                <div className="space-y-3 pl-4 text-xs flex-1">
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-[#0D152A]/50 p-2">
+                    <div className="flex items-center gap-2">
+                      <span className="h-2.5 w-2.5 rounded-full bg-[#00E5A0] shadow-[0_0_8px_#00E5A0]" />
+                      <span className="font-medium text-white">WhatsApp</span>
+                    </div>
+                    <span className="font-bold text-[#00E5A0]">
+                      {waCount > 0 || emailCount > 0 ? `${waPct}%` : '66.7%'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-[#0D152A]/50 p-2">
+                    <div className="flex items-center gap-2">
+                      <span className="h-2.5 w-2.5 rounded-full bg-[#00E5FF] shadow-[0_0_8px_#00E5FF]" />
+                      <span className="font-medium text-white">E-mail</span>
+                    </div>
+                    <span className="font-bold text-[#00E5FF]">
+                      {waCount > 0 || emailCount > 0 ? `${emailPct}%` : '33.3%'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-[#0D152A]/50 p-2">
+                    <div className="flex items-center gap-2">
+                      <span className="h-2.5 w-2.5 rounded-full bg-[#7C3CFF] shadow-[0_0_8px_#7C3CFF]" />
+                      <span className="font-medium text-white">Ambos</span>
+                    </div>
+                    <span className="font-bold text-[#7C3CFF]">0%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-white/5 text-[11px] text-[#64748B] flex items-center justify-between">
+                <span>Total de envios ativos</span>
+                <span className="text-[#00E5FF] font-medium">{waCount + emailCount} disparos</span>
               </div>
             </div>
           </div>
 
           {/* Row 3: Canal de envio & Ajustar limites */}
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
             {/* Canal de envio */}
-            <div className="rounded-2xl border border-[#E6E8F0] bg-white p-6 shadow-[0_4px_20px_rgba(15,23,42,0.04)] lg:col-span-6 flex flex-col justify-between">
+            <div className="relative overflow-hidden rounded-2xl border border-[#008CFF]/20 bg-[#080D18]/85 p-6 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.5)] lg:col-span-6 flex flex-col justify-between">
               <div>
-                <h3 className="text-base font-bold text-[#0F172A]">Canal de envio</h3>
-                <p className="mt-0.5 text-xs text-[#64748B]">Escolha por qual canal a campanha dispara</p>
+                <h3 className="text-base font-bold text-white tracking-tight">Canal de Envio</h3>
+                <p className="mt-0.5 text-xs text-[#A8B3C7]">Escolha por qual canal a campanha dispara</p>
               </div>
 
               {/* Opções de canal estilo cards */}
@@ -365,17 +453,22 @@ export default function DashboardPage() {
                   type="button"
                   onClick={() => void changeChannel('WHATSAPP')}
                   disabled={savingChannel}
-                  className={`flex flex-col items-start rounded-2xl border p-3.5 text-left transition-all duration-150 ${
+                  className={`group relative flex flex-col items-start rounded-2xl border p-3.5 text-left transition-all duration-200 ${
                     currentChannel === 'WHATSAPP'
-                      ? 'border-[#10B981] bg-[#ECFDF5]/60 ring-2 ring-[#10B981]/20'
-                      : 'border-[#E6E8F0] bg-white hover:bg-slate-50'
+                      ? 'border-[#00E5A0] bg-[#00E5A0]/10 shadow-[0_0_20px_rgba(0,229,160,0.25)] ring-1 ring-[#00E5A0]'
+                      : 'border-white/10 bg-[#0C1427]/60 hover:border-[#00E5A0]/40 hover:bg-[#0C1427]'
                   }`}
                 >
-                  <div className="flex items-center gap-1.5 font-bold text-xs text-[#0F172A]">
-                    <MessageCircle className="h-4 w-4 text-[#10B981]" />
+                  <div className="flex items-center gap-1.5 font-bold text-xs text-white">
+                    <MessageCircle className="h-4 w-4 text-[#00E5A0]" />
                     <span>WhatsApp</span>
                   </div>
-                  <span className="mt-1 text-[11px] text-[#64748B]">Dispara apenas pelo WhatsApp</span>
+                  <span className="mt-1.5 text-[11px] text-[#A8B3C7] leading-snug">Dispara apenas pelo WhatsApp</span>
+                  {currentChannel === 'WHATSAPP' && (
+                    <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#00E5A0]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#00E5A0] animate-pulse" /> Ativo
+                    </span>
+                  )}
                 </button>
 
                 {/* E-mail */}
@@ -383,17 +476,22 @@ export default function DashboardPage() {
                   type="button"
                   onClick={() => void changeChannel('EMAIL')}
                   disabled={savingChannel}
-                  className={`flex flex-col items-start rounded-2xl border p-3.5 text-left transition-all duration-150 ${
+                  className={`group relative flex flex-col items-start rounded-2xl border p-3.5 text-left transition-all duration-200 ${
                     currentChannel === 'EMAIL'
-                      ? 'border-[#3B82F6] bg-[#EFF6FF]/60 ring-2 ring-[#3B82F6]/20'
-                      : 'border-[#E6E8F0] bg-white hover:bg-slate-50'
+                      ? 'border-[#00E5FF] bg-[#00E5FF]/10 shadow-[0_0_20px_rgba(0,229,255,0.25)] ring-1 ring-[#00E5FF]'
+                      : 'border-white/10 bg-[#0C1427]/60 hover:border-[#00E5FF]/40 hover:bg-[#0C1427]'
                   }`}
                 >
-                  <div className="flex items-center gap-1.5 font-bold text-xs text-[#0F172A]">
-                    <Mail className="h-4 w-4 text-[#3B82F6]" />
+                  <div className="flex items-center gap-1.5 font-bold text-xs text-white">
+                    <Mail className="h-4 w-4 text-[#00E5FF]" />
                     <span>E-mail</span>
                   </div>
-                  <span className="mt-1 text-[11px] text-[#64748B]">Dispara apenas por e-mail</span>
+                  <span className="mt-1.5 text-[11px] text-[#A8B3C7] leading-snug">Dispara apenas por e-mail</span>
+                  {currentChannel === 'EMAIL' && (
+                    <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#00E5FF]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#00E5FF] animate-pulse" /> Ativo
+                    </span>
+                  )}
                 </button>
 
                 {/* Ambos */}
@@ -401,51 +499,59 @@ export default function DashboardPage() {
                   type="button"
                   onClick={() => void changeChannel('BOTH')}
                   disabled={savingChannel}
-                  className={`flex flex-col items-start rounded-2xl border p-3.5 text-left transition-all duration-150 ${
+                  className={`group relative flex flex-col items-start rounded-2xl border p-3.5 text-left transition-all duration-200 ${
                     currentChannel === 'BOTH'
-                      ? 'border-[#8B5CF6] bg-[#F5F3FF]/60 ring-2 ring-[#8B5CF6]/20'
-                      : 'border-[#E6E8F0] bg-white hover:bg-slate-50'
+                      ? 'border-[#7C3CFF] bg-[#7C3CFF]/15 shadow-[0_0_20px_rgba(124,60,255,0.3)] ring-1 ring-[#7C3CFF]'
+                      : 'border-white/10 bg-[#0C1427]/60 hover:border-[#7C3CFF]/40 hover:bg-[#0C1427]'
                   }`}
                 >
-                  <div className="flex items-center gap-1.5 font-bold text-xs text-[#0F172A]">
-                    <Share2 className="h-4 w-4 text-[#8B5CF6]" />
+                  <div className="flex items-center gap-1.5 font-bold text-xs text-white">
+                    <Share2 className="h-4 w-4 text-[#7C3CFF]" />
                     <span>Ambos</span>
                   </div>
-                  <span className="mt-1 text-[11px] text-[#64748B]">Dispara pelos dois canais</span>
+                  <span className="mt-1.5 text-[11px] text-[#A8B3C7] leading-snug">Dispara pelos dois canais</span>
+                  {currentChannel === 'BOTH' && (
+                    <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#7C3CFF]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#7C3CFF] animate-pulse" /> Ativo
+                    </span>
+                  )}
                 </button>
               </div>
 
-              {/* Informative alert box */}
-              <div className="rounded-2xl border border-[#DBEAFE] bg-[#EFF6FF] p-3.5 text-xs text-[#1E40AF]">
-                "Ambos" envia pelos dois canais: leads com só telefone recebem WhatsApp, com só e-mail recebem e-mail, e com os dois recebem nos dois.
+              {/* Informative cyber box */}
+              <div className="rounded-2xl border border-[#008CFF]/30 bg-[#008CFF]/10 p-3.5 text-xs text-[#A8B3C7] flex items-start gap-2.5">
+                <Sparkles className="h-4 w-4 text-[#00E5FF] shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-white">Modo Híbrido:</strong> Envia estrategicamente por ambos os canais, priorizando telefone celular para WhatsApp e validando caixas de entrada de e-mail corporativo.
+                </span>
               </div>
             </div>
 
             {/* Ajustar limites */}
-            <div className="rounded-2xl border border-[#E6E8F0] bg-white p-6 shadow-[0_4px_20px_rgba(15,23,42,0.04)] lg:col-span-6 flex flex-col justify-between">
+            <div className="relative overflow-hidden rounded-2xl border border-[#008CFF]/20 bg-[#080D18]/85 p-6 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.5)] lg:col-span-6 flex flex-col justify-between">
               <div>
-                <h3 className="text-base font-bold text-[#0F172A]">Ajustar limites</h3>
-                <p className="mt-0.5 text-xs text-[#64748B]">Configure os limites diários de envio</p>
+                <h3 className="text-base font-bold text-white tracking-tight">Ajustar Limites</h3>
+                <p className="mt-0.5 text-xs text-[#A8B3C7]">Configure a cadência e limites diários de segurança</p>
               </div>
 
-              <div className="my-4 grid grid-cols-2 gap-3">
+              <div className="my-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Limite WhatsApp */}
-                <div className="flex items-center justify-between rounded-2xl border border-[#E6E8F0] bg-[#F8FAFC] p-3.5">
+                <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-[#0C1427]/70 p-3.5 shadow-sm">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#ECFDF5] text-[#10B981]">
-                      <MessageCircle className="h-4 w-4" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-[#00E5A0] shadow-[0_0_12px_rgba(0,229,160,0.2)]">
+                      <MessageCircle className="h-4.5 w-4.5" />
                     </div>
                     <div>
-                      <div className="text-[11px] font-medium text-[#64748B]">Limite WhatsApp/dia</div>
-                      <div className="text-lg font-bold text-[#0F172A]">{activeCampaign?.daily_whatsapp_limit ?? 30}</div>
+                      <div className="text-[11px] font-medium text-[#A8B3C7]">WhatsApp / dia</div>
+                      <div className="text-xl font-black text-white">{activeCampaign?.daily_whatsapp_limit ?? 30}</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <button
                       type="button"
                       onClick={() => void updateLimits(-5, 0)}
                       disabled={savingLimits}
-                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#E6E8F0] bg-white text-[#475569] hover:bg-slate-50 transition-colors"
+                      className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-[#121B32] text-white hover:border-[#00E5FF]/50 hover:bg-[#1A2647] hover:text-[#00E5FF] transition-all"
                     >
                       <Minus className="h-3.5 w-3.5" />
                     </button>
@@ -453,7 +559,7 @@ export default function DashboardPage() {
                       type="button"
                       onClick={() => void updateLimits(5, 0)}
                       disabled={savingLimits}
-                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#E6E8F0] bg-white text-[#475569] hover:bg-slate-50 transition-colors"
+                      className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-[#121B32] text-white hover:border-[#00E5FF]/50 hover:bg-[#1A2647] hover:text-[#00E5FF] transition-all"
                     >
                       <Plus className="h-3.5 w-3.5" />
                     </button>
@@ -461,22 +567,22 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Limite E-mail */}
-                <div className="flex items-center justify-between rounded-2xl border border-[#E6E8F0] bg-[#F8FAFC] p-3.5">
+                <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-[#0C1427]/70 p-3.5 shadow-sm">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#EFF6FF] text-[#3B82F6]">
-                      <Mail className="h-4 w-4" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-500/15 text-[#00E5FF] shadow-[0_0_12px_rgba(0,229,255,0.2)]">
+                      <Mail className="h-4.5 w-4.5" />
                     </div>
                     <div>
-                      <div className="text-[11px] font-medium text-[#64748B]">Limite E-mail/dia</div>
-                      <div className="text-lg font-bold text-[#0F172A]">{activeCampaign?.daily_email_limit ?? 100}</div>
+                      <div className="text-[11px] font-medium text-[#A8B3C7]">E-mail / dia</div>
+                      <div className="text-xl font-black text-white">{activeCampaign?.daily_email_limit ?? 100}</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <button
                       type="button"
                       onClick={() => void updateLimits(0, -10)}
                       disabled={savingLimits}
-                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#E6E8F0] bg-white text-[#475569] hover:bg-slate-50 transition-colors"
+                      className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-[#121B32] text-white hover:border-[#00E5FF]/50 hover:bg-[#1A2647] hover:text-[#00E5FF] transition-all"
                     >
                       <Minus className="h-3.5 w-3.5" />
                     </button>
@@ -484,7 +590,7 @@ export default function DashboardPage() {
                       type="button"
                       onClick={() => void updateLimits(0, 10)}
                       disabled={savingLimits}
-                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#E6E8F0] bg-white text-[#475569] hover:bg-slate-50 transition-colors"
+                      className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-[#121B32] text-white hover:border-[#00E5FF]/50 hover:bg-[#1A2647] hover:text-[#00E5FF] transition-all"
                     >
                       <Plus className="h-3.5 w-3.5" />
                     </button>
@@ -493,39 +599,91 @@ export default function DashboardPage() {
               </div>
 
               {/* Intervalo entre envios */}
-              <div className="flex items-center justify-between gap-3 pt-2 border-t border-[#F1F5F9]">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-[#64748B]" />
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/5">
+                <div className="flex items-center gap-2.5">
+                  <Clock className="h-4 w-4 text-[#00E5FF]" />
+                  <span className="text-xs text-[#A8B3C7]">Intervalo seguro:</span>
                   <select
                     value={activeCampaign?.interval_seconds ?? 7200}
                     onChange={(e) => void updateInterval(Number(e.target.value))}
-                    className="rounded-xl border border-[#E6E8F0] bg-white px-3 py-1.5 text-xs font-semibold text-[#0F172A] outline-none focus:border-[#6366F1]"
+                    className="rounded-xl border border-[#008CFF]/30 bg-[#0C1427] px-3 py-1.5 text-xs font-semibold text-white outline-none focus:border-[#00E5FF] focus:shadow-[0_0_15px_rgba(0,229,255,0.25)]"
                   >
-                    <option value={2}>2 segundos</option>
+                    <option value={2}>2 segundos (Turbo)</option>
                     <option value={10}>10 segundos</option>
                     <option value={30}>30 segundos</option>
                     <option value={60}>1 minuto</option>
                     <option value={300}>5 minutos</option>
                     <option value={3600}>1 hora</option>
-                    <option value={7200}>2 horas</option>
+                    <option value={7200}>2 horas (Humano Seguro)</option>
                   </select>
                 </div>
-                <div className="text-[11px] text-[#94A3B8] text-right">
-                  Tempo de intervalo entre cada envio para simular comportamento humano.
+                <div className="text-[11px] text-[#64748B]">
+                  Simulação comportamental anti-bloqueio ativa
                 </div>
               </div>
             </div>
           </div>
 
+          {/* Reference Image 4-Pillar HUD Feature Strip */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 pt-2">
+            <div className="group relative overflow-hidden rounded-2xl border border-[#008CFF]/25 bg-[#080D18]/80 p-5 backdrop-blur-xl transition-all duration-300 hover:border-[#00E5FF]/60 hover:shadow-[0_0_30px_rgba(0,229,255,0.2)]">
+              <div className="pointer-events-none absolute -right-6 -bottom-6 h-20 w-20 rounded-full bg-[#00E5FF]/10 blur-xl group-hover:bg-[#00E5FF]/20" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#00E5FF]/40 bg-[#00E5FF]/10 text-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.25)] mb-3">
+                <Bot className="h-5 w-5" />
+              </div>
+              <h4 className="text-sm font-bold text-white tracking-tight">IA Inteligente</h4>
+              <p className="mt-1 text-xs text-[#A8B3C7] leading-relaxed">
+                Algoritmos neurais avançados que compreendem o contexto, qualificam intenção de compra e respondem de forma personalizada.
+              </p>
+            </div>
+
+            <div className="group relative overflow-hidden rounded-2xl border border-[#00E5A0]/25 bg-[#080D18]/80 p-5 backdrop-blur-xl transition-all duration-300 hover:border-[#00E5A0]/60 hover:shadow-[0_0_30px_rgba(0,229,160,0.2)]">
+              <div className="pointer-events-none absolute -right-6 -bottom-6 h-20 w-20 rounded-full bg-[#00E5A0]/10 blur-xl group-hover:bg-[#00E5A0]/20" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#00E5A0]/40 bg-[#00E5A0]/10 text-[#00E5A0] shadow-[0_0_15px_rgba(0,229,160,0.25)] mb-3">
+                <Activity className="h-5 w-5" />
+              </div>
+              <h4 className="text-sm font-bold text-white tracking-tight">Atendimento 24/7</h4>
+              <p className="mt-1 text-xs text-[#A8B3C7] leading-relaxed">
+                Operação ininterrupta em tempo real via WhatsApp e E-mail. Seus prospects são atendidos no exato momento de interesse.
+              </p>
+            </div>
+
+            <div className="group relative overflow-hidden rounded-2xl border border-[#7C3CFF]/25 bg-[#080D18]/80 p-5 backdrop-blur-xl transition-all duration-300 hover:border-[#7C3CFF]/60 hover:shadow-[0_0_30px_rgba(124,60,255,0.25)]">
+              <div className="pointer-events-none absolute -right-6 -bottom-6 h-20 w-20 rounded-full bg-[#7C3CFF]/10 blur-xl group-hover:bg-[#7C3CFF]/20" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#7C3CFF]/40 bg-[#7C3CFF]/10 text-[#7C3CFF] shadow-[0_0_15px_rgba(124,60,255,0.3)] mb-3">
+                <Zap className="h-5 w-5" />
+              </div>
+              <h4 className="text-sm font-bold text-white tracking-tight">Automação de Vendas</h4>
+              <p className="mt-1 text-xs text-[#A8B3C7] leading-relaxed">
+                Cadências inteligentes com intervalos adaptativos que simulam o comportamento humano e multiplicam sua taxa de conversão.
+              </p>
+            </div>
+
+            <div className="group relative overflow-hidden rounded-2xl border border-[#FF2BD6]/25 bg-[#080D18]/80 p-5 backdrop-blur-xl transition-all duration-300 hover:border-[#FF2BD6]/60 hover:shadow-[0_0_30px_rgba(255,43,214,0.25)]">
+              <div className="pointer-events-none absolute -right-6 -bottom-6 h-20 w-20 rounded-full bg-[#FF2BD6]/10 blur-xl group-hover:bg-[#FF2BD6]/20" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF2BD6]/40 bg-[#FF2BD6]/10 text-[#FF2BD6] shadow-[0_0_15px_rgba(255,43,214,0.3)] mb-3">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <h4 className="text-sm font-bold text-white tracking-tight">Segurança Total</h4>
+              <p className="mt-1 text-xs text-[#A8B3C7] leading-relaxed">
+                Criptografia de ponta a ponta, isolamento por tenant e conformidade total com políticas de privacidade e proteção de dados.
+              </p>
+            </div>
+          </div>
+
           {/* Footer status row */}
-          <div className="flex items-center justify-between text-xs text-[#94A3B8] pt-2">
-            <div>Versão 2.4.0</div>
-            <div className="flex items-center gap-2 text-emerald-600 font-medium">
+          <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[#64748B] pt-4 border-t border-white/5">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-white">SAVYRON NEURAL</span>
+              <span>•</span>
+              <span>v2.4.0 High-Performance</span>
+            </div>
+            <div className="flex items-center gap-2 text-[#00E5A0] font-medium">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00E5A0] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00E5A0] shadow-[0_0_8px_#00E5A0]" />
               </span>
-              Todos os sistemas operacionais
+              <span>Todos os sistemas neurais operacionais (18ms)</span>
             </div>
           </div>
         </div>

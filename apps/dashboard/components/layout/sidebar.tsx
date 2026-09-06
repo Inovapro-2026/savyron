@@ -40,16 +40,18 @@ function NavItem({
   const active =
     pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
 
-  const className = `group flex items-center gap-3 rounded-xl py-2.5 text-sm font-medium transition-all duration-150 ${
+  const className = `group relative flex items-center gap-3 rounded-xl py-2.5 text-sm font-medium transition-all duration-200 ${
     collapsed ? "justify-center px-2.5" : "px-3.5"
   } ${
     active
-      ? "bg-[#EEF2FF] text-[#6366F1] font-semibold shadow-xs"
-      : "text-[#475569] hover:bg-slate-50 hover:text-[#0F172A]"
+      ? "bg-gradient-to-r from-[#008CFF]/20 to-[#008CFF]/5 text-white font-bold border-l-2 border-[#00E5FF] shadow-[0_0_18px_rgba(0,140,255,0.18)]"
+      : "text-[#A8B3C7] hover:bg-[#008CFF]/8 hover:text-white hover:shadow-[0_0_12px_rgba(0,140,255,0.1)]"
   }`;
 
-  const iconClass = `h-4.5 w-4.5 shrink-0 transition-colors ${
-    active ? "text-[#6366F1]" : "text-[#64748B] group-hover:text-[#0F172A]"
+  const iconClass = `h-4.5 w-4.5 shrink-0 transition-all ${
+    active
+      ? "text-[#00E5FF] drop-shadow-[0_0_6px_rgba(0,229,255,0.6)]"
+      : "text-[#64748B] group-hover:text-[#00E5FF]"
   }`;
 
   if (navigateTo && navigateTo !== href) {
@@ -94,7 +96,7 @@ function AdvancedNav({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex w-full items-center justify-between rounded-xl px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-[#94A3B8] transition-colors hover:bg-slate-50 hover:text-[#475569]"
+        className="flex w-full items-center justify-between rounded-xl px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-[#64748B] transition-colors hover:bg-[#008CFF]/5 hover:text-[#A8B3C7]"
       >
         Avançado
         <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
@@ -136,12 +138,12 @@ export function Sidebar({
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-20 hidden flex-col border-r border-[#E6E8F0] bg-white lg:flex shadow-[1px_0_4px_rgba(15,23,42,0.02)] transition-[width] duration-200 ${
+      className={`fixed inset-y-0 left-0 z-20 hidden flex-col border-r border-[rgba(0,153,255,0.18)] bg-[#020409] lg:flex shadow-[1px_0_25px_rgba(0,0,0,0.8),inset_-1px_0_0_rgba(0,140,255,0.1)] transition-[width] duration-200 ${
         collapsed ? "w-20" : "w-64"
       }`}
     >
       {/* Brand logo + botão recolher/expandir */}
-      <div className="flex items-center justify-between gap-1 border-b border-[#E6E8F0] px-4 py-5">
+      <div className="flex items-center justify-between gap-1 border-b border-[rgba(0,153,255,0.15)] px-4 py-5">
         {!collapsed ? (
           <Link href="/dashboard" className="inline-block">
             <Logo compact />
@@ -149,7 +151,7 @@ export function Sidebar({
         ) : (
           <Link
             href="/dashboard"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#EEF2FF] text-[#6366F1]"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#008CFF]/15 text-[#00E5FF] border border-[#008CFF]/30 shadow-[0_0_10px_rgba(0,140,255,0.2)]"
             aria-label="Início"
           >
             <Logo compact className="h-6 w-6" />
@@ -160,7 +162,7 @@ export function Sidebar({
           onClick={onToggleCollapsed}
           aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
           title={collapsed ? "Expandir menu" : "Recolher menu"}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[#94A3B8] transition-colors hover:bg-slate-100 hover:text-[#0F172A]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[#64748B] transition-colors hover:bg-white/5 hover:text-white"
         >
           {collapsed ? (
             <PanelLeftOpen className="h-4.5 w-4.5" />
@@ -186,10 +188,10 @@ export function Sidebar({
           />
         ))}
 
-        <div className="my-3 border-t border-[#F1F5F9]" />
+        <div className="my-3 border-t border-[rgba(0,153,255,0.12)]" />
 
         {!collapsed ? (
-          <div className="px-3.5 pb-1 pt-1 text-[11px] font-bold uppercase tracking-wider text-[#94A3B8]">
+          <div className="px-3.5 pb-1 pt-1 text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
             Empresa
           </div>
         ) : null}
@@ -197,7 +199,7 @@ export function Sidebar({
           <NavItem key={item.href} {...item} pathname={pathname} collapsed={collapsed} />
         ))}
 
-        <div className="my-3 border-t border-[#F1F5F9]" />
+        <div className="my-3 border-t border-[rgba(0,153,255,0.12)]" />
 
         <AdvancedNav items={ADVANCED_NAV} pathname={pathname} collapsed={collapsed} />
 
@@ -223,28 +225,28 @@ export function Sidebar({
       {/* Central de ajuda card */}
       <div className={collapsed ? "p-2.5" : "p-3.5"}>
         <div
-          className={`flex items-center gap-3 rounded-2xl bg-[#F8FAFC] border border-[#E6E8F0] p-3 transition-colors hover:bg-slate-100/70 ${
+          className={`flex items-center gap-3 rounded-2xl bg-[#080D18]/90 border border-[rgba(0,140,255,0.3)] p-3 transition-all hover:border-[rgba(0,229,255,0.5)] shadow-[0_0_15px_rgba(0,140,255,0.1)] ${
             collapsed ? "justify-center" : ""
           }`}
           title={collapsed ? "Central de ajuda" : undefined}
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#EEF2FF] text-[#6366F1]">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#008CFF]/15 border border-[#008CFF]/30 text-[#00E5FF] shadow-[0_0_10px_rgba(0,229,255,0.25)]">
             <HelpCircle className="h-5 w-5" />
           </div>
           {!collapsed ? (
             <div className="min-w-0 flex-1">
-              <div className="text-xs font-semibold text-[#0F172A]">Central de ajuda</div>
-              <div className="text-[11px] text-[#64748B] truncate">Tutoriais e suporte</div>
+              <div className="text-xs font-bold text-white">Central de ajuda</div>
+              <div className="text-[11px] text-[#A8B3C7] truncate">Tutoriais e suporte</div>
             </div>
           ) : null}
         </div>
       </div>
 
       {/* Footer */}
-      <div className={`border-t border-[#E6E8F0] py-3 text-[11px] text-[#94A3B8] ${collapsed ? "px-2 text-center" : "px-5"}`}>
-        <div className="font-semibold text-[#64748B]">{collapsed ? "S" : "SAVYRON"}</div>
+      <div className={`border-t border-[rgba(0,153,255,0.15)] py-3 text-[11px] text-[#64748B] ${collapsed ? "px-2 text-center" : "px-5"}`}>
+        <div className="font-bold text-white tracking-wider">{collapsed ? "S" : "SAVYRON"}</div>
         {!collapsed ? (
-          <div className="text-[10px]">© 2026 Todos os direitos reservados.</div>
+          <div className="text-[10px] text-[#64748B]">© 2026 Todos os direitos reservados.</div>
         ) : null}
       </div>
     </aside>

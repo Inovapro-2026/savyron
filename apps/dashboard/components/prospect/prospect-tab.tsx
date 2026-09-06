@@ -414,18 +414,18 @@ export function ProspectTab() {
                 ? "Já existe uma prospecção em andamento"
                 : "PROSPECTAR"}
             </Button>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-slate-400">
               A prospecção roda em segundo plano (fila BullMQ). Você poderá
               cancelar a qualquer momento.
             </p>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3 px-5 py-10 text-center">
-            <Lock className="h-8 w-8 text-zinc-300" />
-            <p className="max-w-md text-sm text-zinc-600">
+            <Lock className="h-8 w-8 text-slate-600" />
+            <p className="max-w-md text-sm text-slate-400">
               A prospecção web automática (busca de leads por nicho e
               localização) está disponível apenas no plano{" "}
-              <strong>Empresa</strong>. Faça upgrade do seu plano para usar
+              <strong className="text-white">Empresa</strong>. Faça upgrade do seu plano para usar
               este recurso.
             </p>
             <Link href="/payment">
@@ -442,15 +442,15 @@ export function ProspectTab() {
             subtitle={activeRun.segment || "Segmento geral"}
             action={
               <div className="flex items-center gap-3">
-                <span className="text-[11px] text-zinc-500">
+                <span className="text-[11px] text-slate-400 font-mono">
                   Atualizado {formatRelativeTime(activeRun.updated_at, now)}
                 </span>
                 {activeRun.status === "RUNNING" ? (
                   <span
-                    className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-blue-600 animate-pulse"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[#008CFF]/30 bg-[#008CFF]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#00E5FF] animate-pulse"
                     title="Processo em andamento"
                   >
-                    <span className="h-2 w-2 rounded-full bg-blue-500 animate-ping" />
+                    <span className="h-2 w-2 rounded-full bg-[#00E5FF] animate-ping" />
                     Em andamento
                   </span>
                 ) : (
@@ -464,11 +464,11 @@ export function ProspectTab() {
           <div className="space-y-4">
             <div>
               <div className="mb-1.5 flex items-center justify-between text-sm">
-                <span className="text-zinc-600">
-                  <MapPin className="mr-1 inline h-3.5 w-3.5 text-zinc-400" />
+                <span className="text-slate-400">
+                  <MapPin className="mr-1 inline h-3.5 w-3.5 text-slate-500" />
                   {locationLabel(activeRun)}
                 </span>
-                <span className="font-medium text-zinc-700">
+                <span className="font-semibold text-white">
                   {activeRun.saved_count}/{activeRun.target_quantity} leads
                 </span>
               </div>
@@ -540,8 +540,8 @@ export function ProspectTab() {
               <Spinner />
             </div>
           ) : !showResults || !leadsData ? (
-            <div className="py-10 text-center text-sm text-zinc-500">
-              <Sparkles className="mx-auto mb-2 h-8 w-8 text-zinc-300" />
+            <div className="py-10 text-center text-sm text-slate-400">
+              <Sparkles className="mx-auto mb-2 h-8 w-8 text-slate-600" />
               {selectedRun &&
               ["PENDING", "RUNNING"].includes(selectedRun.status)
                 ? "A prospecção ainda está em andamento. Os resultados aparecem aqui em tempo real."
@@ -560,15 +560,15 @@ export function ProspectTab() {
               const found = selectedRun?.found_count ?? 0;
               const discarded = selectedRun?.discarded_count ?? 0;
               return (
-                <div className="py-10 text-center text-sm text-zinc-500">
-                  <Search className="mx-auto mb-2 h-8 w-8 text-zinc-300" />
+                <div className="py-10 text-center text-sm text-slate-400">
+                  <Search className="mx-auto mb-2 h-8 w-8 text-slate-600" />
                   {found > 0 ? (
                     <>
-                      Encontramos <strong className="text-zinc-700">{found}</strong>{" "}
+                      Encontramos <strong className="text-white font-semibold">{found}</strong>{" "}
                       {segment}
                       {region && region !== "Qualquer local" ? ` em ${region}` : ""}
                       , mas{" "}
-                      <strong className="text-zinc-700">
+                      <strong className="text-white font-semibold">
                         nenhum tinha telefone ou e-mail públicos disponíveis
                       </strong>{" "}
                       ({discarded > 0 ? `${discarded} descartados` : "todos sem contato"}).
@@ -581,63 +581,63 @@ export function ProspectTab() {
               );
             }
             return (
-              <table className="w-full min-w-[720px] text-left text-sm">
-                <thead className="sticky top-0 bg-zinc-50 text-[11px] uppercase tracking-wider text-zinc-500">
+              <table className="w-full min-w-[720px] text-left text-xs">
+                <thead className="sticky top-0 bg-[#0D152A] text-[10px] uppercase tracking-wider text-[#A8B3C7] border-b border-white/10">
                   <tr>
-                    <th className="px-4 py-3">Empresa</th>
-                    <th className="px-4 py-3">Telefone</th>
-                    <th className="px-4 py-3">E-mail</th>
-                    <th className="px-4 py-3">Cidade</th>
-                    <th className="px-4 py-3">Estado</th>
-                    <th className="px-4 py-3">Site</th>
-                    <th className="px-4 py-3">Score</th>
-                    <th className="px-4 py-3">Data</th>
+                    <th className="px-4 py-3 font-semibold">Empresa</th>
+                    <th className="px-4 py-3 font-semibold">Telefone</th>
+                    <th className="px-4 py-3 font-semibold">E-mail</th>
+                    <th className="px-4 py-3 font-semibold">Cidade</th>
+                    <th className="px-4 py-3 font-semibold">Estado</th>
+                    <th className="px-4 py-3 font-semibold">Site</th>
+                    <th className="px-4 py-3 font-semibold">Score</th>
+                    <th className="px-4 py-3 font-semibold">Data</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-white/5">
                   {contactLeads.map((lead) => (
                   <tr
                     key={lead.id}
-                    className="border-t border-zinc-200 hover:bg-zinc-100/60"
+                    className="hover:bg-[#0E1A33]/50 transition-colors"
                   >
-                    <td className="max-w-[220px] px-4 py-2.5 font-medium text-zinc-800">
+                    <td className="max-w-[220px] px-4 py-2.5 font-medium text-white">
                       <span className="block truncate">
                         {lead.business_name ?? lead.name ?? "—"}
                       </span>
                       {lead.source_type ? (
-                        <span className="text-[11px] text-zinc-400">
+                        <span className="text-[11px] text-[#64748B]">
                           Fonte: {lead.source_type}
                         </span>
                       ) : null}
                     </td>
-                    <td className="px-4 py-2.5 whitespace-nowrap text-zinc-600">
+                    <td className="px-4 py-2.5 whitespace-nowrap text-[#A8B3C7]">
                       {lead.phone ? (
                         <a
                           href={`tel:${lead.phone}`}
-                          className="hover:text-emerald-600"
+                          className="hover:text-[#00E5A0] transition-colors"
                         >
                           {lead.phone}
                         </a>
                       ) : (
-                        <span className="text-zinc-400">—</span>
+                        <span className="text-[#64748B]">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-2.5 text-zinc-600">
+                    <td className="px-4 py-2.5 text-[#A8B3C7]">
                       {lead.email ? (
                         <a
                           href={`mailto:${lead.email}`}
-                          className="hover:text-emerald-600"
+                          className="hover:text-[#00E5FF] transition-colors"
                         >
                           {lead.email}
                         </a>
                       ) : (
-                        <span className="text-zinc-400">—</span>
+                        <span className="text-[#64748B]">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-2.5 text-zinc-500">
+                    <td className="px-4 py-2.5 text-[#A8B3C7]">
                       {lead.city ?? "—"}
                     </td>
-                    <td className="px-4 py-2.5 text-zinc-500">
+                    <td className="px-4 py-2.5 text-[#A8B3C7]">
                       {lead.state ?? "—"}
                     </td>
                     <td className="px-4 py-2.5">
@@ -646,12 +646,12 @@ export function ProspectTab() {
                           href={lead.website}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center gap-1 text-emerald-600 hover:underline"
+                          className="inline-flex items-center gap-1 text-[#00E5FF] hover:underline"
                         >
                           <Globe className="h-3 w-3" /> ver
                         </a>
                       ) : (
-                        <span className="text-zinc-400">—</span>
+                        <span className="text-[#64748B]">—</span>
                       )}
                     </td>
                     <td className="px-4 py-2.5">
@@ -668,10 +668,10 @@ export function ProspectTab() {
                           {lead.lead_score}
                         </Badge>
                       ) : (
-                        <span className="text-zinc-400">—</span>
+                        <span className="text-slate-600">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-2.5 whitespace-nowrap text-zinc-500">
+                    <td className="px-4 py-2.5 whitespace-nowrap text-slate-400 font-mono text-xs">
                       {formatDate(lead.collected_at ?? lead.created_at)}
                     </td>
                   </tr>
@@ -698,52 +698,54 @@ export function ProspectTab() {
             <Spinner />
           </div>
         ) : runs.length === 0 ? (
-          <div className="py-10 text-center text-sm text-zinc-500">
-            <Sparkles className="mx-auto mb-2 h-8 w-8 text-zinc-300" />
+          <div className="py-10 text-center text-sm text-slate-400">
+            <Sparkles className="mx-auto mb-2 h-8 w-8 text-slate-600" />
             Nenhuma prospecção ainda. Comece pela primeira!
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-left text-sm">
-              <thead className="text-[11px] uppercase tracking-wider text-zinc-500">
+          <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#080D18]/80">
+            <table className="w-full min-w-[640px] text-left text-xs">
+              <thead className="border-b border-white/10 bg-[#0D152A] text-[10px] uppercase tracking-wider text-[#A8B3C7]">
                 <tr>
-                  <th className="px-4 py-3">Data</th>
-                  <th className="px-4 py-3">Nicho</th>
-                  <th className="px-4 py-3">Localização</th>
-                  <th className="px-4 py-3">Solicitados</th>
-                  <th className="px-4 py-3">Encontrados</th>
-                  <th className="px-4 py-3">Novos</th>
-                  <th className="px-4 py-3">Duplicados</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3"></th>
+                  <th className="px-4 py-3 font-semibold">Data</th>
+                  <th className="px-4 py-3 font-semibold">Nicho</th>
+                  <th className="px-4 py-3 font-semibold">Localização</th>
+                  <th className="px-4 py-3 font-semibold">Solicitados</th>
+                  <th className="px-4 py-3 font-semibold">Encontrados</th>
+                  <th className="px-4 py-3 font-semibold">Novos</th>
+                  <th className="px-4 py-3 font-semibold">Duplicados</th>
+                  <th className="px-4 py-3 font-semibold">Status</th>
+                  <th className="px-4 py-3 font-semibold"></th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-white/5">
                 {runs.map((run) => (
                   <tr
                     key={run.id}
                     onClick={() => setSelectedRunId(run.id)}
-                    className={`cursor-pointer border-t border-zinc-200 hover:bg-zinc-100/60 ${selectedRunId === run.id ? "bg-emerald-50/60" : ""}`}
+                    className={`cursor-pointer transition-colors hover:bg-[#0E1A33]/50 ${
+                      selectedRunId === run.id ? "bg-[#00E5FF]/10 ring-1 ring-[#00E5FF]/30" : ""
+                    }`}
                   >
-                    <td className="px-4 py-2.5 whitespace-nowrap text-zinc-500">
+                    <td className="px-4 py-2.5 whitespace-nowrap text-[#A8B3C7]">
                       {formatDate(run.created_at)}
                     </td>
-                    <td className="px-4 py-2.5 font-medium text-zinc-800">
+                    <td className="px-4 py-2.5 font-bold text-white">
                       {run.segment || "Segmento geral"}
                     </td>
-                    <td className="px-4 py-2.5 text-zinc-500">
+                    <td className="px-4 py-2.5 text-[#A8B3C7]">
                       {locationLabel(run)}
                     </td>
-                    <td className="px-4 py-2.5 text-zinc-600">
+                    <td className="px-4 py-2.5 text-white">
                       {run.target_quantity}
                     </td>
-                    <td className="px-4 py-2.5 text-zinc-600">
+                    <td className="px-4 py-2.5 text-white">
                       {run.found_count}
                     </td>
-                    <td className="px-4 py-2.5 font-medium text-emerald-700">
+                    <td className="px-4 py-2.5 font-bold text-[#00E5A0]">
                       {run.saved_count}
                     </td>
-                    <td className="px-4 py-2.5 text-amber-600">
+                    <td className="px-4 py-2.5 text-[#FFB020]">
                       {run.duplicate_count}
                     </td>
                     <td className="px-4 py-2.5">
@@ -809,14 +811,14 @@ export function ProspectTab() {
         message={
           <span>
             Excluir a prospecção de{" "}
-            <strong className="text-zinc-900">
+            <strong className="text-white font-semibold">
               {deleteTarget?.segment || "segmento geral"}
             </strong>{" "}
             ({deleteTarget?.saved_count ?? 0} leads salvos)? Os leads encontrados
             por esta prospecção, conversas, mensagens, opt-outs e vínculos de
             campanha também serão{" "}
-            <strong className="text-red-600">removidos permanentemente</strong>.
-            Digite <strong className="text-zinc-900">EXCLUIR</strong> para
+            <strong className="text-rose-400 font-semibold">removidos permanentemente</strong>.
+            Digite <strong className="text-white font-mono bg-white/10 px-1.5 py-0.5 rounded">EXCLUIR</strong> para
             confirmar.
           </span>
         }
@@ -835,11 +837,11 @@ function Stat({
   value: number;
 }) {
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2">
-      <span className="text-zinc-400">{icon}</span>
+    <div className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-[#0C1427]/70 px-3 py-2 shadow-sm">
+      <span className="text-[#00E5FF]">{icon}</span>
       <div>
-        <div className="text-sm font-semibold text-zinc-800">{value}</div>
-        <div className="text-[11px] text-zinc-500">{label}</div>
+        <div className="text-sm font-black text-white">{value}</div>
+        <div className="text-[11px] font-medium text-[#A8B3C7]">{label}</div>
       </div>
     </div>
   );

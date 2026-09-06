@@ -48,70 +48,71 @@ export function VitrinePlans() {
 
   if (plans.length === 0) {
     return (
-      <div className="mx-auto max-w-md rounded-2xl border border-zinc-200 bg-white p-6 text-center text-sm text-zinc-500">
-        Carregando planos disponíveis...
+      <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-[#080D18]/80 p-8 text-center text-sm text-slate-400 backdrop-blur-md">
+        <div className="mx-auto mb-3 h-5 w-5 animate-spin rounded-full border-2 border-[#008CFF] border-t-transparent" />
+        Carregando planos neurais disponíveis...
       </div>
     );
   }
 
   return (
-    <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {plans.map((plan) => {
         const highlighted = plan.slug === HIGHLIGHTED_PLAN_SLUG;
         return (
           <div
             key={plan.id}
-            className={`relative flex flex-col rounded-2xl border bg-white p-6 ${
+            className={`relative flex flex-col rounded-2xl border p-7 backdrop-blur-xl transition-all duration-300 ${
               highlighted
-                ? "border-emerald-600 shadow-xl shadow-emerald-900/10"
-                : "border-zinc-200 shadow-sm"
+                ? "border-[#008CFF] bg-[#080D18]/95 shadow-[0_0_35px_rgba(0,140,255,0.25)] ring-1 ring-[#008CFF]/40 scale-105 z-10"
+                : "border-white/10 bg-[#080D18]/80 hover:border-white/20 shadow-[0_4px_24px_rgba(0,0,0,0.4)]"
             }`}
           >
             {highlighted ? (
-              <span className="absolute -top-3 left-6 rounded-full bg-emerald-600 px-3 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white">
-                Mais popular
+              <span className="absolute -top-3.5 left-7 rounded-full bg-gradient-to-r from-[#008CFF] to-[#00E5FF] px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-black shadow-[0_0_15px_rgba(0,140,255,0.5)]">
+                Mais Recomendado
               </span>
             ) : null}
 
-            <div className="font-display text-lg font-bold text-zinc-900">
+            <div className="text-xl font-black text-white">
               {plan.name}
             </div>
-            <div className="mt-2 flex items-baseline gap-1">
-              <span className="text-3xl font-black tracking-tight text-zinc-900">
+            <div className="mt-3 flex items-baseline gap-1.5">
+              <span className="font-mono text-3xl font-extrabold tracking-tight text-white">
                 R$ {brl(plan.price)}
               </span>
-              <span className="text-sm font-medium text-zinc-500">/mês</span>
+              <span className="text-xs font-medium text-slate-400">/mês</span>
             </div>
             {plan.description ? (
-              <div className="mt-1.5 text-sm text-zinc-500">
+              <div className="mt-2 text-xs text-slate-400 leading-relaxed">
                 {plan.description}
               </div>
             ) : null}
 
-            <div className="my-4 h-px bg-zinc-200" />
+            <div className="my-5 h-px bg-white/10" />
 
-            <ul className="mb-6 flex-1 space-y-2">
+            <ul className="mb-7 flex-1 space-y-2.5">
               {plan.features.map((f) => {
                 const limited = f.limit !== null;
                 return (
                   <li
                     key={f.feature}
-                    className={`flex items-center gap-2 text-sm ${
-                      f.enabled ? "text-zinc-700" : "text-zinc-400 line-through"
+                    className={`flex items-center gap-2.5 text-xs ${
+                      f.enabled ? "text-slate-300" : "text-slate-600 line-through"
                     }`}
                   >
                     <Check
                       className={`h-4 w-4 shrink-0 ${
-                        f.enabled ? "text-emerald-600" : "text-zinc-400"
+                        f.enabled ? "text-[#00E5A0]" : "text-slate-600"
                       }`}
-                      strokeWidth={3}
+                      strokeWidth={2.5}
                     />
                     <span className="min-w-0 flex-1">
                       {featureLabel(f.feature)}
                     </span>
                     <span
-                      className={`shrink-0 font-medium ${
-                        limited ? "text-zinc-900" : "text-zinc-600"
+                      className={`shrink-0 font-mono text-[11px] font-semibold ${
+                        limited ? "text-[#00E5FF]" : "text-slate-400"
                       }`}
                     >
                       {formatLimit(f.limit)}
@@ -123,10 +124,10 @@ export function VitrinePlans() {
 
             <Link
               href="/signup"
-              className={`inline-flex w-full items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold transition-colors ${
+              className={`inline-flex w-full items-center justify-center rounded-xl px-6 py-3.5 text-xs font-bold uppercase tracking-wider transition-all ${
                 highlighted
-                  ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                  : "border border-zinc-300 bg-white text-zinc-800 hover:border-emerald-600 hover:text-emerald-700"
+                  ? "bg-gradient-to-r from-[#008CFF] to-[#00E5FF] text-black shadow-[0_0_20px_rgba(0,140,255,0.3)] hover:brightness-110"
+                  : "border border-white/10 bg-white/5 text-slate-200 hover:border-[#008CFF]/40 hover:bg-[#008CFF]/10 hover:text-white"
               }`}
             >
               Escolher {plan.name}

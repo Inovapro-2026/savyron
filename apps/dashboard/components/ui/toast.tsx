@@ -39,16 +39,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`pointer-events-auto flex items-center gap-2 rounded-xl border px-4 py-3 text-sm shadow-lg backdrop-blur ${
+            className={`pointer-events-auto flex items-center gap-2.5 rounded-xl border px-4 py-3 text-sm backdrop-blur-md transition-all ${
               t.kind === 'success'
-                ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600'
+                ? 'border-[#00E5A0]/45 bg-[#050914]/95 text-[#00E5A0] shadow-[0_0_20px_rgba(0,229,160,0.25)]'
                 : t.kind === 'error'
-                  ? 'border-red-500/30 bg-red-500/10 text-red-600'
-                  : 'border-blue-500/30 bg-blue-500/10 text-blue-600'
+                  ? 'border-[#FF3366]/45 bg-[#050914]/95 text-[#FF3366] shadow-[0_0_20px_rgba(255,51,102,0.25)]'
+                  : 'border-[#00E5FF]/45 bg-[#050914]/95 text-[#00E5FF] shadow-[0_0_20px_rgba(0,229,255,0.25)]'
             }`}
           >
-            {t.kind === 'success' ? <CheckCircle2 className="h-4 w-4 shrink-0" /> : t.kind === 'error' ? <AlertCircle className="h-4 w-4 shrink-0" /> : <Info className="h-4 w-4 shrink-0" />}
-            <span>{t.message}</span>
+            {t.kind === 'success' ? <CheckCircle2 className="h-4.5 w-4.5 shrink-0" /> : t.kind === 'error' ? <AlertCircle className="h-4.5 w-4.5 shrink-0" /> : <Info className="h-4.5 w-4.5 shrink-0" />}
+            <span className="font-medium text-white">{t.message}</span>
           </div>
         ))}
       </div>

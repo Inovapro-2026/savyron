@@ -42,6 +42,11 @@ export default function ImpersonateExitPage() {
   }, [router]);
 
   return (
-    <div className="text-sm text-zinc-500">Encerrando o modo de suporte...</div>
+    <div className="flex h-64 items-center justify-center">
+      <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#080D18]/80 px-5 py-3 text-sm text-slate-400 backdrop-blur-md">
+        <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#008CFF] border-t-transparent" />
+        Encerrando sessão de suporte...
+      </div>
+    </div>
   );
 }

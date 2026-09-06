@@ -204,30 +204,38 @@ export default function AdminUsersPage() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="heading-strong text-xl">
-            Usuários
-          </h1>
-          <p className="text-sm text-zinc-500">
-            Contas cadastradas na plataforma
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#008CFF]/10 border border-[#008CFF]/25 text-[11px] font-semibold text-[#00E5FF] mb-2 uppercase tracking-wider">
+            Identidade & Controle de Acesso
+          </div>
+          <h1 className="text-3xl font-black tracking-tight text-white">Usuários da Plataforma</h1>
+          <p className="text-sm text-slate-400">
+            Gerenciamento de contas, papéis de suporte, administradores e empresas associadas.
           </p>
         </div>
-        <Button onClick={() => setShowCreate((s) => !s)}>
-          {showCreate ? "Cancelar" : "Novo usuário"}
+        <Button
+          onClick={() => setShowCreate((s) => !s)}
+          className="bg-gradient-to-r from-[#008CFF] to-[#00E5FF] text-black font-semibold shadow-[0_0_15px_rgba(0,140,255,0.2)]"
+        >
+          {showCreate ? "Cancelar" : "Novo Usuário"}
         </Button>
       </div>
 
       {error ? (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
+        <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-3 text-sm text-rose-400 backdrop-blur-md">
           {error}
         </div>
       ) : null}
 
       {showCreate && (
-        <Card className="p-4">
-          <form onSubmit={createUser} className="grid gap-3 sm:grid-cols-2">
+        <Card className="border border-white/10 bg-[#080D18]/90 p-6 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
+          <h3 className="mb-4 text-base font-bold text-white flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-[#00E5FF] animate-pulse" />
+            Cadastrar Novo Usuário
+          </h3>
+          <form onSubmit={createUser} className="grid gap-4 sm:grid-cols-2">
             <Input
               label="Nome"
               value={newName}
@@ -248,18 +256,18 @@ export default function AdminUsersPage() {
               onChange={(e) => setNewPassword(e.target.value)}
               required
             />
-            <label className="flex items-center gap-2 self-end pb-2 text-sm text-zinc-700">
+            <label className="flex items-center gap-2.5 self-end pb-2 text-sm text-slate-300 cursor-pointer">
               <input
                 type="checkbox"
                 checked={newAdmin}
                 onChange={(e) => setNewAdmin(e.target.checked)}
-                className="accent-emerald-500"
+                className="h-4 w-4 rounded border-white/20 bg-[#020409] accent-[#7C3CFF]"
               />
-              Administrador da plataforma
+              Administrador da Plataforma (Role PLATFORM_ADMIN)
             </label>
-            <div className="sm:col-span-2">
-              <Button type="submit" loading={creating}>
-                Criar usuário
+            <div className="sm:col-span-2 pt-2">
+              <Button type="submit" loading={creating} className="bg-gradient-to-r from-[#008CFF] to-[#00E5FF] text-black font-semibold">
+                Criar Usuário
               </Button>
             </div>
           </form>
@@ -267,26 +275,31 @@ export default function AdminUsersPage() {
       )}
 
       {loading ? (
-        <div className="text-sm text-zinc-500">Carregando...</div>
+        <div className="flex h-64 items-center justify-center">
+          <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#080D18]/80 px-5 py-3 text-sm text-slate-400 backdrop-blur-md">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#008CFF] border-t-transparent" />
+            Carregando usuários...
+          </div>
+        </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {users.map((u) => (
             <button
               key={u.id}
               onClick={() => void openDetail(u)}
-              className="block w-full text-left"
+              className="block w-full text-left transition-transform hover:-translate-y-0.5"
             >
-              <Card className="flex items-center justify-between p-4 transition-colors hover:border-zinc-400">
+              <Card className="flex items-center justify-between border border-white/10 bg-[#080D18]/80 p-5 backdrop-blur-md transition-all hover:border-white/20 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
                 <div>
-                  <div className="font-medium text-zinc-900">{u.name}</div>
-                  <div className="text-xs text-zinc-500">
-                    {u.email} · criado em{" "}
+                  <div className="text-base font-bold text-white">{u.name}</div>
+                  <div className="mt-1 text-xs text-slate-400">
+                    <span className="text-slate-300">{u.email}</span> · criado em{" "}
                     {new Date(u.created_at).toLocaleDateString("pt-BR")}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   {!u.active ? (
-                    <span className="rounded-full border border-red-500/30 bg-red-500/15 px-2 py-0.5 text-[11px] text-red-600">
+                    <span className="rounded-full border border-rose-500/30 bg-rose-500/15 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-rose-300 shadow-[0_0_8px_rgba(244,63,94,0.15)]">
                       desativada
                     </span>
                   ) : null}
@@ -296,7 +309,9 @@ export default function AdminUsersPage() {
             </button>
           ))}
           {users.length === 0 && (
-            <div className="text-sm text-zinc-500">Nenhum usuário.</div>
+            <div className="rounded-2xl border border-white/10 bg-[#080D18]/80 p-8 text-center text-sm text-slate-500 backdrop-blur-md">
+              Nenhum usuário cadastrado.
+            </div>
           )}
         </div>
       )}
@@ -305,94 +320,98 @@ export default function AdminUsersPage() {
         open={selected !== null}
         onClose={() => setSelected(null)}
         title={
-          selected ? `Editar usuário — ${selected.name}` : "Editar usuário"
+          selected ? `Editar Usuário — ${selected.name}` : "Editar Usuário"
         }
         footer={
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setSelected(null)}>
+            <Button variant="outline" className="border-white/10 text-slate-300" onClick={() => setSelected(null)}>
               Fechar
             </Button>
-            <Button onClick={() => void saveUser()} loading={saving}>
-              Salvar alterações
+            <Button onClick={() => void saveUser()} loading={saving} className="bg-gradient-to-r from-[#008CFF] to-[#00E5FF] text-black font-semibold">
+              Salvar Alterações
             </Button>
           </div>
         }
       >
         <div className="space-y-4">
           {detailLoading ? (
-            <div className="text-sm text-zinc-500">Carregando...</div>
+            <div className="flex h-40 items-center justify-center">
+              <div className="flex items-center gap-3 text-sm text-slate-400">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#008CFF] border-t-transparent" />
+                Carregando detalhes...
+              </div>
+            </div>
           ) : (
             detail && (
               <>
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <div className="text-xs text-zinc-500">E-mail</div>
-                    <div className="text-zinc-700">{detail.email}</div>
+                  <div className="rounded-xl border border-white/10 bg-[#020409]/60 p-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">E-mail</div>
+                    <div className="mt-1 font-mono text-xs font-bold text-white">{detail.email}</div>
                   </div>
-                  <div>
-                    <div className="text-xs text-zinc-500">Criado em</div>
-                    <div className="text-zinc-700">
+                  <div className="rounded-xl border border-white/10 bg-[#020409]/60 p-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Criado em</div>
+                    <div className="mt-1 font-mono text-xs text-slate-300">
                       {new Date(detail.created_at).toLocaleDateString("pt-BR")}
                     </div>
                   </div>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <label className="label">Papel na plataforma</label>
+                  <div className="rounded-xl border border-white/10 bg-[#020409]/60 p-3.5">
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-300">Papel na Plataforma</label>
                     <select
-                      className="input"
+                      className="w-full rounded-xl border border-white/10 bg-[#080D18] px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-[#008CFF]/60"
                       value={role}
                       onChange={(e) => setRole(e.target.value as typeof role)}
                     >
-                      <option value="NONE">NONE — usuário comum</option>
-                      <option value="PLATFORM_STAFF">
+                      <option value="NONE" className="bg-[#080D18]">NONE — usuário comum</option>
+                      <option value="PLATFORM_STAFF" className="bg-[#080D18]">
                         PLATFORM_STAFF — suporte (leitura)
                       </option>
-                      <option value="PLATFORM_ADMIN">
+                      <option value="PLATFORM_ADMIN" className="bg-[#080D18]">
                         PLATFORM_ADMIN — administrador
                       </option>
                     </select>
-                    <p className="mt-1 text-[11px] text-zinc-500">
+                    <p className="mt-1.5 text-[11px] text-slate-500">
                       {selected?.id && role !== selected.platform_role ? (
-                        <>
-                          Atenção: você não pode se rebaixar se for o último
-                          admin. A alteração é auditada.
-                        </>
+                        <span className="text-amber-400">
+                          Atenção: você não pode se rebaixar se for o último admin. Alteração é auditada.
+                        </span>
                       ) : (
-                        "Alteração registrada em auditoria."
+                        "Alteração registrada no log de auditoria global."
                       )}
                     </p>
                   </div>
-                  <div>
-                    <label className="label">Status da conta</label>
-                    <div className="flex items-center gap-3 pt-2">
+                  <div className="rounded-xl border border-white/10 bg-[#020409]/60 p-3.5">
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-300">Status da Conta</label>
+                    <div className="flex items-center gap-3 pt-1">
                       <input
                         type="checkbox"
                         checked={active}
                         onChange={(e) => setActive(e.target.checked)}
-                        className="accent-emerald-500"
+                        className="h-4 w-4 rounded border-white/20 bg-[#020409] accent-[#00E5A0]"
                       />
-                      <span className="text-sm text-zinc-700">
+                      <span className={`text-sm font-semibold ${active ? "text-[#00E5A0]" : "text-rose-400"}`}>
                         {active ? "Ativa" : "Desativada"}
                       </span>
                     </div>
-                    <p className="mt-1 text-[11px] text-zinc-500">
-                      Conta desativada não consegue entrar na plataforma.
+                    <p className="mt-2 text-[11px] text-slate-500">
+                      Contas desativadas não conseguem autenticar ou emitir tokens.
                     </p>
                   </div>
                 </div>
 
                 <div>
-                  <div className="mb-2 text-sm font-medium text-zinc-700">
-                    Empresas do usuário
+                  <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-300">
+                    Empresas Vinculadas ao Usuário
                   </div>
                   {detail.memberships.length === 0 ? (
-                    <div className="text-xs text-zinc-500">
+                    <div className="rounded-xl border border-white/10 bg-[#020409]/50 p-4 text-center text-xs text-slate-500">
                       Nenhuma empresa vinculada.
                     </div>
                   ) : (
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                       {detail.memberships.map((m) => {
                         const sub = subs.find(
                           (s) => s.business_id === m.business.id,
@@ -403,27 +422,27 @@ export default function AdminUsersPage() {
                         return (
                           <div
                             key={m.id}
-                            className="rounded-lg bg-white px-3 py-2"
+                            className="rounded-xl border border-white/10 bg-[#020409]/70 p-4"
                           >
                             <div className="flex items-center justify-between">
                               <div>
-                                <span className="text-sm text-zinc-700">
+                                <span className="text-sm font-bold text-white">
                                   {m.business.name}
                                 </span>
-                                <span className="ml-2 text-[11px] text-zinc-500">
+                                <span className="ml-2 font-mono text-[11px] text-[#00E5FF]">
                                   {m.business.slug}
                                 </span>
                               </div>
                               <StatusBadge status={m.role} />
                             </div>
-                            <div className="mt-2 flex flex-wrap items-end gap-2">
+                            <div className="mt-3 flex flex-wrap items-end gap-2.5">
                               <div className="min-w-[220px] flex-1">
-                                <label className="label">
-                                  Plano da empresa
+                                <label className="mb-1 block text-xs font-medium text-slate-400">
+                                  Plano da Empresa
                                 </label>
                                 <div className="flex items-center gap-2">
                                   <select
-                                    className="input"
+                                    className="w-full rounded-xl border border-white/10 bg-[#080D18] px-3 py-2 text-xs text-slate-100 outline-none focus:border-[#008CFF]/60"
                                     value={
                                       pendingPlan[m.business.id] ??
                                       currentPlan?.id ??
@@ -440,9 +459,9 @@ export default function AdminUsersPage() {
                                       }))
                                     }
                                   >
-                                    <option value="">Sem plano</option>
+                                    <option value="" className="bg-[#080D18]">Sem plano</option>
                                     {plans.map((p) => (
-                                      <option key={p.id} value={p.id}>
+                                      <option key={p.id} value={p.id} className="bg-[#080D18]">
                                         {p.name} — R${" "}
                                         {p.price.toFixed(2).replace(".", ",")}
                                       </option>
@@ -451,7 +470,7 @@ export default function AdminUsersPage() {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    className="shrink-0"
+                                    className="shrink-0 border-[#008CFF]/30 text-[#00E5FF] hover:bg-[#008CFF]/15"
                                     disabled={
                                       !pendingPlan[m.business.id] ||
                                       pendingPlan[m.business.id] ===
@@ -469,9 +488,8 @@ export default function AdminUsersPage() {
                                     Aplicar
                                   </Button>
                                 </div>
-                                <p className="mt-1 text-[11px] text-zinc-400">
-                                  Selecione o plano e clique em Aplicar para
-                                  trocar imediatamente.
+                                <p className="mt-1 text-[10px] text-slate-500">
+                                  Selecione o plano e clique em Aplicar para trocar imediatamente.
                                 </p>
                               </div>
                               <Button
@@ -484,7 +502,7 @@ export default function AdminUsersPage() {
                                   })
                                 }
                               >
-                                Resetar conta
+                                Resetar Conta
                               </Button>
                             </div>
                           </div>
@@ -510,17 +528,17 @@ export default function AdminUsersPage() {
         message={
           <span>
             Resetar todos os dados da empresa{" "}
-            <strong className="text-zinc-900">
+            <strong className="text-white">
               {resetTarget?.name}
             </strong>
             ? Leads, campanhas, conversas, mensagens, opt-outs, eventos e
             gerações de IA desta empresa serão{" "}
-            <strong className="text-red-600">
+            <strong className="text-rose-400 font-bold">
               apagados permanentemente
             </strong>
             . A conta de login e a empresa continuam existindo. A sessão do
             WhatsApp será encerrada e jobs pendentes serão removidos. Digite{" "}
-            <strong className="text-zinc-900">EXCLUIR</strong> para confirmar.
+            <strong className="text-[#00E5FF] font-mono">EXCLUIR</strong> para confirmar.
           </span>
         }
       />

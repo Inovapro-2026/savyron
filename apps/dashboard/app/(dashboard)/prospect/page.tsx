@@ -28,36 +28,36 @@ function ProspectHub() {
 
   return (
     <>
-      <div className="mb-6 flex gap-2">
+      <div className="mb-6 flex flex-wrap gap-2.5">
         <button
           onClick={() => setTab("prospect")}
-          className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold transition-all duration-150 ${
+          className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all duration-200 ${
             active === "prospect"
-              ? "bg-[#6366F1] text-white shadow-xs"
-              : "border border-[#E6E8F0] bg-white text-[#475569] hover:bg-slate-50 hover:text-[#0F172A]"
+              ? "border border-[#00E5FF]/50 bg-gradient-to-r from-[#008CFF]/25 to-[#00E5FF]/20 text-[#00E5FF] shadow-[0_0_20px_rgba(0,229,255,0.25)] ring-1 ring-[#00E5FF]/30"
+              : "border border-white/10 bg-[#080D18]/80 text-[#A8B3C7] hover:border-[#008CFF]/40 hover:bg-[#0C1427] hover:text-white"
           }`}
         >
-          <Search className="h-4 w-4" /> Prospecção web
+          <Search className="h-4 w-4 text-[#00E5FF]" /> Prospecção Web
         </button>
         <button
           onClick={() => setTab("import")}
-          className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold transition-all duration-150 ${
+          className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all duration-200 ${
             active === "import"
-              ? "bg-[#6366F1] text-white shadow-xs"
-              : "border border-[#E6E8F0] bg-white text-[#475569] hover:bg-slate-50 hover:text-[#0F172A]"
+              ? "border border-[#00E5FF]/50 bg-gradient-to-r from-[#008CFF]/25 to-[#00E5FF]/20 text-[#00E5FF] shadow-[0_0_20px_rgba(0,229,255,0.25)] ring-1 ring-[#00E5FF]/30"
+              : "border border-white/10 bg-[#080D18]/80 text-[#A8B3C7] hover:border-[#008CFF]/40 hover:bg-[#0C1427] hover:text-white"
           }`}
         >
-          <Upload className="h-4 w-4" /> Importação manual
+          <Upload className="h-4 w-4 text-[#008CFF]" /> Importação Manual
         </button>
         <button
           onClick={() => setTab("whatsapp")}
-          className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold transition-all duration-150 ${
+          className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all duration-200 ${
             active === "whatsapp"
-              ? "bg-[#6366F1] text-white shadow-xs"
-              : "border border-[#E6E8F0] bg-white text-[#475569] hover:bg-slate-50 hover:text-[#0F172A]"
+              ? "border border-[#00E5A0]/50 bg-gradient-to-r from-[#008CFF]/20 to-[#00E5A0]/20 text-[#00E5A0] shadow-[0_0_20px_rgba(0,229,160,0.25)] ring-1 ring-[#00E5A0]/30"
+              : "border border-white/10 bg-[#080D18]/80 text-[#A8B3C7] hover:border-[#00E5A0]/40 hover:bg-[#0C1427] hover:text-white"
           }`}
         >
-          <MessageCircle className="h-4 w-4" /> WhatsApp
+          <MessageCircle className="h-4 w-4 text-[#00E5A0]" /> WhatsApp Baileys
         </button>
       </div>
 
@@ -78,7 +78,7 @@ export default function ProspectPage() {
     <DashboardShell title="Prospecção">
       <Suspense
         fallback={
-          <div className="py-10 text-center text-sm text-zinc-500">
+          <div className="py-10 text-center text-sm text-slate-400">
             Carregando…
           </div>
         }

@@ -109,24 +109,24 @@ export function PixCheckout({
     `R$ ${amount.toFixed(2).replace(".", ",")}`;
 
   return (
-    <Card className="p-6">
-      <h2 className="mb-4 text-center font-display text-lg font-bold text-zinc-900">
+    <Card className="p-6 border-white/10 bg-[#080D18]/90 backdrop-blur-xl">
+      <h2 className="mb-4 text-center font-display text-lg font-bold text-white">
         {title}
       </h2>
 
       {loading ? (
         <div className="flex flex-col items-center gap-3 py-6">
-          <RefreshCw className="h-6 w-6 animate-spin text-indigo-500" />
-          <p className="text-sm text-zinc-500">Gerando seu PIX...</p>
+          <RefreshCw className="h-6 w-6 animate-spin text-[#008CFF]" />
+          <p className="text-sm text-slate-400">Gerando seu PIX...</p>
         </div>
       ) : error ? (
         <div className="space-y-3 py-2">
-          <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
+          <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
             {error}
           </div>
           <Button
             variant="outline"
-            className="w-full"
+            className="w-full border-white/10 text-slate-300 hover:bg-white/5"
             onClick={() => void generatePix()}
           >
             Tentar novamente
@@ -139,17 +139,17 @@ export function PixCheckout({
             <img
               src={pix.brCodeBase64}
               alt="QR Code PIX"
-              className="h-52 w-52 rounded-2xl border border-zinc-200 bg-white p-2"
+              className="h-52 w-52 rounded-2xl border-2 border-[#00E5FF]/40 bg-white p-3 shadow-2xl shadow-[#00E5FF]/10"
             />
           </div>
 
-          <div className="text-center text-sm text-zinc-500">
+          <div className="text-center text-sm text-slate-400">
             Valor:{" "}
-            <span className="font-semibold text-zinc-900">
+            <span className="font-bold text-white">
               {formattedAmount(pix.amount)}
             </span>
             {pix.expiresAt ? (
-              <span className="mx-1 text-zinc-400">·</span>
+              <span className="mx-1 text-slate-600">·</span>
             ) : null}
             {pix.expiresAt ? (
               <span>
@@ -164,16 +164,16 @@ export function PixCheckout({
             ) : null}
           </div>
 
-          <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3">
-            <div className="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-400">
+          <div className="rounded-xl border border-white/10 bg-[#020409]/60 p-3">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
               Copia e cola
             </div>
-            <p className="mb-3 break-all rounded-lg bg-white p-3 font-mono text-[11px] leading-relaxed text-zinc-600">
+            <p className="mb-3 break-all rounded-lg border border-white/5 bg-[#080D18] p-3 font-mono text-[11px] leading-relaxed text-slate-300">
               {pix.brCode}
             </p>
             <Button
               variant="outline"
-              className="w-full"
+              className="w-full border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white"
               onClick={() => void copyCode()}
             >
               <Copy className="mr-2 h-4 w-4" />
@@ -181,13 +181,13 @@ export function PixCheckout({
             </Button>
           </div>
 
-          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700">
+          <div className="rounded-xl border border-[#00E5A0]/30 bg-[#00E5A0]/10 px-4 py-3 text-sm text-[#00E5A0]">
             Após pagar, o acesso é liberado automaticamente em alguns segundos.
           </div>
 
           <Button
             variant="outline"
-            className="w-full"
+            className="w-full border-white/10 bg-[#008CFF]/15 text-[#00E5FF] hover:bg-[#008CFF]/25 shadow-[0_0_15px_rgba(0,140,255,0.2)]"
             onClick={() => {
               setChecking(true);
               request<BillingStatus>("billing/status")

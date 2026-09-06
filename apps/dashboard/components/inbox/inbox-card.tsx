@@ -150,8 +150,8 @@ export function InboxCard({
         }
       }}
       aria-label={`Abrir conversa com ${c.lead_name ?? "contato"}`}
-      className={`inbox-card group relative flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-[#E6E8F0] bg-white p-4 text-left shadow-[0_4px_20px_rgba(15,23,42,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#C7D2FE] hover:shadow-[0_8px_24px_rgba(99,102,241,0.08)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/60 active:scale-[0.99] ${
-        highlighted ? "inbox-card-flash" : ""
+      className={`inbox-card group relative flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#080D18]/85 p-4 text-left shadow-[0_4px_20px_rgba(0,0,0,0.4)] backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:border-[#00E5FF]/50 hover:shadow-[0_0_25px_rgba(0,229,255,0.18)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00E5FF]/60 active:scale-[0.99] ${
+        highlighted ? "inbox-card-flash ring-2 ring-[#00E5FF]" : ""
       }`}
     >
       {/* Menu de ações (⋮) */}
@@ -165,7 +165,7 @@ export function InboxCard({
             aria-label={`Ações da conversa com ${c.lead_name ?? "contato"}`}
             aria-expanded={menuOpen}
             title="Mais ações"
-            className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100/70 text-[#64748B] transition-colors hover:bg-slate-200/80 hover:text-[#0F172A] focus:opacity-100"
+            className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/5 bg-[#0C1427]/70 text-[#A8B3C7] transition-colors hover:border-white/20 hover:bg-[#121B32] hover:text-white focus:opacity-100"
           >
             <MoreVertical className="h-4 w-4" />
           </button>
@@ -176,13 +176,13 @@ export function InboxCard({
                 onClick={() => setMenuOpen(false)}
                 aria-hidden="true"
               />
-              <div className="absolute right-0 top-8 z-20 w-44 overflow-hidden rounded-xl border border-[#E6E8F0] bg-white shadow-xl">
+              <div className="absolute right-0 top-8 z-20 w-44 overflow-hidden rounded-2xl border border-white/10 bg-[#080D18] shadow-2xl backdrop-blur-xl">
                 <button
                   onClick={() => {
                     setMenuOpen(false);
                     onDelete();
                   }}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium text-[#EF4444] transition-colors hover:bg-red-50"
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-[#FF3366] transition-colors hover:bg-red-500/10"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                   Excluir conversa
@@ -196,12 +196,12 @@ export function InboxCard({
       {/* Cabeçalho: avatar + nome + indicador IA/humano */}
       <div className="flex items-start gap-2.5 pr-8">
         <div className="relative shrink-0">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-sm font-bold text-white shadow-xs transition-transform group-hover:scale-105">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#00E5FF]/30 bg-gradient-to-br from-[#008CFF] to-[#7C3CFF] text-sm font-black text-white shadow-[0_0_12px_rgba(0,140,255,0.25)] transition-transform group-hover:scale-105">
             {initials}
           </div>
           {unread && (
             <span
-              className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-[#6366F1] ring-2 ring-white"
+              className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-[#00E5FF] ring-2 ring-[#080D18] shadow-[0_0_8px_#00E5FF]"
               aria-label="Não lida"
             />
           )}
@@ -210,20 +210,20 @@ export function InboxCard({
           <div className="flex min-w-0 items-start gap-1.5">
             <span
               title={c.lead_name ?? "Contato"}
-              className="min-w-0 flex-1 break-words font-bold leading-snug text-[#0F172A] line-clamp-2"
+              className="min-w-0 flex-1 break-words font-bold leading-snug text-white line-clamp-2"
             >
               {c.lead_name ?? "Contato"}
             </span>
             {c.human_handled ? (
               <span
-                className="mt-0.5 flex shrink-0 items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-1.5 py-0.5 text-[10px] font-semibold text-blue-700"
+                className="mt-0.5 flex shrink-0 items-center gap-1 rounded-full bg-purple-950/40 border border-purple-500/40 px-1.5 py-0.5 text-[10px] font-bold text-purple-300 shadow-[0_0_8px_rgba(168,85,247,0.2)]"
                 title="Modo manual"
               >
                 <User className="h-2.5 w-2.5" /> humano
               </span>
             ) : (
               <span
-                className="mt-0.5 flex shrink-0 items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-700"
+                className="mt-0.5 flex shrink-0 items-center gap-1 rounded-full bg-cyan-950/40 border border-cyan-500/40 px-1.5 py-0.5 text-[10px] font-bold text-[#00E5FF] shadow-[0_0_8px_rgba(0,229,255,0.2)]"
                 title="Atendimento de IA"
               >
                 <Bot className="h-2.5 w-2.5" /> IA
@@ -237,8 +237,8 @@ export function InboxCard({
       </div>
 
       {/* Telefone do contato */}
-      <div className="mt-3 flex items-center gap-1.5 text-xs text-[#475569]">
-        <Phone className="h-3.5 w-3.5 shrink-0 text-[#10B981]" />
+      <div className="mt-3 flex items-center gap-1.5 text-xs text-[#A8B3C7]">
+        <Phone className="h-3.5 w-3.5 shrink-0 text-[#00E5A0]" />
         <span className="truncate font-medium tracking-wide">
           {phone ?? "Número não informado"}
         </span>
@@ -261,14 +261,14 @@ export function InboxCard({
       </div>
 
       {/* Rodapé: horário + mensagens não lidas */}
-      <div className="mt-auto flex items-center justify-between gap-2 pt-3 border-t border-[#F1F5F9]">
-        <span className="text-[11px] text-[#94A3B8]">
+      <div className="mt-auto flex items-center justify-between gap-2 pt-3 border-t border-white/5">
+        <span className="text-[11px] text-[#64748B]">
           {formatRelativeTime(c.last_message_at)}
         </span>
         {unread ? (
-          <span className="flex shrink-0 items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200 px-1.5 py-0.5 text-[10px] font-semibold text-[#6366F1]">
+          <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 px-2 py-0.5 text-[10px] font-bold text-[#00E5FF] shadow-[0_0_10px_rgba(0,229,255,0.2)]">
             <span
-              className="h-1.5 w-1.5 rounded-full bg-[#6366F1]"
+              className="h-1.5 w-1.5 rounded-full bg-[#00E5FF] animate-pulse"
               aria-hidden="true"
             />
             nova

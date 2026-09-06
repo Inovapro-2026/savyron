@@ -31,17 +31,17 @@ interface Reminder {
 }
 
 const PRIORITY_COLORS: Record<string, string> = {
-  LOW: "bg-gray-100 text-gray-600 border-gray-200",
-  NORMAL: "bg-blue-100 text-blue-600 border-blue-200",
-  HIGH: "bg-amber-100 text-amber-600 border-amber-200",
-  URGENT: "bg-red-100 text-red-600 border-red-200",
+  LOW: "bg-slate-500/10 text-slate-300 border border-slate-500/20",
+  NORMAL: "bg-[#008CFF]/10 text-[#00E5FF] border border-[#008CFF]/30 shadow-[0_0_8px_rgba(0,229,255,0.15)]",
+  HIGH: "bg-amber-500/10 text-amber-400 border border-amber-500/30",
+  URGENT: "bg-[#FF3366]/10 text-[#FF3366] border border-[#FF3366]/30 shadow-[0_0_10px_rgba(255,51,102,0.25)]",
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  SCHEDULED: "bg-slate-100 text-slate-600",
-  CONFIRMED: "bg-green-100 text-green-600",
-  COMPLETED: "bg-emerald-100 text-emerald-600",
-  CANCELLED: "bg-red-100 text-red-400",
+  SCHEDULED: "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20",
+  CONFIRMED: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+  COMPLETED: "bg-[#00E5A0]/10 text-[#00E5A0] border border-[#00E5A0]/20 shadow-[0_0_8px_rgba(0,229,160,0.2)]",
+  CANCELLED: "bg-rose-500/10 text-rose-400 border border-rose-500/20",
 };
 
 function formatTime(dateStr: string): string {
@@ -96,73 +96,76 @@ function EventModal({ event, onClose, onSave, onDelete }: {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
-      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl border border-[#E6E8F0]" onClick={(e) => e.stopPropagation()}>
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-[#0F172A]">{event ? "Editar evento" : "Novo evento"}</h2>
-          <button onClick={onClose} className="rounded-xl p-2 text-[#94A3B8] hover:bg-slate-100"><X className="h-5 w-5" /></button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4" onClick={onClose}>
+      <div className="w-full max-w-lg rounded-2xl bg-[#080D18]/95 p-6 shadow-2xl border border-white/10 backdrop-blur-xl text-white" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-5 flex items-center justify-between border-b border-white/5 pb-4">
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-[#00E5FF] shadow-[0_0_8px_#00E5FF]" />
+            {event ? "Editar evento" : "Novo evento"}
+          </h2>
+          <button onClick={onClose} className="rounded-xl p-2 text-slate-400 hover:text-white hover:bg-white/5 transition-colors"><X className="h-5 w-5" /></button>
         </div>
-        {error && <div className="mb-4 flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-600"><AlertCircle className="h-4 w-4" />{error}</div>}
+        {error && <div className="mb-4 flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-400"><AlertCircle className="h-4 w-4 shrink-0" />{error}</div>}
         <form onSubmit={handleSave} className="space-y-4">
           <div>
-            <label className="label">Título</label>
-            <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Nome do evento" required />
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Título</label>
+            <input className="input w-full bg-[#020409]/70 border-white/10 text-white placeholder-slate-500 focus:border-[#008CFF] focus:ring-1 focus:ring-[#008CFF]" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Nome do evento" required />
           </div>
           <div>
-            <label className="label">Descrição</label>
-            <textarea className="input min-h-[80px] resize-y" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descrição (opcional)" />
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Descrição</label>
+            <textarea className="input w-full min-h-[80px] resize-y bg-[#020409]/70 border-white/10 text-white placeholder-slate-500 focus:border-[#008CFF] focus:ring-1 focus:ring-[#008CFF]" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descrição (opcional)" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="label">Data e hora</label>
-              <input className="input" type="datetime-local" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Data e hora</label>
+              <input className="input w-full bg-[#020409]/70 border-white/10 text-white focus:border-[#008CFF]" type="datetime-local" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
             </div>
             <div>
-              <label className="label">Término (opcional)</label>
-              <input className="input" type="datetime-local" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Término (opcional)</label>
+              <input className="input w-full bg-[#020409]/70 border-white/10 text-white focus:border-[#008CFF]" type="datetime-local" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <input type="checkbox" id="allDay" checked={allDay} onChange={(e) => setAllDay(e.target.checked)} className="h-4 w-4 rounded border-[#E6E8F0] text-[#6366F1]" />
-            <label htmlFor="allDay" className="text-sm text-[#475569]">Dia inteiro</label>
+          <div className="flex items-center gap-2 py-1">
+            <input type="checkbox" id="allDay" checked={allDay} onChange={(e) => setAllDay(e.target.checked)} className="h-4 w-4 rounded border-white/20 bg-[#020409] accent-[#008CFF]" />
+            <label htmlFor="allDay" className="text-sm text-slate-300 select-none cursor-pointer">Dia inteiro</label>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="label">Categoria</label>
-              <input className="input" value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Ex.: reunião, tarefa" />
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Categoria</label>
+              <input className="input w-full bg-[#020409]/70 border-white/10 text-white placeholder-slate-500 focus:border-[#008CFF]" value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Ex.: reunião, tarefa" />
             </div>
             <div>
-              <label className="label">Prioridade</label>
-              <select className="input" value={priority} onChange={(e) => setPriority(e.target.value)}>
-                <option value="LOW">Baixa</option>
-                <option value="NORMAL">Normal</option>
-                <option value="HIGH">Alta</option>
-                <option value="URGENT">Urgente</option>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Prioridade</label>
+              <select className="input w-full bg-[#020409]/70 border-white/10 text-white focus:border-[#008CFF]" value={priority} onChange={(e) => setPriority(e.target.value)}>
+                <option value="LOW" className="bg-[#080D18]">Baixa</option>
+                <option value="NORMAL" className="bg-[#080D18]">Normal</option>
+                <option value="HIGH" className="bg-[#080D18]">Alta</option>
+                <option value="URGENT" className="bg-[#080D18]">Urgente</option>
               </select>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="label">Recorrência</label>
-              <select className="input" value={recurrence} onChange={(e) => setRecurrence(e.target.value)}>
-                <option value="NONE">Não recorrente</option>
-                <option value="DAILY">Diário</option>
-                <option value="WEEKLY">Semanal</option>
-                <option value="MONTHLY">Mensal</option>
-                <option value="YEARLY">Anual</option>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Recorrência</label>
+              <select className="input w-full bg-[#020409]/70 border-white/10 text-white focus:border-[#008CFF]" value={recurrence} onChange={(e) => setRecurrence(e.target.value)}>
+                <option value="NONE" className="bg-[#080D18]">Não recorrente</option>
+                <option value="DAILY" className="bg-[#080D18]">Diário</option>
+                <option value="WEEKLY" className="bg-[#080D18]">Semanal</option>
+                <option value="MONTHLY" className="bg-[#080D18]">Mensal</option>
+                <option value="YEARLY" className="bg-[#080D18]">Anual</option>
               </select>
             </div>
             <div>
-              <label className="label">Lembrete (min)</label>
-              <input className="input" type="number" value={reminder} onChange={(e) => setReminder(Number(e.target.value))} placeholder="15" min={0} />
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Lembrete (min)</label>
+              <input className="input w-full bg-[#020409]/70 border-white/10 text-white placeholder-slate-500 focus:border-[#008CFF]" type="number" value={reminder} onChange={(e) => setReminder(Number(e.target.value))} placeholder="15" min={0} />
             </div>
           </div>
-          <div className="flex items-center gap-3 pt-2">
-            <button type="submit" disabled={saving} className="btn-primary flex-1">{saving ? "Salvando..." : "Salvar"}</button>
+          <div className="flex items-center gap-3 pt-3 border-t border-white/5">
+            <button type="submit" disabled={saving} className="btn-primary flex-1 shadow-[0_0_15px_rgba(0,140,255,0.35)]">{saving ? "Salvando..." : "Salvar"}</button>
             {event && onDelete && (
-              <button type="button" onClick={() => { if (confirm("Remover este evento?")) onDelete(event.id); }} className="btn-danger px-4"><Trash2 className="h-4 w-4" /></button>
+              <button type="button" onClick={() => { if (confirm("Remover este evento?")) onDelete(event.id); }} className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-red-400 hover:bg-red-500/20 transition-colors"><Trash2 className="h-4 w-4" /></button>
             )}
-            <button type="button" onClick={onClose} className="btn-outline px-4">Cancelar</button>
+            <button type="button" onClick={onClose} className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-slate-300 hover:bg-white/10 transition-colors">Cancelar</button>
           </div>
         </form>
       </div>
@@ -243,99 +246,117 @@ export default function AgendaPage() {
   return (
     <DashboardShell title="Agenda">
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Calendar className="h-6 w-6 text-[#6366F1]" />
-            <h1 className="text-2xl font-bold text-[#0F172A]">Agenda</h1>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#008CFF]/10 border border-[#008CFF]/30 text-[#00E5FF] shadow-[0_0_12px_rgba(0,140,255,0.2)]">
+              <Calendar className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-white">Agenda & Compromissos</h1>
+              <p className="text-xs text-slate-400">Gerenciamento inteligente de horários e lembretes com sincronização</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex rounded-xl border border-[#E6E8F0] overflow-hidden">
-              <button onClick={() => setViewMode("list")} className={`px-3 py-1.5 text-sm font-medium transition-colors ${viewMode === "list" ? "bg-[#EEF2FF] text-[#6366F1]" : "text-[#64748B] hover:bg-slate-50"}`}>Lista</button>
-              <button onClick={() => setViewMode("month")} className={`px-3 py-1.5 text-sm font-medium transition-colors ${viewMode === "month" ? "bg-[#EEF2FF] text-[#6366F1]" : "text-[#64748B] hover:bg-slate-50"}`}>Mês</button>
+            <div className="flex rounded-xl border border-white/10 bg-[#080D18]/80 p-1 backdrop-blur-md">
+              <button onClick={() => setViewMode("list")} className={`rounded-lg px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all ${viewMode === "list" ? "bg-[#008CFF]/20 text-[#00E5FF] border border-[#008CFF]/40 shadow-[0_0_10px_rgba(0,140,255,0.2)]" : "text-slate-400 hover:text-white"}`}>Lista</button>
+              <button onClick={() => setViewMode("month")} className={`rounded-lg px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all ${viewMode === "month" ? "bg-[#008CFF]/20 text-[#00E5FF] border border-[#008CFF]/40 shadow-[0_0_10px_rgba(0,140,255,0.2)]" : "text-slate-400 hover:text-white"}`}>Mês</button>
             </div>
-            <button onClick={() => { setEditingEvent(null); setShowModal(true); }} className="btn-primary flex items-center gap-2"><Plus className="h-4 w-4" /> Novo evento</button>
+            <button onClick={() => { setEditingEvent(null); setShowModal(true); }} className="btn-primary flex items-center gap-2 text-xs shadow-[0_0_15px_rgba(0,140,255,0.35)]"><Plus className="h-4 w-4" /> Novo evento</button>
           </div>
         </div>
 
-        {error && <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600"><AlertCircle className="h-4 w-4" />{error}</div>}
+        {error && <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400"><AlertCircle className="h-4 w-4 shrink-0" />{error}</div>}
 
         {todayEvents.length > 0 && (
-          <div className="rounded-2xl border border-[#E6E8F0] bg-gradient-to-r from-[#EEF2FF] to-white p-4">
-            <div className="mb-2 text-xs font-bold uppercase tracking-wider text-[#6366F1]">Hoje</div>
-            {todayEvents.map((e) => (
-              <div key={e.id} className="flex items-center gap-3 text-sm text-[#475569]">
-                <Clock className="h-4 w-4 text-[#6366F1]" />
-                <span className="font-medium">{formatTime(e.start_date)}</span>
-                <span>{e.title}</span>
-              </div>
-            ))}
+          <div className="rounded-2xl border border-[#00E5FF]/20 bg-gradient-to-r from-[#008CFF]/10 via-[#080D18]/90 to-[#080D18] p-4 shadow-[0_0_20px_rgba(0,140,255,0.08)] backdrop-blur-xl">
+            <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#00E5FF]">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00E5FF] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00E5FF]"></span>
+              </span>
+              Hoje na Agenda
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {todayEvents.map((e) => (
+                <div key={e.id} className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-2.5 text-sm text-slate-300">
+                  <Clock className="h-4 w-4 text-[#00E5FF] shrink-0" />
+                  <span className="font-semibold text-white">{formatTime(e.start_date)}</span>
+                  <span className="truncate">{e.title}</span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
-        <div className="flex gap-1 rounded-xl border border-[#E6E8F0] p-1 w-fit">
-          <button onClick={() => setActiveTab("events")} className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${activeTab === "events" ? "bg-white text-[#0F172A] shadow-sm" : "text-[#64748B] hover:text-[#0F172A]"}`}>Eventos</button>
-          <button onClick={() => setActiveTab("reminders")} className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${activeTab === "reminders" ? "bg-white text-[#0F172A] shadow-sm" : "text-[#64748B] hover:text-[#0F172A]"}`}>Lembretes</button>
+        <div className="flex gap-1 rounded-xl border border-white/10 bg-[#080D18]/80 p-1 w-fit backdrop-blur-md">
+          <button onClick={() => setActiveTab("events")} className={`rounded-lg px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-all ${activeTab === "events" ? "bg-[#008CFF]/20 text-[#00E5FF] border border-[#008CFF]/40 shadow-[0_0_10px_rgba(0,140,255,0.2)]" : "text-slate-400 hover:text-white"}`}>Eventos</button>
+          <button onClick={() => setActiveTab("reminders")} className={`rounded-lg px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-all ${activeTab === "reminders" ? "bg-[#008CFF]/20 text-[#00E5FF] border border-[#008CFF]/40 shadow-[0_0_10px_rgba(0,140,255,0.2)]" : "text-slate-400 hover:text-white"}`}>Lembretes</button>
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-20 text-[#94A3B8]">Carregando...</div>
+          <div className="flex items-center justify-center py-20 text-slate-500">
+            <div className="flex items-center gap-2">
+              <span className="inline-block h-4 w-4 rounded-full border-2 border-[#008CFF] border-t-transparent animate-spin" />
+              <span className="text-xs uppercase tracking-wider font-semibold">Carregando cronograma...</span>
+            </div>
+          </div>
         ) : activeTab === "events" ? (
           viewMode === "list" ? (
             <div className="space-y-3">
               {events.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-[#94A3B8]">
-                  <Calendar className="mb-3 h-12 w-12" />
-                  <p className="text-sm">Nenhum evento neste mês</p>
+                <div className="flex flex-col items-center justify-center py-20 text-slate-500 rounded-2xl border border-white/5 bg-[#080D18]/40">
+                  <Calendar className="mb-3 h-12 w-12 text-slate-600" />
+                  <p className="text-sm font-medium">Nenhum evento registrado para este mês</p>
                 </div>
               ) : events.map((event) => (
-                <div key={event.id} className="card flex items-start gap-4 p-4 transition-colors hover:bg-slate-50/50">
-                  <div className="flex min-w-[60px] flex-col items-center rounded-xl bg-[#EEF2FF] px-3 py-2">
-                    <span className="text-xs font-bold uppercase text-[#6366F1]">{new Date(event.start_date).toLocaleDateString("pt-BR", { month: "short" })}</span>
-                    <span className="text-2xl font-bold text-[#0F172A]">{new Date(event.start_date).getDate()}</span>
+                <div key={event.id} className="rounded-2xl border border-white/5 bg-[#080D18]/80 p-4 backdrop-blur-md hover:border-white/15 hover:bg-[#0C1427]/90 transition-all flex items-start gap-4 shadow-sm">
+                  <div className="flex min-w-[64px] flex-col items-center rounded-xl bg-[#008CFF]/10 border border-[#008CFF]/20 px-3 py-2 shadow-[0_0_10px_rgba(0,140,255,0.08)]">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#00E5FF]">{new Date(event.start_date).toLocaleDateString("pt-BR", { month: "short" })}</span>
+                    <span className="text-2xl font-black text-white">{new Date(event.start_date).getDate()}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-[#0F172A]">{event.title}</h3>
-                      <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase ${PRIORITY_COLORS[event.priority] ?? PRIORITY_COLORS.NORMAL}`}>{event.priority}</span>
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${STATUS_COLORS[event.status] ?? ""}`}>{event.status}</span>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-semibold text-white text-base">{event.title}</h3>
+                      <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${PRIORITY_COLORS[event.priority] ?? PRIORITY_COLORS.NORMAL}`}>{event.priority}</span>
+                      <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${STATUS_COLORS[event.status] ?? ""}`}>{event.status}</span>
                     </div>
-                    <div className="mt-1 flex items-center gap-3 text-xs text-[#64748B]">
-                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{formatTime(event.start_date)}{event.end_date ? ` - ${formatTime(event.end_date)}` : ""}</span>
-                      {event.category && <span>{event.category}</span>}
-                      {event.recurrence !== "NONE" && <span className="flex items-center gap-1"><Repeat className="h-3 w-3" />{event.recurrence}</span>}
+                    <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-slate-400">
+                      <span className="flex items-center gap-1.5 text-slate-300"><Clock className="h-3.5 w-3.5 text-[#00E5FF]" />{formatTime(event.start_date)}{event.end_date ? ` - ${formatTime(event.end_date)}` : ""}</span>
+                      {event.category && <span className="rounded bg-white/5 px-2 py-0.5 border border-white/5">{event.category}</span>}
+                      {event.recurrence !== "NONE" && <span className="flex items-center gap-1 text-cyan-400"><Repeat className="h-3.5 w-3.5" />{event.recurrence}</span>}
                     </div>
-                    {event.description && <p className="mt-1 text-sm text-[#64748B] truncate">{event.description}</p>}
+                    {event.description && <p className="mt-2 text-sm text-slate-400 truncate">{event.description}</p>}
                   </div>
-                  <div className="flex gap-1">
-                    <button onClick={() => { setEditingEvent(event); setShowModal(true); }} className="rounded-xl p-2 text-[#94A3B8] hover:bg-slate-100"><Edit3 className="h-4 w-4" /></button>
-                    <button onClick={() => { if (confirm(`Remover "${event.title}"?`)) handleDelete(event.id); }} className="rounded-xl p-2 text-[#94A3B8] hover:bg-red-50 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
+                  <div className="flex gap-1 shrink-0">
+                    <button onClick={() => { setEditingEvent(event); setShowModal(true); }} className="rounded-xl p-2 text-slate-400 hover:text-white hover:bg-white/5 transition-colors"><Edit3 className="h-4 w-4" /></button>
+                    <button onClick={() => { if (confirm(`Remover "${event.title}"?`)) handleDelete(event.id); }} className="rounded-xl p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"><Trash2 className="h-4 w-4" /></button>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="card overflow-hidden">
-              <div className="flex items-center justify-between border-b border-[#E6E8F0] px-4 py-3">
-                <button onClick={prevMonth} className="rounded-xl p-2 text-[#64748B] hover:bg-slate-100"><ChevronLeft className="h-5 w-5" /></button>
-                <h3 className="font-bold text-[#0F172A]">{currentMonth.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}</h3>
-                <button onClick={nextMonth} className="rounded-xl p-2 text-[#64748B] hover:bg-slate-100"><ChevronRight className="h-5 w-5" /></button>
+            <div className="rounded-2xl border border-white/10 bg-[#080D18]/80 backdrop-blur-xl overflow-hidden shadow-xl">
+              <div className="flex items-center justify-between border-b border-white/10 px-6 py-4 bg-white/[0.02]">
+                <button onClick={prevMonth} className="rounded-xl p-2 text-slate-400 hover:text-white hover:bg-white/5 transition-colors"><ChevronLeft className="h-5 w-5" /></button>
+                <h3 className="font-bold text-white text-lg capitalize tracking-wide">{currentMonth.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}</h3>
+                <button onClick={nextMonth} className="rounded-xl p-2 text-slate-400 hover:text-white hover:bg-white/5 transition-colors"><ChevronRight className="h-5 w-5" /></button>
               </div>
               <div className="grid grid-cols-7">
-                {weekDays.map((d) => <div key={d} className="border-b border-[#E6E8F0] px-2 py-2 text-center text-[11px] font-bold uppercase text-[#94A3B8]">{d}</div>)}
+                {weekDays.map((d) => <div key={d} className="border-b border-white/10 px-2 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-slate-400 bg-white/[0.01]">{d}</div>)}
                 {calendarDays.map((day, i) => {
                   const dayEvents = day ? events.filter((e) => new Date(e.start_date).toDateString() === day.toDateString()) : [];
                   const isToday = day && day.toDateString() === new Date().toDateString();
                   return (
-                    <div key={i} className={`min-h-[100px] border-b border-r border-[#E6E8F0] p-1.5 transition-colors ${isToday ? "bg-[#EEF2FF]" : "hover:bg-slate-50"}`}>
+                    <div key={i} className={`min-h-[110px] border-b border-r border-white/5 p-2 transition-colors ${isToday ? "bg-[#008CFF]/10 border-[#008CFF]/30" : "hover:bg-white/[0.02]"}`}>
                       {day && (
                         <>
-                          <div className={`mb-1 flex h-7 w-7 items-center justify-center rounded-full text-sm ${isToday ? "bg-[#6366F1] text-white font-bold" : "text-[#475569]"}`}>{day.getDate()}</div>
+                          <div className={`mb-1.5 flex h-7 w-7 items-center justify-center rounded-full text-xs transition-all ${isToday ? "bg-gradient-to-r from-[#008CFF] to-[#00E5FF] text-black font-extrabold shadow-[0_0_12px_rgba(0,229,255,0.6)]" : "text-slate-300 font-medium"}`}>{day.getDate()}</div>
                           {dayEvents.slice(0, 3).map((e) => (
-                            <div key={e.id} className="mb-0.5 truncate rounded-md bg-[#EEF2FF] px-1.5 py-0.5 text-[10px] font-medium text-[#6366F1] cursor-pointer hover:bg-[#DDE3FF]" title={e.title}>
+                            <div key={e.id} onClick={() => { setEditingEvent(e); setShowModal(true); }} className="mb-1 truncate rounded-md bg-[#008CFF]/20 border border-[#008CFF]/30 px-2 py-1 text-[11px] font-semibold text-[#00E5FF] cursor-pointer hover:bg-[#008CFF]/35 hover:shadow-[0_0_8px_rgba(0,229,255,0.3)] transition-all" title={e.title}>
                               {e.all_day ? "" : formatTime(e.start_date) + " "}{e.title}
                             </div>
                           ))}
-                          {dayEvents.length > 3 && <div className="text-[10px] text-[#94A3B8]">+{dayEvents.length - 3} mais</div>}
+                          {dayEvents.length > 3 && <div className="text-[10px] text-slate-500 font-medium pl-1">+{dayEvents.length - 3} mais</div>}
                         </>
                       )}
                     </div>
@@ -347,20 +368,20 @@ export default function AgendaPage() {
         ) : (
           <div className="space-y-3">
             {reminders.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-[#94A3B8]">
-                <Clock className="mb-3 h-12 w-12" />
-                <p className="text-sm">Nenhum lembrete pendente</p>
+              <div className="flex flex-col items-center justify-center py-20 text-slate-500 rounded-2xl border border-white/5 bg-[#080D18]/40">
+                <Clock className="mb-3 h-12 w-12 text-slate-600" />
+                <p className="text-sm font-medium">Nenhum lembrete pendente</p>
               </div>
             ) : reminders.map((r) => (
-              <div key={r.id} className="card flex items-center gap-4 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
+              <div key={r.id} className="rounded-2xl border border-white/5 bg-[#080D18]/80 p-4 backdrop-blur-md flex items-center gap-4 hover:border-amber-500/30 hover:bg-[#0C1427]/90 transition-all shadow-sm">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.15)]">
                   <Clock className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-[#0F172A]">{r.title}</h3>
-                  <p className="text-xs text-[#64748B]">{new Date(r.remind_at).toLocaleDateString("pt-BR")} {new Date(r.remind_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}{r.recurring ? ` · Repete: ${r.recurrence}` : ""}</p>
+                  <h3 className="font-semibold text-white text-base">{r.title}</h3>
+                  <p className="text-xs text-slate-400 mt-0.5">{new Date(r.remind_at).toLocaleDateString("pt-BR")} às {new Date(r.remind_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}{r.recurring ? ` · Repete: ${r.recurrence}` : ""}</p>
                 </div>
-                <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${r.status === "PENDING" ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"}`}>{r.status}</span>
+                <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${r.status === "PENDING" ? "bg-amber-500/10 text-amber-400 border border-amber-500/30" : "bg-[#00E5A0]/10 text-[#00E5A0] border border-[#00E5A0]/30 shadow-[0_0_8px_rgba(0,229,160,0.2)]"}`}>{r.status}</span>
               </div>
             ))}
           </div>

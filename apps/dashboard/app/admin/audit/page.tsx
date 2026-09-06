@@ -139,23 +139,27 @@ export default function AdminAuditPage() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="heading-strong text-xl">Auditoria</h1>
-          <p className="text-sm text-zinc-500">
-            Trilha de auditoria da plataforma
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#008CFF]/10 border border-[#008CFF]/25 text-[11px] font-semibold text-[#00E5FF] mb-2 uppercase tracking-wider">
+            Auditoria & Segurança Global
+          </div>
+          <h1 className="text-3xl font-black tracking-tight text-white">Trilha de Auditoria</h1>
+          <p className="text-sm text-slate-400">
+            Registro imutável de eventos administrativos, acessos de suporte, cobrança e mutações na plataforma.
           </p>
         </div>
         <div className="flex gap-2">
           <Input
             value={action}
             onChange={(e) => setAction(e.target.value)}
-            placeholder="Filtrar (ex.: pagamento, plano, suporte, user)"
-            className="w-64"
+            placeholder="Filtrar (ex.: pagamento, plano, suporte)..."
+            className="w-72"
           />
           <Button
             variant="outline"
+            className="border-white/10 text-slate-300 hover:bg-white/5"
             onClick={() => void refresh()}
             loading={refreshing}
           >
@@ -165,22 +169,27 @@ export default function AdminAuditPage() {
       </div>
 
       {error ? (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
+        <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-3 text-sm text-rose-400 backdrop-blur-md">
           {error}
         </div>
       ) : null}
 
       {loading ? (
-        <div className="text-sm text-zinc-500">Carregando...</div>
+        <div className="flex h-64 items-center justify-center">
+          <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#080D18]/80 px-5 py-3 text-sm text-slate-400 backdrop-blur-md">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#008CFF] border-t-transparent" />
+            Carregando eventos de auditoria...
+          </div>
+        </div>
       ) : (
-        <Card className="flex max-h-[70vh] flex-col p-0">
-          <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-2.5">
-            <span className="text-xs text-zinc-500">
-              {total} evento{total === 1 ? "" : "s"} · exibindo {logs.length}
+        <Card className="flex max-h-[75vh] flex-col border border-white/10 bg-[#080D18]/80 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.4)] p-0 rounded-2xl">
+          <div className="flex items-center justify-between border-b border-white/10 px-5 py-3.5 bg-white/[0.02]">
+            <span className="text-xs font-mono text-slate-400">
+              Total: <strong className="text-[#00E5FF]">{total}</strong> eventos · Exibindo <strong className="text-white">{logs.length}</strong>
             </span>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="divide-y divide-zinc-200">
+            <div className="divide-y divide-white/5">
               {logs.map((l) => {
                 const label = auditActionLabel(l.action);
                 const tone = auditTone(l.action);
@@ -191,67 +200,67 @@ export default function AdminAuditPage() {
                 return (
                   <div
                     key={l.id}
-                    className="px-4 py-3"
+                    className="px-5 py-3.5 transition-colors hover:bg-white/[0.02]"
                     title={rawMetaText(l.metadata)}
                   >
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2.5">
                       <code
-                        className={`rounded bg-white px-2 py-0.5 text-[11px] font-semibold ${tone}`}
+                        className={`rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${tone}`}
                       >
                         {label}
                       </code>
-                      <span className="text-[11px] text-zinc-500">
+                      <span className="text-xs font-mono text-slate-500">
                         {new Date(l.created_at).toLocaleString("pt-BR")}
                       </span>
                     </div>
 
-                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-zinc-500">
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-slate-400">
                       {l.actor_name ? (
                         <span>
-                          por <span className="text-zinc-700">{l.actor_name}</span>
+                          por <strong className="text-slate-200">{l.actor_name}</strong>
                         </span>
                       ) : l.actor ? (
                         <span title={`actor: ${l.actor}`}>
-                          por <span className="text-zinc-700">{l.actor.slice(0, 12)}…</span>
+                          por <code className="font-mono text-slate-300">{l.actor.slice(0, 12)}…</code>
                         </span>
                       ) : null}
                       {l.entity_name ? (
                         <span>
-                          <span className="text-zinc-400">•</span>{" "}
-                          <span className="text-zinc-700">{l.entity_name}</span>
+                          <span className="text-slate-600">•</span>{" "}
+                          alvo: <strong className="text-slate-200">{l.entity_name}</strong>
                         </span>
                       ) : l.entity ? (
                         <span title={`${l.entity}:${l.entity_id}`}>
-                          <span className="text-zinc-400">•</span>{" "}
-                          {l.entity}:{String(l.entity_id ?? "").slice(0, 12)}
+                          <span className="text-slate-600">•</span>{" "}
+                          <span className="font-mono text-slate-300">{l.entity}:{String(l.entity_id ?? "").slice(0, 12)}</span>
                         </span>
                       ) : null}
                       {l.business_id && !l.entity_name ? (
                         <span title={`business_id: ${l.business_id}`}>
-                          <span className="text-zinc-400">•</span> empresa{" "}
-                          {l.business_id.slice(0, 12)}…
+                          <span className="text-slate-600">•</span> empresa{" "}
+                          <code className="font-mono text-slate-400">{l.business_id.slice(0, 12)}…</code>
                         </span>
                       ) : null}
                     </div>
 
                     {meta.lines.length > 0 ? (
-                      <div className="mt-1 text-xs text-zinc-600">
+                      <div className="mt-1.5 space-y-0.5 rounded-lg border border-white/5 bg-[#020409]/60 px-3 py-2 text-xs font-mono text-slate-300">
                         {meta.lines.map((line, i) => (
-                          <div key={i}>
-                            <span className="text-emerald-600">→</span> {line}
+                          <div key={i} className="flex items-center gap-1.5">
+                            <span className="text-[#00E5A0] font-bold">→</span> {line}
                           </div>
                         ))}
                       </div>
                     ) : null}
                     {duration ? (
-                      <div className="mt-1 text-xs text-zinc-500">{duration}</div>
+                      <div className="mt-1 text-xs font-medium text-amber-300">{duration}</div>
                     ) : null}
                     {meta.warnings.length > 0 ? (
                       <div className="mt-1.5 flex flex-wrap gap-1.5">
                         {meta.warnings.map((w, i) => (
                           <span
                             key={i}
-                            className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[11px] text-amber-600"
+                            className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-semibold text-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.15)]"
                           >
                             ⚠ {w}
                           </span>
@@ -262,21 +271,21 @@ export default function AdminAuditPage() {
                 );
               })}
               {logs.length === 0 && (
-                <div className="px-4 py-8 text-center text-sm text-zinc-500">
-                  Nenhum registro.
+                <div className="px-5 py-10 text-center text-sm text-slate-500">
+                  Nenhum registro de auditoria encontrado.
                 </div>
               )}
             </div>
           </div>
           {hasMore && (
-            <div className="border-t border-zinc-200 p-3">
+            <div className="border-t border-white/10 p-3 bg-white/[0.02]">
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full border-white/10 text-slate-300 hover:bg-white/5 hover:text-white"
                 onClick={() => void loadMore()}
                 loading={loadingMore}
               >
-                Carregar mais
+                Carregar mais registros
               </Button>
             </div>
           )}

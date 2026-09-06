@@ -79,18 +79,19 @@ export class ChunkErrorBoundary extends Component<{ children: ReactNode }, { fai
   render(): ReactNode {
     if (this.state.failed) {
       return (
-        <div className="flex min-h-screen items-center justify-center bg-zinc-50 p-6">
-          <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-8 text-center shadow-sm">
-            <h1 className="text-lg font-bold text-zinc-900">Algo deu errado</h1>
-            <p className="mt-2 text-sm text-zinc-500">
+        <div className="relative flex min-h-screen items-center justify-center bg-[#020409] p-6 overflow-hidden">
+          <div className="pointer-events-none absolute h-96 w-96 rounded-full bg-[#008CFF]/10 blur-[120px]" />
+          <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-[#080D18]/90 p-8 text-center shadow-2xl backdrop-blur-xl">
+            <h1 className="font-display text-xl font-bold tracking-tight text-white">Algo deu errado</h1>
+            <p className="mt-2 text-sm text-slate-400">
               Não foi possível carregar a versão mais recente do sistema. Tente recarregar a página.
             </p>
             <button
               type="button"
               onClick={this.handleReload}
-              className="mt-6 inline-flex items-center justify-center rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+              className="mt-6 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-[#008CFF] to-[#006edc] px-6 py-3 text-sm font-bold text-white shadow-[0_0_20px_rgba(0,140,255,0.35)] transition-all hover:brightness-110"
             >
-              Recarregar
+              Recarregar sistema
             </button>
           </div>
         </div>

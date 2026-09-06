@@ -103,19 +103,19 @@ export default function LoginPage() {
             required
           />
           {error ? (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
               {error}
             </div>
           ) : null}
-          <Button type="submit" className="w-full" loading={loading}>
+          <Button type="submit" className="w-full shadow-[0_0_20px_rgba(0,140,255,0.35)]" loading={loading}>
             Entrar
           </Button>
         </form>
-        <p className="mt-6 text-center text-sm text-zinc-500">
+        <p className="mt-6 text-center text-sm text-slate-400">
           Ainda não possui uma conta?{" "}
           <Link
             href="/signup"
-            className="font-medium text-emerald-700 hover:text-emerald-800"
+            className="font-semibold text-[#00E5FF] hover:text-[#008CFF] transition-colors"
           >
             Cadastre-se
           </Link>

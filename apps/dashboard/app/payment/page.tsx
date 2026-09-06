@@ -188,63 +188,73 @@ export default function PaymentPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-4 py-10">
-      <div className="mb-8">
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-[#020409] px-4 py-12">
+      {/* Glows ambientais */}
+      <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-96 w-96 rounded-full bg-[#008CFF]/15 blur-[120px]" />
+      <div className="pointer-events-none absolute -bottom-40 left-1/2 -translate-x-1/2 h-96 w-96 rounded-full bg-[#00E5FF]/10 blur-[120px]" />
+
+      <div className="relative z-10 mb-8">
         <Logo />
       </div>
-      <div className="w-full max-w-md">
-        <h1 className="mb-2 text-center font-display text-2xl font-bold text-zinc-900">
-          {status?.business.status === "SUSPENDED" &&
-          status.business.suspension_reason === "subscription_expired"
-            ? "Assinatura vencida"
-            : "Assinatura pendente"}
-        </h1>
-        <p className="mb-6 text-center text-sm text-zinc-500">
-          {status
-            ? status.business.status === "SUSPENDED"
-              ? `A assinatura de ${status.business.name} venceu. Faça o pagamento para reativar o acesso.`
-              : `Sua empresa ${status.business.name} aguarda o pagamento para ser ativada.`
-            : "Verificando sua assinatura..."}
-        </p>
+      <div className="relative z-10 w-full max-w-md">
+        <div className="mb-6 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#008CFF]/10 border border-[#008CFF]/25 text-[11px] font-semibold text-[#00E5FF] mb-3 uppercase tracking-wider shadow-[0_0_15px_rgba(0,140,255,0.15)]">
+            Faturamento Seguro &bull; Ativação
+          </div>
+          <h1 className="text-2xl font-extrabold tracking-tight text-white">
+            {status?.business.status === "SUSPENDED" &&
+            status.business.suspension_reason === "subscription_expired"
+              ? "Assinatura Vencida"
+              : "Assinatura Pendente"}
+          </h1>
+          <p className="mt-2 text-sm text-slate-400">
+            {status
+              ? status.business.status === "SUSPENDED"
+                ? `A assinatura de ${status.business.name} encerrou seu ciclo. Efetue o pagamento para reativar o acesso total.`
+                : `A instância corporativa ${status.business.name} aguarda confirmação para liberação instantânea.`
+              : "Verificando dados de subscrição..."}
+          </p>
+        </div>
 
         {error ? (
-          <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
+          <div className="mb-4 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-3.5 text-sm text-rose-400 backdrop-blur-md">
             {error}
           </div>
         ) : null}
 
         {mode === "loading" && (
-          <Card className="p-6 text-center">
-            <div className="animate-pulse text-sm text-zinc-500">
-              Carregando...
+          <Card className="border border-white/10 bg-[#080D18]/90 p-8 text-center backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+            <div className="flex items-center justify-center gap-3 text-sm text-slate-400">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#008CFF] border-t-transparent" />
+              Carregando dados da assinatura...
             </div>
           </Card>
         )}
 
         {mode === "paid" && (
-          <Card className="p-6 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-2xl text-emerald-600">
+          <Card className="border border-[#00E5A0]/40 bg-[#080D18]/90 p-8 text-center backdrop-blur-xl shadow-[0_0_30px_rgba(0,229,160,0.2)]">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#00E5A0]/50 bg-[#00E5A0]/20 text-3xl text-[#00E5A0] shadow-[0_0_20px_rgba(0,229,160,0.3)]">
               ✓
             </div>
-            <p className="font-semibold text-zinc-900">Pagamento confirmado!</p>
-            <p className="mt-1 text-sm text-zinc-500">
-              Redirecionando para o painel...
+            <p className="text-lg font-bold text-white">Pagamento Confirmado!</p>
+            <p className="mt-1 text-sm text-slate-400">
+              Inicializando seu ambiente neural... Redirecionando para o painel.
             </p>
           </Card>
         )}
 
         {mode === "pay" && status && (
-          <Card className="p-6">
-            <div className="mb-4">
-              <div className="text-sm text-zinc-500">
-                Plano:{" "}
-                <span className="font-medium text-zinc-900">
+          <Card className="border border-white/10 bg-[#080D18]/90 p-6 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+            <div className="mb-5 rounded-xl border border-white/10 bg-[#020409]/70 p-4">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-slate-400">Plano Selecionado</span>
+                <span className="font-bold text-white">
                   {status.subscription?.plan_name ?? "—"}
                 </span>
               </div>
-              <div className="text-sm text-zinc-500">
-                Valor:{" "}
-                <span className="font-medium text-zinc-900">
+              <div className="mt-2 flex items-center justify-between text-sm">
+                <span className="text-slate-400">Valor do Período</span>
+                <span className="font-mono text-lg font-bold text-[#00E5FF]">
                   R${" "}
                   {(status.subscription?.plan_price ?? 0)
                     .toFixed(2)
@@ -254,10 +264,10 @@ export default function PaymentPage() {
             </div>
 
             {(status.subscription?.plan_price ?? 0) === 0 ? (
-              <div className="rounded-xl bg-emerald-500/10 px-4 py-3 text-sm text-emerald-600">
-                Seu plano é gratuito — nenhuma cobrança será feita.
+              <div className="rounded-xl border border-[#00E5A0]/30 bg-[#00E5A0]/10 p-4 text-sm text-emerald-300">
+                Seu plano é gratuito — nenhuma cobrança financeira será efetuada.
                 <Button
-                  className="mt-3 w-full"
+                  className="mt-4 w-full bg-gradient-to-r from-[#008CFF] to-[#00E5FF] text-black font-bold"
                   onClick={async () => {
                     try {
                       await api("/api/proxy/billing/activate-free", {
@@ -270,7 +280,7 @@ export default function PaymentPage() {
                     await loadStatus();
                   }}
                 >
-                  Ativar acesso
+                  Ativar Acesso Imediato
                 </Button>
               </div>
             ) : status.abacatepay_configured ? (
@@ -280,44 +290,41 @@ export default function PaymentPage() {
                 }}
               />
             ) : (
-              <div className="space-y-3">
-                <div className="rounded-xl bg-white px-4 py-3 text-sm text-zinc-700">
-                  Você será direcionado para o pagamento seguro (PIX recorrente
-                  ou cartão). Após pagar, você volta para cá e o acesso é
-                  liberado automaticamente.
+              <div className="space-y-3.5">
+                <div className="rounded-xl border border-white/10 bg-[#020409]/60 p-4 text-xs text-slate-300 leading-relaxed">
+                  Você será redirecionado para o ambiente de checkout seguro da Stripe (PIX recorrente ou Cartão). O retorno para este portal ativará sua licença em tempo real.
                 </div>
                 <Button
                   onClick={() => void startCheckout()}
-                  className="w-full"
+                  className="w-full bg-gradient-to-r from-[#008CFF] to-[#00E5FF] text-black font-bold shadow-[0_0_20px_rgba(0,140,255,0.3)] hover:brightness-110"
                   loading={startingCheckout}
                 >
-                  Continuar para pagamento
+                  Continuar para Pagamento Seguro
                 </Button>
                 {fromCheckout ? (
-                  <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700">
+                  <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-300">
                     {checkingNow
-                      ? "Confirmando seu pagamento..."
-                      : "Você voltou do pagamento. Estamos aguardando a confirmação do banco — pode levar alguns segundos."}
+                      ? "Confirmando seu pagamento com a instituição financeira..."
+                      : "Aguardando webhook bancário de confirmação — isso costuma levar poucos segundos."}
                   </div>
                 ) : null}
                 <Button
                   variant="outline"
-                  className="w-full"
+                  className="w-full border-white/10 text-slate-300 hover:bg-white/5"
                   onClick={() => void checkNow()}
                   loading={checkingNow}
                 >
-                  Já paguei — verificar pagamento
+                  Já Paguei — Verificar Status Agora
                 </Button>
-                <p className="text-center text-[11px] text-zinc-500">
-                  O pagamento é processado com segurança. Nunca armazenamos os
-                  dados do seu cartão.
+                <p className="text-center text-[11px] text-slate-500">
+                  Criptografia ponta a ponta. Dados de pagamento protegidos pela infraestrutura Stripe.
                 </p>
               </div>
             )}
           </Card>
         )}
 
-        <p className="mt-6 text-center text-sm text-zinc-500">
+        <p className="mt-6 text-center text-sm text-slate-500">
           <button
             onClick={() => {
               void fetch("/api/auth/session/clear", { method: "POST" }).then(
@@ -327,9 +334,9 @@ export default function PaymentPage() {
                 },
               );
             }}
-            className="text-zinc-500 hover:text-zinc-700"
+            className="text-slate-400 hover:text-white transition-colors"
           >
-            Sair
+            Sair da conta
           </button>
         </p>
       </div>

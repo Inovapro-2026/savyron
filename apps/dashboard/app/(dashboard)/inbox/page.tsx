@@ -191,15 +191,15 @@ export default function InboxPage() {
       <div className="space-y-4">
         {/* Filtros — carrossel horizontal no mobile */}
         <div className="-mx-4 overflow-x-auto px-4 pb-1 scrollbar-thin lg:mx-0 lg:px-0" style={{ WebkitOverflowScrolling: 'touch' }}>
-          <div className="flex w-max gap-2">
+          <div className="flex w-max gap-2.5">
             {FILTERS.map((f) => (
               <button
                 key={f.key}
                 onClick={() => setFilter(f.key)}
-                className={`h-9 shrink-0 rounded-full px-4 text-xs font-semibold transition-all duration-150 ${
+                className={`h-9 shrink-0 rounded-2xl px-4 text-xs font-bold transition-all duration-200 ${
                   filter === f.key
-                    ? 'bg-[#EEF2FF] text-[#6366F1] border border-[#C7D2FE] shadow-xs'
-                    : 'bg-white text-[#64748B] border border-[#E6E8F0] hover:bg-slate-50 hover:text-[#0F172A]'
+                    ? 'bg-gradient-to-r from-[#008CFF]/25 to-[#00E5FF]/20 text-[#00E5FF] border border-[#00E5FF]/40 shadow-[0_0_15px_rgba(0,229,255,0.25)] ring-1 ring-[#00E5FF]/30'
+                    : 'bg-[#080D18]/80 text-[#A8B3C7] border border-white/10 hover:border-[#008CFF]/40 hover:bg-[#0C1427] hover:text-white'
                 }`}
               >
                 {f.label}
@@ -213,17 +213,17 @@ export default function InboxPage() {
         ) : list.length > 0 ? (
           <>
             <div className="flex items-center justify-between gap-2">
-              <p className="text-xs font-medium text-[#64748B]">
+              <p className="text-xs font-semibold text-[#A8B3C7]">
                 {conversations.data?.total ?? list.length} conversa{list.length === 1 ? '' : 's'}
               </p>
               {canAdmin ? (
-                <Button size="sm" variant="outline" className="text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200" onClick={() => setClearAllOpen(true)}>
+                <Button size="sm" variant="outline" className="text-[#FF3366] hover:bg-red-500/10 hover:text-white border-red-500/30" onClick={() => setClearAllOpen(true)}>
                   <Trash2 className="h-4 w-4 mr-1.5" /> Limpar tudo
                 </Button>
               ) : null}
             </div>
             {/* Grid responsivo de cards compactos */}
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
               {list.map((c) => (
                 <InboxCard
                   key={c.id}
@@ -238,8 +238,8 @@ export default function InboxPage() {
           </>
         ) : (
           <Card className="py-16 text-center">
-            <MessageSquare className="mx-auto mb-3 h-10 w-10 text-[#94A3B8]" />
-            <div className="text-sm font-medium text-[#64748B]">Nenhuma conversa neste filtro.</div>
+            <MessageSquare className="mx-auto mb-3 h-10 w-10 text-[#008CFF]/40 animate-pulse" />
+            <div className="text-sm font-semibold text-[#A8B3C7]">Nenhuma conversa neste filtro.</div>
           </Card>
         )}
 
@@ -254,8 +254,8 @@ export default function InboxPage() {
         onConfirm={() => void removeConversation()}
         message={
           <span>
-            Excluir a conversa com <strong className="text-zinc-900">{deleteTarget?.lead_name ?? 'contato'}</strong>?{' '}
-            <strong className="text-red-600">Esta ação não pode ser desfeita.</strong>
+            Excluir a conversa com <strong className="text-white">{deleteTarget?.lead_name ?? 'contato'}</strong>?{' '}
+            <strong className="text-[#FF3366]">Esta ação não pode ser desfeita.</strong>
           </span>
         }
       />
@@ -270,8 +270,8 @@ export default function InboxPage() {
         onConfirm={() => void clearAll()}
         message={
           <span>
-            Você está prestes a excluir <strong className="text-red-600">{conversations.data?.total ?? 0} conversas</strong>{' '}
-            com todos os históricos de mensagens desta empresa. Digite <strong className="text-zinc-900">EXCLUIR</strong> para confirmar.
+            Você está prestes a excluir <strong className="text-[#FF3366]">{conversations.data?.total ?? 0} conversas</strong>{' '}
+            com todos os históricos de mensagens desta empresa. Digite <strong className="text-white">EXCLUIR</strong> para confirmar.
             Esta ação não pode ser desfeita.
           </span>
         }

@@ -57,14 +57,14 @@ export function ConfirmModal({
       }
     >
       <div className="space-y-4">
-        <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50/80 p-4">
-          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
-          <div className="text-sm text-[#334155]">{message}</div>
+        <div className="flex items-start gap-3 rounded-2xl border border-[#FF3366]/40 bg-[#FF3366]/10 p-4 shadow-[0_0_15px_rgba(255,51,102,0.15)]">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[#FF3366]" />
+          <div className="text-sm text-white font-medium">{message}</div>
         </div>
         {confirmText ? (
           <div>
             <label className="label">
-              Digite <strong className="text-[#0F172A]">{confirmText}</strong> para confirmar
+              Digite <strong className="text-white font-bold">{confirmText}</strong> para confirmar
             </label>
             <input
               value={typed}

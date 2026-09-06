@@ -94,94 +94,116 @@ export default function BusinessSettingsPage() {
   const loading = business.isLoading;
 
   return (
-    <DashboardShell title="Meu negócio">
-      <div className="mb-6">
-        <h1 className="heading-strong text-xl">Meu negócio</h1>
-        <p className="text-sm text-zinc-500">Dados gerais da sua empresa — usados pela IA para personalizar o atendimento</p>
-      </div>
-
+    <DashboardShell title="Meu Negócio">
       <div className="space-y-6">
-        <Card>
-          <CardHeader title="Identificação" />
-          <div className="space-y-4 p-5">
-            <Input label="Nome da empresa" value={fieldValue('name')} onChange={(e) => setField('name', e.target.value)} placeholder="Ex.: Barbearia Central" disabled={loading} />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-zinc-700">Segmento</label>
-                <select
-                  value={fieldValue('segment')}
-                  onChange={(e) => setField('segment', e.target.value)}
-                  disabled={loading}
-                  className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-500/60"
-                >
-                  <option value="">Selecione...</option>
-                  {SEGMENTS.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#008CFF]/10 border border-[#008CFF]/30 text-[#00E5FF] shadow-[0_0_12px_rgba(0,140,255,0.2)]">
+            <Building2 className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-white">Perfil do Negócio</h1>
+            <p className="text-xs text-slate-400">Dados cadastrais da sua organização — utilizados para calibrar a inteligência artificial</p>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-white/10 bg-[#080D18]/80 p-6 backdrop-blur-xl shadow-xl space-y-4">
+            <div className="border-b border-white/5 pb-3">
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-[#00E5FF] shadow-[0_0_8px_#00E5FF]" />
+                Identificação Institucional
+              </h2>
+            </div>
+            <div className="space-y-4">
+              <Input label="Nome da empresa" value={fieldValue('name')} onChange={(e) => setField('name', e.target.value)} placeholder="Ex.: Barbearia Central" disabled={loading} />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Segmento</label>
+                  <select
+                    value={fieldValue('segment')}
+                    onChange={(e) => setField('segment', e.target.value)}
+                    disabled={loading}
+                    className="w-full rounded-xl border border-white/10 bg-[#020409]/70 px-3 py-2.5 text-sm text-white outline-none focus:border-[#008CFF]"
+                  >
+                    <option value="" className="bg-[#080D18]">Selecione...</option>
+                    {SEGMENTS.map((s) => (
+                      <option key={s} value={s} className="bg-[#080D18]">
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <Input label="Telefone de Atendimento" value={fieldValue('phone')} onChange={(e) => setField('phone', e.target.value)} placeholder="(11) 99999-0000" disabled={loading} />
               </div>
-              <Input label="Telefone" value={fieldValue('phone')} onChange={(e) => setField('phone', e.target.value)} placeholder="(11) 99999-0000" disabled={loading} />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Input label="E-mail" type="email" value={fieldValue('email')} onChange={(e) => setField('email', e.target.value)} placeholder="contato@empresa.com" disabled={loading} />
-              <Input label="CNPJ" value={fieldValue('cnpj')} onChange={(e) => setField('cnpj', e.target.value)} placeholder="00.000.000/0000-00" disabled={loading} />
-            </div>
-            <Input label="Descrição" value={fieldValue('description')} onChange={(e) => setField('description', e.target.value)} placeholder="Descreva o que sua empresa faz..." disabled={loading} />
-          </div>
-        </Card>
-
-        <Card>
-          <CardHeader title="Presença e localização" />
-          <div className="space-y-4 p-5">
-            <Input label="Endereço" value={fieldValue('address')} onChange={(e) => setField('address', e.target.value)} placeholder="Rua, número, bairro, cidade..." disabled={loading} />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Input label="Site" value={fieldValue('website')} onChange={(e) => setField('website', e.target.value)} placeholder="https://..." disabled={loading} />
-              <Input label="Instagram" value={fieldValue('instagram')} onChange={(e) => setField('instagram', e.target.value)} placeholder="@suaempresa" disabled={loading} />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Input label="Horário de funcionamento" value={fieldValue('opening_hours')} onChange={(e) => setField('opening_hours', e.target.value)} placeholder="Seg a Sex 9h–18h, Sáb 9h–13h" disabled={loading} />
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-zinc-700">Fuso horário</label>
-                <select
-                  value={fieldValue('timezone')}
-                  onChange={(e) => setField('timezone', e.target.value)}
-                  disabled={loading}
-                  className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-500/60"
-                >
-                  {TIMEZONES.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input label="E-mail" type="email" value={fieldValue('email')} onChange={(e) => setField('email', e.target.value)} placeholder="contato@empresa.com" disabled={loading} />
+                <Input label="CNPJ" value={fieldValue('cnpj')} onChange={(e) => setField('cnpj', e.target.value)} placeholder="00.000.000/0000-00" disabled={loading} />
               </div>
+              <Input label="Descrição Resumida" value={fieldValue('description')} onChange={(e) => setField('description', e.target.value)} placeholder="Descreva sucintamente o que sua empresa oferece..." disabled={loading} />
             </div>
-            <Input label="Logo (URL)" value={fieldValue('logo_url')} onChange={(e) => setField('logo_url', e.target.value)} placeholder="https://.../logo.png" disabled={loading} />
           </div>
-        </Card>
 
-        <Card>
-          <CardHeader title="Informações adicionais" />
-          <div className="space-y-4 p-5">
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700">Informações adicionais</label>
-            <textarea
-              value={fieldValue('additional_info')}
-              onChange={(e) => setField('additional_info', e.target.value)}
-              disabled={loading}
-              rows={4}
-              placeholder="Informações complementares sobre sua empresa, diferenciais, observações..."
-              className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-500/60"
-            />
+          <div className="rounded-2xl border border-white/10 bg-[#080D18]/80 p-6 backdrop-blur-xl shadow-xl space-y-4">
+            <div className="border-b border-white/5 pb-3">
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-[#7C3CFF] shadow-[0_0_8px_#7C3CFF]" />
+                Presença Digital & Localização
+              </h2>
+            </div>
+            <div className="space-y-4">
+              <Input label="Endereço Completo" value={fieldValue('address')} onChange={(e) => setField('address', e.target.value)} placeholder="Rua, número, bairro, cidade..." disabled={loading} />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input label="Website" value={fieldValue('website')} onChange={(e) => setField('website', e.target.value)} placeholder="https://..." disabled={loading} />
+                <Input label="Instagram" value={fieldValue('instagram')} onChange={(e) => setField('instagram', e.target.value)} placeholder="@suaempresa" disabled={loading} />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input label="Horário de Funcionamento" value={fieldValue('opening_hours')} onChange={(e) => setField('opening_hours', e.target.value)} placeholder="Seg a Sex 9h–18h, Sáb 9h–13h" disabled={loading} />
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Fuso Horário</label>
+                  <select
+                    value={fieldValue('timezone')}
+                    onChange={(e) => setField('timezone', e.target.value)}
+                    disabled={loading}
+                    className="w-full rounded-xl border border-white/10 bg-[#020409]/70 px-3 py-2.5 text-sm text-white outline-none focus:border-[#008CFF]"
+                  >
+                    {TIMEZONES.map((t) => (
+                      <option key={t} value={t} className="bg-[#080D18]">
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <Input label="Logotipo (URL)" value={fieldValue('logo_url')} onChange={(e) => setField('logo_url', e.target.value)} placeholder="https://.../logo.png" disabled={loading} />
+            </div>
           </div>
-        </Card>
 
-        <div className="flex justify-end">
-          <Button onClick={() => void save()} loading={saveMutation.isPending}>
-            <Save className="mr-2 h-4 w-4" />
-            Salvar alterações
-          </Button>
+          <div className="rounded-2xl border border-white/10 bg-[#080D18]/80 p-6 backdrop-blur-xl shadow-xl space-y-4">
+            <div className="border-b border-white/5 pb-3">
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-[#00E5A0] shadow-[0_0_8px_#00E5A0]" />
+                Informações Complementares
+              </h2>
+            </div>
+            <div className="space-y-4">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Instruções Adicionais</label>
+              <textarea
+                value={fieldValue('additional_info')}
+                onChange={(e) => setField('additional_info', e.target.value)}
+                disabled={loading}
+                rows={4}
+                placeholder="Informações complementares sobre sua empresa, diferenciais, observações..."
+                className="w-full rounded-xl border border-white/10 bg-[#020409]/70 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-[#008CFF] focus:ring-1 focus:ring-[#008CFF]"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+            <Button onClick={() => void save()} loading={saveMutation.isPending} className="shadow-[0_0_15px_rgba(0,140,255,0.35)]">
+              <Save className="mr-2 h-4 w-4" />
+              Salvar alterações
+            </Button>
+          </div>
         </div>
       </div>
     </DashboardShell>

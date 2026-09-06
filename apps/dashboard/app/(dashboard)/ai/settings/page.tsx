@@ -160,58 +160,80 @@ export default function AISettingsPage() {
     void request('ai/settings');
   };
 
-  if (isLoading) return <DashboardShell title="Configurar IA"><div className="text-sm text-zinc-500">Carregando...</div></DashboardShell>;
+  if (isLoading) {
+    return (
+      <DashboardShell title="Configurar IA">
+        <div className="flex h-64 items-center justify-center">
+          <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#080D18]/80 px-4 py-3 text-sm text-slate-400 backdrop-blur-md">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#008CFF] border-t-transparent" />
+            Carregando configurações neurais...
+          </div>
+        </div>
+      </DashboardShell>
+    );
+  }
 
   return (
     <DashboardShell title="Configurar IA">
-      <div className="mb-6">
-        <h1 className="heading-strong text-xl">Configurar IA</h1>
-        <p className="text-sm text-zinc-500">Defina a identidade, o tom e o comportamento do seu agente de atendimento</p>
+      <div className="mb-8">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#008CFF]/10 border border-[#008CFF]/25 text-[11px] font-semibold text-[#00E5FF] mb-3 uppercase tracking-wider shadow-[0_0_15px_rgba(0,140,255,0.15)]">
+          <Bot className="h-3.5 w-3.5 animate-pulse text-[#00E5FF]" />
+          Motor Cognitivo Neural &bull; Parâmetros de Comportamento
+        </div>
+        <h1 className="text-3xl font-black tracking-tight text-white">Configurar IA</h1>
+        <p className="mt-1 text-sm text-slate-400">
+          Defina a identidade do agente, tom de voz, persona de atuação e regras comportamentais autônomas.
+        </p>
       </div>
 
       <div className="space-y-6">
-        <Card>
-          <CardHeader title="Identidade do agente" subtitle="Quem é o agente que atende seus clientes" />
-          <div className="space-y-4 p-5">
-            <Input label="Nome do agente" value={agentName} onChange={(e) => setAgentName(e.target.value)} placeholder="Ex.: Atendente virtual" />
-            <Input label="Função" value={agentRole} onChange={(e) => setAgentRole(e.target.value)} placeholder="Ex.: Atendimento, Vendas, Suporte" />
+        <Card className="border border-white/10 bg-[#080D18]/80 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
+          <CardHeader title="Identidade do Agente" subtitle="Nome, cargo e persona exibidos nos atendimentos aos clientes" />
+          <div className="space-y-4 p-6">
+            <Input label="Nome do agente" value={agentName} onChange={(e) => setAgentName(e.target.value)} placeholder="Ex.: Atendente Virtual, Sophia, Alex" />
+            <Input label="Função / Cargo" value={agentRole} onChange={(e) => setAgentRole(e.target.value)} placeholder="Ex.: Especialista Comercial, Consultor de Vendas" />
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-zinc-700">Descrição</label>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-300">Diretriz da Postura & Descrição</label>
               <textarea
                 value={agentDesc}
                 onChange={(e) => setAgentDesc(e.target.value)}
                 rows={3}
-                placeholder="Descreva o papel e a postura do agente..."
-                className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-emerald-500/60"
+                placeholder="Descreva o papel, valores, restrições e a postura executiva que o agente deve adotar nas conversas..."
+                className="w-full rounded-xl border border-white/10 bg-[#020409]/70 px-4 py-3 text-sm text-slate-100 placeholder-slate-500 outline-none transition-all duration-200 focus:border-[#008CFF]/60 focus:ring-1 focus:ring-[#008CFF]/30"
               />
             </div>
           </div>
         </Card>
 
-        <Card>
-          <CardHeader title="Tom de voz" />
-          <div className="p-5">
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-              {TONES.map((t) => (
-                <button
-                  key={t.value}
-                  type="button"
-                  onClick={() => setTone(t.value)}
-                  className={`rounded-xl border px-3 py-2.5 text-sm ${
-                    tone === t.value ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600' : 'border-zinc-200 text-zinc-500 hover:border-zinc-400'
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
+        <Card className="border border-white/10 bg-[#080D18]/80 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
+          <CardHeader title="Tom de Voz" subtitle="Selecione a frequência e nuance de comunicação utilizada nas respostas" />
+          <div className="p-6">
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+              {TONES.map((t) => {
+                const active = tone === t.value;
+                return (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => setTone(t.value)}
+                    className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                      active
+                        ? 'border-[#008CFF] bg-[#008CFF]/15 text-[#00E5FF] shadow-[0_0_15px_rgba(0,140,255,0.25)] ring-1 ring-[#008CFF]/40'
+                        : 'border-white/10 bg-[#020409]/50 text-slate-400 hover:border-white/20 hover:text-slate-200 hover:bg-[#020409]/80'
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </Card>
 
-        <Card>
-          <CardHeader title="Objetivo do agente" subtitle="Defina como a IA deve atuar durante as conversas com seus clientes" />
-          <div className="p-5">
-            <div className="grid gap-3 sm:grid-cols-3">
+        <Card className="border border-white/10 bg-[#080D18]/80 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
+          <CardHeader title="Objetivo do Agente" subtitle="Defina a orientação primordial da IA ao interagir em tempo real" />
+          <div className="p-6">
+            <div className="grid gap-4 sm:grid-cols-3">
               {AGENT_MODES.map((m) => {
                 const Icon = m.icon;
                 const active = agentMode === m.value;
@@ -221,16 +243,22 @@ export default function AISettingsPage() {
                     type="button"
                     onClick={() => setAgentMode(m.value)}
                     aria-pressed={active}
-                    className={`flex flex-col items-start gap-2 rounded-2xl border-2 p-4 text-left transition-all ${
+                    className={`flex flex-col items-start gap-2.5 rounded-2xl border p-5 text-left transition-all duration-200 ${
                       active
-                        ? 'border-emerald-500 bg-emerald-500/10 shadow-sm'
-                        : 'border-zinc-200 hover:border-zinc-300'
+                        ? 'border-[#008CFF] bg-gradient-to-b from-[#008CFF]/15 to-transparent text-white shadow-[0_0_20px_rgba(0,140,255,0.2)] ring-1 ring-[#008CFF]/40'
+                        : 'border-white/10 bg-[#020409]/50 text-slate-400 hover:border-white/20 hover:bg-[#020409]/80'
                     }`}
                   >
-                    <Icon className={`h-5 w-5 ${active ? 'text-emerald-600' : 'text-zinc-500'}`} />
-                    <span className={`text-sm font-bold ${active ? 'text-emerald-700' : 'text-zinc-800'}`}>{m.label}</span>
-                    <span className="text-xs font-medium text-zinc-600">{m.title}</span>
-                    <span className="text-[11px] leading-relaxed text-zinc-500">{m.desc}</span>
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl border ${
+                      active
+                        ? 'border-[#008CFF]/40 bg-[#008CFF]/20 text-[#00E5FF] shadow-[0_0_10px_rgba(0,140,255,0.3)]'
+                        : 'border-white/10 bg-white/5 text-slate-400'
+                    }`}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <span className={`text-base font-bold ${active ? 'text-white' : 'text-slate-200'}`}>{m.label}</span>
+                    <span className={`text-xs font-semibold ${active ? 'text-[#00E5FF]' : 'text-slate-400'}`}>{m.title}</span>
+                    <span className="text-xs leading-relaxed text-slate-400">{m.desc}</span>
                   </button>
                 );
               })}
@@ -238,35 +266,54 @@ export default function AISettingsPage() {
           </div>
         </Card>
 
-        <Card>
-          <CardHeader title="Comportamento" subtitle="Como o agente deve se portar nas conversas" />
-          <div className="grid gap-2 p-5 sm:grid-cols-2">
-            {BEHAVIORS.map((b) => (
-              <label key={b.key} className="flex cursor-pointer items-center gap-3 rounded-xl border border-zinc-200 px-3 py-2.5 hover:border-zinc-400">
-                <input type="checkbox" checked={Boolean(behaviors[b.key])} onChange={() => toggleBehavior(b.key)} className="h-4 w-4 accent-emerald-500" />
-                <span className="text-sm text-zinc-700">{b.label}</span>
-              </label>
-            ))}
+        <Card className="border border-white/10 bg-[#080D18]/80 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
+          <CardHeader title="Diretrizes de Comportamento" subtitle="Ative ou desative habilidades cognitivas específicas" />
+          <div className="grid gap-3 p-6 sm:grid-cols-2 lg:grid-cols-3">
+            {BEHAVIORS.map((b) => {
+              const active = Boolean(behaviors[b.key]);
+              return (
+                <label
+                  key={b.key}
+                  className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3.5 py-3 transition-all duration-200 ${
+                    active
+                      ? 'border-[#00E5A0]/40 bg-[#00E5A0]/10 text-emerald-300 shadow-[0_0_12px_rgba(0,229,160,0.12)]'
+                      : 'border-white/10 bg-[#020409]/50 text-slate-400 hover:border-white/20 hover:text-slate-200'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={active}
+                    onChange={() => toggleBehavior(b.key)}
+                    className="h-4 w-4 rounded border-white/20 bg-[#020409] text-[#00E5A0] accent-[#00E5A0] focus:ring-0"
+                  />
+                  <span className="text-xs font-medium leading-snug">{b.label}</span>
+                </label>
+              );
+            })}
           </div>
         </Card>
 
-        <Card>
-          <CardHeader title="Mensagens" subtitle="Tamanho e quantidade das mensagens geradas" />
-          <div className="grid gap-4 p-5 sm:grid-cols-2">
-            <Input label="Tamanho máximo (caracteres)" type="number" value={msgLength} onChange={(e) => setMsgLength(e.target.value)} placeholder="ex.: 200" />
+        <Card className="border border-white/10 bg-[#080D18]/80 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
+          <CardHeader title="Cadência & Limites de Mensagens" subtitle="Controle volumétrico do fluxo de saída do agente" />
+          <div className="grid gap-5 p-6 sm:grid-cols-2">
+            <Input label="Tamanho máximo (caracteres)" type="number" value={msgLength} onChange={(e) => setMsgLength(e.target.value)} placeholder="ex.: 250" />
             <Input label="Máximo de frases por mensagem" type="number" value={msgSentences} onChange={(e) => setMsgSentences(e.target.value)} placeholder="ex.: 3" />
-            <Input label="Mensagens por resposta" type="number" value={msgPerReply} onChange={(e) => setMsgPerReply(e.target.value)} placeholder="ex.: 1" />
+            <Input label="Mensagens enviadas por resposta" type="number" value={msgPerReply} onChange={(e) => setMsgPerReply(e.target.value)} placeholder="ex.: 1" />
             <Input label="Máximo de emojis por mensagem" type="number" value={maxEmojis} onChange={(e) => setMaxEmojis(e.target.value)} placeholder="ex.: 1" />
           </div>
         </Card>
 
-        <div className="flex items-center justify-end gap-3">
-          <Button variant="outline" onClick={() => { void request('ai/settings'); }}>
+        <div className="flex items-center justify-end gap-3 pt-2">
+          <Button variant="outline" onClick={() => { void request('ai/settings'); }} className="border-white/10 bg-transparent text-slate-300 hover:bg-white/5 hover:text-white">
             Recarregar
           </Button>
-          <Button onClick={() => void save()} loading={saveMutation.isPending}>
+          <Button
+            onClick={() => void save()}
+            loading={saveMutation.isPending}
+            className="bg-gradient-to-r from-[#008CFF] to-[#00E5FF] text-black font-bold shadow-[0_0_20px_rgba(0,140,255,0.3)] hover:brightness-110"
+          >
             <Bot className="mr-2 h-4 w-4" />
-            Salvar configuração
+            Salvar Configuração Neural
           </Button>
         </div>
       </div>

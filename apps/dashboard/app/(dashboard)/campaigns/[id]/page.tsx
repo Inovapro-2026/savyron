@@ -298,7 +298,7 @@ export default function CampaignDetailPage() {
         <Card>
           <CardHeader title="Progresso" subtitle="Leads processados da fila" />
           <Progress value={stats?.processed ?? 0} max={Math.max(1, stats?.total ?? 1)} />
-          <div className="mt-2 flex justify-between text-xs text-zinc-500">
+          <div className="mt-2 flex justify-between text-xs text-slate-400 font-mono">
             <span>{stats?.processed ?? 0} processados</span>
             <span>{(stats?.total ?? 0) - (stats?.processed ?? 0)} na fila</span>
           </div>
@@ -306,7 +306,7 @@ export default function CampaignDetailPage() {
 
         <Card>
           <CardHeader title="Canal de envio" subtitle="Escolha por qual canal a campanha dispara — vale para os próximos envios da fila" />
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2.5">
             {CHANNEL_MODE_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
@@ -314,17 +314,17 @@ export default function CampaignDetailPage() {
                 title={opt.hint}
                 disabled={savingMode}
                 onClick={() => void changeChannelMode(opt.value)}
-                className={`h-9 rounded-full px-4 text-xs font-semibold transition-all duration-150 disabled:opacity-60 ${
+                className={`h-9 rounded-2xl px-4 text-xs font-bold transition-all duration-200 disabled:opacity-60 ${
                   campaign?.channel_mode === opt.value
-                    ? 'bg-[#EEF2FF] text-[#6366F1] border border-[#C7D2FE] shadow-xs'
-                    : 'bg-white text-[#64748B] border border-[#E6E8F0] hover:bg-slate-50 hover:text-[#0F172A]'
+                    ? 'bg-gradient-to-r from-[#008CFF]/25 to-[#00E5FF]/20 text-[#00E5FF] border border-[#00E5FF]/40 shadow-[0_0_15px_rgba(0,229,255,0.25)]'
+                    : 'bg-[#0C1427]/60 text-[#A8B3C7] border border-white/10 hover:border-[#008CFF]/40 hover:text-white'
                 }`}
               >
                 {opt.label}
               </button>
             ))}
           </div>
-          <p className="mt-2 text-[11px] text-[#64748B]">
+          <p className="mt-2.5 text-[11px] text-[#A8B3C7]">
             "Ambos" envia pelos dois canais: leads com só telefone recebem WhatsApp, com só e-mail recebem e-mail, e com os dois recebem nos dois. Os limites diários de cada canal continuam valendo.
           </p>
         </Card>
@@ -347,18 +347,18 @@ export default function CampaignDetailPage() {
                 Variáveis disponíveis: {'{{nome}}'} · {'{{empresa}}'} · {'{{email}}'} · {'{{telefone}}'} — preenchidas com os dados de cada lead no momento do envio.
               </p>
               {waFirstMessage.trim() ? (
-                <p className="text-[11px] font-semibold text-amber-600">
+                <p className="text-[11px] font-semibold text-[#FFB020]">
                   Mensagem personalizada ativa. Para voltar ao padrão, limpe o campo e salve.
                 </p>
               ) : (
-                <p className="text-[11px] text-[#64748B]">
+                <p className="text-[11px] text-[#A8B3C7]">
                   Em branco, a campanha usa a mensagem padrão:{' '}
-                  <span className="font-medium text-[#0F172A]">
+                  <span className="font-semibold text-white">
                     "Oi, tudo bem? Falo com o responsável pelo estabelecimento?"
                   </span>
                 </p>
               )}
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-2.5">
                 <Button variant="outline" onClick={() => setWaPreviewOpen(true)} disabled={!waFirstMessage.trim()}>
                   <Eye className="h-4 w-4 mr-1.5" /> Pré-visualizar
                 </Button>
@@ -394,11 +394,11 @@ export default function CampaignDetailPage() {
                 Variáveis disponíveis: {'{{nome}}'} · {'{{empresa}}'} · {'{{email}}'} · {'{{telefone}}'} — preenchidas com os dados de cada lead no momento do envio.
               </p>
               {!emailSubject.trim() || !emailBody.trim() ? (
-                <p className="text-[11px] font-semibold text-amber-600">
+                <p className="text-[11px] font-semibold text-[#FFB020]">
                   Assunto e mensagem são obrigatórios para iniciar a campanha neste canal.
                 </p>
               ) : null}
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-2.5">
                 <Button variant="outline" onClick={() => setPreviewOpen(true)} disabled={!emailBody.trim()}>
                   <Eye className="h-4 w-4 mr-1.5" /> Pré-visualizar e-mail
                 </Button>
@@ -435,25 +435,25 @@ export default function CampaignDetailPage() {
         <Card>
           <CardHeader title="Leads da campanha" subtitle={`${leads.data?.total ?? 0} leads`} />
           {leads.data && leads.data.items.length > 0 ? (
-            <div className="overflow-x-auto rounded-xl border border-[#E6E8F0]">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-[#F8FAFC] text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+            <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#080D18]/80">
+              <table className="w-full text-left text-xs">
+                <thead className="border-b border-white/10 bg-[#0D152A] text-[10px] uppercase tracking-wider text-[#A8B3C7]">
                   <tr>
-                    <th className="px-4 py-3">Nome</th>
-                    <th className="px-4 py-3">Empresa</th>
-                    <th className="px-4 py-3">Contato</th>
-                    <th className="px-4 py-3">Canal</th>
-                    <th className="px-4 py-3">Status</th>
-                    <th className="px-4 py-3">Tentativas</th>
+                    <th className="px-4 py-3 font-semibold">Nome</th>
+                    <th className="px-4 py-3 font-semibold">Empresa</th>
+                    <th className="px-4 py-3 font-semibold">Contato</th>
+                    <th className="px-4 py-3 font-semibold">Canal</th>
+                    <th className="px-4 py-3 font-semibold">Status</th>
+                    <th className="px-4 py-3 font-semibold">Tentativas</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E6E8F0] bg-white">
+                <tbody className="divide-y divide-white/5">
                   {leads.data.items.map((item) => (
-                    <tr key={item.id} className="transition-colors hover:bg-slate-50">
-                      <td className="px-4 py-3 font-semibold text-[#0F172A]">{item.lead.name ?? '—'}</td>
-                      <td className="px-4 py-3 text-[#475569]">{item.lead.business_name ?? '—'}</td>
-                      <td className="px-4 py-3 text-[#64748B]">{item.lead.phone ?? item.lead.email ?? '—'}</td>
-                      <td className="px-4 py-3 text-[#475569]">{item.channel ?? '—'}</td>
+                    <tr key={item.id} className="hover:bg-[#0E1A33]/50 transition-colors">
+                      <td className="px-4 py-3 font-bold text-white">{item.lead.name ?? '—'}</td>
+                      <td className="px-4 py-3 text-[#A8B3C7]">{item.lead.business_name ?? '—'}</td>
+                      <td className="px-4 py-3 text-[#A8B3C7]">{item.lead.phone ?? item.lead.email ?? '—'}</td>
+                      <td className="px-4 py-3 text-[#A8B3C7]">{item.channel ?? '—'}</td>
                       <td className="px-4 py-3">
                         <StatusBadge status={item.status} />
                       </td>
@@ -464,7 +464,7 @@ export default function CampaignDetailPage() {
               </table>
             </div>
           ) : (
-            <div className="py-8 text-center text-sm text-[#64748B]">Nenhum lead nesta campanha. Importe uma lista e vincule a esta campanha.</div>
+            <div className="py-8 text-center text-xs text-[#64748B]">Nenhum lead nesta campanha. Importe uma lista e vincule a esta campanha.</div>
           )}
         </Card>
       </div>
@@ -485,15 +485,15 @@ export default function CampaignDetailPage() {
             ({ name: 'Maria Silva', business_name: 'Empresa Exemplo', email: 'maria@exemplo.com.br', phone: '+55 11 99999-0000' } as const);
           return (
             <div className="space-y-3">
-              <div className="rounded-xl border border-[#E6E8F0] bg-[#F8FAFC] p-3">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">Assunto</div>
-                <div className="mt-1 text-sm font-semibold text-[#0F172A]">{renderPreview(emailSubject, sample) || '(sem assunto)'}</div>
+              <div className="rounded-2xl border border-white/10 bg-[#0C1427]/80 p-3.5">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-[#00E5FF]">Assunto</div>
+                <div className="mt-1 text-sm font-bold text-white">{renderPreview(emailSubject, sample) || '(sem assunto)'}</div>
               </div>
-              <div className="rounded-xl border border-[#E6E8F0] bg-white p-3">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">Mensagem</div>
-                <pre className="mt-1 whitespace-pre-wrap font-sans text-sm text-[#334155]">{renderPreview(emailBody, sample)}</pre>
+              <div className="rounded-2xl border border-white/10 bg-[#080D18]/90 p-3.5">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-[#A8B3C7]">Mensagem</div>
+                <pre className="mt-1 whitespace-pre-wrap font-sans text-xs text-[#A8B3C7] leading-relaxed">{renderPreview(emailBody, sample)}</pre>
               </div>
-              <p className="text-[11px] text-[#94A3B8]">
+              <p className="text-[11px] text-[#64748B]">
                 Prévia gerada com dados de exemplo{leads.data?.items[0]?.lead.name ? ` (${leads.data.items[0].lead.name})` : ''}. A mensagem salva não é alterada.
               </p>
             </div>
@@ -517,11 +517,11 @@ export default function CampaignDetailPage() {
             ({ name: 'Maria Silva', business_name: 'Empresa Exemplo', email: 'maria@exemplo.com.br', phone: '+55 11 99999-0000' } as const);
           return (
             <div className="space-y-3">
-              <div className="rounded-xl border border-[#E6E8F0] bg-white p-3">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">Mensagem</div>
-                <pre className="mt-1 whitespace-pre-wrap font-sans text-sm text-[#334155]">{renderPreview(waFirstMessage, sample)}</pre>
+              <div className="rounded-2xl border border-white/10 bg-[#080D18]/90 p-3.5">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-[#00E5A0]">Mensagem de Abordagem</div>
+                <pre className="mt-1 whitespace-pre-wrap font-sans text-xs text-white leading-relaxed">{renderPreview(waFirstMessage, sample)}</pre>
               </div>
-              <p className="text-[11px] text-[#94A3B8]">
+              <p className="text-[11px] text-[#64748B]">
                 Prévia gerada com dados de exemplo{leads.data?.items[0]?.lead.name ? ` (${leads.data.items[0].lead.name})` : ''}. A mensagem salva não é alterada.
               </p>
             </div>
@@ -544,7 +544,7 @@ export default function CampaignDetailPage() {
           </>
         }
       >
-        <p className="text-sm text-[#475569]">
+        <p className="text-xs text-[#A8B3C7] leading-relaxed">
           Tem certeza que deseja excluir esta campanha? Os leads importados não são apagados — apenas o vínculo com esta campanha.
         </p>
       </Modal>
@@ -553,11 +553,11 @@ export default function CampaignDetailPage() {
 }
 
 function Stat({ label, value, tone }: { label: string; value: number; tone?: 'emerald' | 'amber' | 'blue' | 'red' }) {
-  const color = tone === 'emerald' ? 'text-[#10B981]' : tone === 'amber' ? 'text-[#F59E0B]' : tone === 'blue' ? 'text-[#3B82F6]' : tone === 'red' ? 'text-[#EF4444]' : 'text-[#0F172A]';
+  const color = tone === 'emerald' ? 'text-[#00E5A0]' : tone === 'amber' ? 'text-[#FFB020]' : tone === 'blue' ? 'text-[#00E5FF]' : tone === 'red' ? 'text-[#FF3366]' : 'text-white';
   return (
-    <div className="rounded-2xl border border-[#E6E8F0] bg-white p-3.5 text-center shadow-xs">
-      <div className={`text-2xl font-bold ${color}`}>{value}</div>
-      <div className="mt-0.5 text-[11px] font-medium text-[#64748B]">{label}</div>
+    <div className="rounded-2xl border border-white/10 bg-[#0C1427]/70 p-3.5 text-center shadow-sm">
+      <div className={`text-2xl font-black ${color}`}>{value}</div>
+      <div className="mt-0.5 text-[11px] font-semibold text-[#A8B3C7]">{label}</div>
     </div>
   );
 }

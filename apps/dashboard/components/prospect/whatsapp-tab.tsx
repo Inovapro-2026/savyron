@@ -376,10 +376,10 @@ export function WhatsAppTab() {
       <Card>
         <CardHeader title="WhatsApp" subtitle="Extração de contatos de grupos" />
         <div className="flex flex-col items-center gap-3 px-5 py-10 text-center">
-          <Lock className="h-8 w-8 text-zinc-300" />
-          <p className="max-w-md text-sm text-zinc-600">
+          <Lock className="h-8 w-8 text-slate-600" />
+          <p className="max-w-md text-sm text-slate-400">
             A extração de contatos de grupos do WhatsApp está disponível apenas
-            no plano <strong>Empresa</strong>. Faça upgrade do seu plano para
+            no plano <strong className="text-white">Empresa</strong>. Faça upgrade do seu plano para
             usar este recurso.
           </p>
           <Link href="/payment">
@@ -408,11 +408,11 @@ export function WhatsAppTab() {
         />
         {!connected ? (
           <div className="flex flex-col items-center gap-3 px-5 py-10 text-center">
-            <MessageCircle className="h-8 w-8 text-zinc-300" />
-            <p className="max-w-md text-sm text-zinc-600">
+            <MessageCircle className="h-8 w-8 text-slate-600" />
+            <p className="max-w-md text-sm text-slate-400">
               Para extrair contatos de grupos, a empresa precisa estar com o
               WhatsApp conectado. Conecte em{" "}
-              <Link href="/settings" className="font-medium text-indigo-600 hover:underline">
+              <Link href="/settings" className="font-semibold text-[#00E5FF] hover:underline">
                 Configurações
               </Link>
               . A extração usa o mesmo número logado — sem conexão paralela.
@@ -427,8 +427,8 @@ export function WhatsAppTab() {
           </div>
         ) : groupsError || groups.length === 0 ? (
           <div className="flex flex-col items-center gap-3 px-5 py-10 text-center">
-            <Users className="h-8 w-8 text-zinc-300" />
-            <p className="max-w-md text-sm text-zinc-600">
+            <Users className="h-8 w-8 text-slate-600" />
+            <p className="max-w-md text-sm text-slate-400">
               {groupsError
                 ? groupsError instanceof Error
                   ? groupsError.message
@@ -457,29 +457,29 @@ export function WhatsAppTab() {
                     type="button"
                     disabled={!canExtract}
                     onClick={() => toggleGroup(g.jid)}
-                    className={`flex items-start gap-3 rounded-xl border p-3 text-left transition-all ${
+                    className={`flex items-start gap-3 rounded-2xl border p-3.5 text-left transition-all duration-200 ${
                       checked
-                        ? "border-[#6366F1] bg-[#6366F1]/5 shadow-sm"
-                        : "border-[#E6E8F0] bg-white hover:border-[#C7CBE0] hover:bg-slate-50"
-                    } ${canExtract ? "cursor-pointer" : "cursor-not-allowed opacity-70"}`}
+                        ? "border-[#00E5A0] bg-[#00E5A0]/10 shadow-[0_0_15px_rgba(0,229,160,0.2)]"
+                        : "border-white/10 bg-[#0C1427]/60 hover:border-[#00E5A0]/40 hover:bg-[#0C1427]"
+                    } ${canExtract ? "cursor-pointer" : "cursor-not-allowed opacity-60"}`}
                   >
                     <span
-                      className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
+                      className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
                         checked
-                          ? "border-[#6366F1] bg-[#6366F1]"
-                          : "border-[#CBD2E0] bg-white"
+                          ? "border-[#00E5A0] bg-[#00E5A0]"
+                          : "border-white/20 bg-[#080D18]"
                       }`}
                     >
                       {checked ? (
-                        <span className="block h-2 w-2 rounded-sm bg-white" />
+                        <span className="block h-2 w-2 rounded-sm bg-[#050A14]" />
                       ) : null}
                     </span>
                     <span className="min-w-0">
-                      <span className="block truncate text-sm font-medium text-[#0F172A]">
+                      <span className="block truncate text-xs font-bold text-white">
                         {g.subject}
                       </span>
-                      <span className="mt-0.5 flex items-center gap-1 text-xs text-zinc-500">
-                        <Users className="h-3 w-3" />
+                      <span className="mt-1 flex items-center gap-1 text-[11px] text-[#A8B3C7]">
+                        <Users className="h-3 w-3 text-[#00E5A0]" />
                         {g.size != null ? `${g.size} participantes` : "Participantes"}
                       </span>
                     </span>
@@ -584,7 +584,7 @@ export function WhatsAppTab() {
                 ? "Já existe uma extração em andamento"
                 : `EXTRAIR CONTATOS ${selected.length > 0 ? `(${selected.length} grupo${selected.length > 1 ? "s" : ""})` : ""}`}
             </Button>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-slate-400">
               A extração roda em segundo plano (fila BullMQ) e nunca envia
               mensagens. Acompanhe o progresso abaixo.
             </p>
@@ -607,14 +607,14 @@ export function WhatsAppTab() {
             <Spinner />
           </div>
         ) : extractions.length === 0 ? (
-          <div className="py-10 text-center text-sm text-zinc-500">
-            <Sparkles className="mx-auto mb-2 h-8 w-8 text-zinc-300" />
+          <div className="py-10 text-center text-sm text-slate-400">
+            <Sparkles className="mx-auto mb-2 h-8 w-8 text-slate-600" />
             Nenhuma extração ainda. Selecione grupos acima para começar.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-left text-sm">
-              <thead className="text-[11px] uppercase tracking-wider text-zinc-500">
+              <thead className="border-b border-white/10 bg-white/[0.02] text-[11px] font-bold uppercase tracking-wider text-slate-400">
                 <tr>
                   <th className="px-4 py-3">Data</th>
                   <th className="px-4 py-3">Grupos</th>
@@ -627,39 +627,39 @@ export function WhatsAppTab() {
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-white/5">
                 {extractions.map((ext) => (
                   <tr
                     key={ext.id}
                     onClick={() => setSelectedExtractionId(ext.id)}
-                    className={`cursor-pointer border-t border-zinc-200 hover:bg-zinc-100/60 ${selectedExtractionId === ext.id ? "bg-emerald-50/60" : ""}`}
+                    className={`cursor-pointer transition-colors hover:bg-white/[0.04] ${selectedExtractionId === ext.id ? "bg-[#008CFF]/15 border-l-2 border-l-[#008CFF]" : ""}`}
                   >
-                    <td className="px-4 py-2.5 whitespace-nowrap text-zinc-500">
+                    <td className="px-4 py-2.5 whitespace-nowrap text-slate-400">
                       {formatDate(ext.created_at)}
                     </td>
                     <td className="max-w-[200px] px-4 py-2.5">
-                      <span className="block truncate font-medium text-zinc-800">
+                      <span className="block truncate font-medium text-white">
                         {ext.sources?.[0]?.group_name ?? "—"}
                       </span>
                       {ext.sources && ext.sources.length > 1 ? (
-                        <span className="text-[11px] text-zinc-400">
+                        <span className="text-[11px] text-slate-500">
                           +{ext.sources.length - 1} outros
                         </span>
                       ) : null}
                     </td>
-                    <td className="px-4 py-2.5 text-zinc-600">
+                    <td className="px-4 py-2.5 text-slate-300">
                       {ext.found_count}
                     </td>
-                    <td className="px-4 py-2.5 font-medium text-emerald-700">
+                    <td className="px-4 py-2.5 font-semibold text-[#00E5A0]">
                       {ext.unique_count}
                     </td>
-                    <td className="px-4 py-2.5 text-amber-600">
+                    <td className="px-4 py-2.5 text-amber-400">
                       {ext.duplicate_count}
                     </td>
-                    <td className="px-4 py-2.5 text-zinc-600">
+                    <td className="px-4 py-2.5 text-slate-300">
                       {ext.phone_count}
                     </td>
-                    <td className="px-4 py-2.5 text-zinc-500">
+                    <td className="px-4 py-2.5 text-slate-400">
                       {ext.campaign ? `Campanha (${ext.campaign.status})` : "Leads"}
                     </td>
                     <td className="px-4 py-2.5">
@@ -789,15 +789,15 @@ export function WhatsAppTab() {
                 <Spinner />
               </div>
             ) : !leadsData || leadsData.total === 0 ? (
-              <div className="py-10 text-center text-sm text-zinc-500">
-                <Users className="mx-auto mb-2 h-8 w-8 text-zinc-300" />
+              <div className="py-10 text-center text-sm text-slate-400">
+                <Users className="mx-auto mb-2 h-8 w-8 text-slate-600" />
                 {["PENDING", "RUNNING"].includes(selectedExtraction.status)
                   ? "A extração ainda está em andamento. Os leads aparecem aqui em tempo real."
                   : "Nenhum lead com contato foi salvo nesta extração."}
               </div>
             ) : (
               <table className="w-full min-w-[640px] text-left text-sm">
-                <thead className="sticky top-0 bg-zinc-50 text-[11px] uppercase tracking-wider text-zinc-500">
+                <thead className="sticky top-0 bg-[#080D18] border-b border-white/10 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                   <tr>
                     <th className="px-4 py-3">Nome</th>
                     <th className="px-4 py-3">Telefone</th>
@@ -806,24 +806,24 @@ export function WhatsAppTab() {
                     <th className="px-4 py-3">Status</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-white/5">
                   {leadsData.leads.map((lead) => (
-                    <tr key={lead.id} className="border-t border-zinc-200 hover:bg-zinc-100/60">
-                      <td className="max-w-[240px] px-4 py-2.5 font-medium text-zinc-800">
+                    <tr key={lead.id} className="transition-colors hover:bg-white/[0.04]">
+                      <td className="max-w-[240px] px-4 py-2.5 font-medium text-white">
                         <span className="block truncate">
                           {lead.name || "Sem nome"}
                         </span>
                       </td>
-                      <td className="px-4 py-2.5 whitespace-nowrap text-zinc-600">
+                      <td className="px-4 py-2.5 whitespace-nowrap text-slate-300 font-mono text-xs">
                         {lead.phone ? (
-                          <a href={`tel:${lead.phone}`} className="hover:text-emerald-600">
+                          <a href={`tel:${lead.phone}`} className="hover:text-[#00E5FF] transition-colors">
                             {lead.phone}
                           </a>
                         ) : (
-                          <span className="text-zinc-400">—</span>
+                          <span className="text-slate-600">—</span>
                         )}
                       </td>
-                      <td className="max-w-[200px] px-4 py-2.5 text-zinc-500">
+                      <td className="max-w-[200px] px-4 py-2.5 text-slate-400">
                         <span className="block truncate">{lead.group_name}</span>
                       </td>
                       <td className="px-4 py-2.5">
@@ -833,7 +833,7 @@ export function WhatsAppTab() {
                           <Badge tone="zinc">Participante</Badge>
                         )}
                       </td>
-                      <td className="px-4 py-2.5 text-zinc-500">{lead.status}</td>
+                      <td className="px-4 py-2.5 text-slate-400">{lead.status}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -854,17 +854,17 @@ export function WhatsAppTab() {
         message={
           <span>
             Você está prestes a excluir{" "}
-            <strong className="text-red-600">
+            <strong className="text-rose-400 font-semibold">
               {leadsData?.total ?? 0} lead(s)
             </strong>{" "}
             dessa extração de{" "}
-            <strong className="text-zinc-900">
+            <strong className="text-white font-semibold">
               {selectedExtraction?.sources?.[0]?.group_name ?? "grupos do WhatsApp"}
             </strong>
             . Conversas, mensagens, opt-outs e gerações de IA vinculados também
             serão removidos. Leads que já existiam na base são apenas
             desvinculados (mantidos em Clientes). Digite{" "}
-            <strong className="text-zinc-900">EXCLUIR</strong> para confirmar.
+            <strong className="text-white font-mono bg-white/10 px-1.5 py-0.5 rounded">EXCLUIR</strong> para confirmar.
             Esta ação não pode ser desfeita.
           </span>
         }
@@ -881,19 +881,19 @@ export function WhatsAppTab() {
         message={
           <span>
             Você está prestes a excluir a extração do dia{" "}
-            <strong className="text-zinc-900">
+            <strong className="text-white font-semibold">
               {deleteTarget ? formatDate(deleteTarget.created_at) : ""}
             </strong>{" "}
             ({deleteTarget?.sources?.[0]?.group_name ?? "grupos do WhatsApp"}).
             Os{" "}
-            <strong className="text-red-600">
+            <strong className="text-rose-400 font-semibold">
               {deleteTarget?.phone_count ?? 0}
             </strong>{" "}
             lead(s) salvos por ela e todo o histórico (mensagens, conversas,
             opt-outs e gerações de IA) também serão excluídos. Leads que já
             existiam na base são apenas desvinculados (mantidos em Clientes).
             Digite{" "}
-            <strong className="text-zinc-900">EXCLUIR</strong> para confirmar.
+            <strong className="text-white font-mono bg-white/10 px-1.5 py-0.5 rounded">EXCLUIR</strong> para confirmar.
             Esta ação não pode ser desfeita.
           </span>
         }
@@ -920,18 +920,20 @@ function Toggle({
       type="button"
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`flex items-start gap-3 rounded-xl border p-3 text-left transition-all ${
+      className={`flex items-start gap-3 rounded-2xl border p-3.5 text-left transition-all duration-200 ${
         checked
-          ? "border-[#6366F1] bg-[#6366F1]/5"
-          : "border-[#E6E8F0] bg-white hover:border-[#C7CBE0]"
-      } ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
+          ? "border-[#00E5FF] bg-[#00E5FF]/10 shadow-[0_0_15px_rgba(0,229,255,0.2)]"
+          : "border-white/10 bg-[#0C1427]/60 hover:border-[#00E5FF]/40 hover:bg-[#0C1427]"
+      } ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
     >
       <span
-        className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded ${checked ? "bg-[#6366F1]" : "border border-[#CBD2E0] bg-white"}`}
+        className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
+          checked ? "border-[#00E5FF] bg-[#00E5FF]" : "border-white/20 bg-[#080D18]"
+        }`}
       />
       <span className="min-w-0">
-        <span className="block text-sm font-medium text-[#0F172A]">{label}</span>
-        {hint ? <span className="block text-[11px] text-zinc-500">{hint}</span> : null}
+        <span className="block text-xs font-bold text-white">{label}</span>
+        {hint ? <span className="block text-[11px] text-[#A8B3C7] mt-0.5">{hint}</span> : null}
       </span>
     </button>
   );
@@ -957,18 +959,18 @@ function DestinationOption({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className={`flex items-start gap-3 rounded-xl border p-3 text-left transition-all ${
+      className={`flex items-start gap-3 rounded-2xl border p-3.5 text-left transition-all duration-200 ${
         active
-          ? "border-[#6366F1] bg-[#6366F1]/5 shadow-sm"
-          : "border-[#E6E8F0] bg-white hover:border-[#C7CBE0]"
-      } ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
+          ? "border-[#00E5FF] bg-[#00E5FF]/10 shadow-[0_0_15px_rgba(0,229,255,0.2)]"
+          : "border-white/10 bg-[#0C1427]/60 hover:border-[#00E5FF]/40 hover:bg-[#0C1427]"
+      } ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
     >
-      <span className={`mt-0.5 ${active ? "text-[#6366F1]" : "text-zinc-400"}`}>
+      <span className={`mt-0.5 ${active ? "text-[#00E5FF]" : "text-[#64748B]"}`}>
         {icon}
       </span>
       <span className="min-w-0">
-        <span className="block text-sm font-medium text-[#0F172A]">{title}</span>
-        <span className="block text-[11px] leading-relaxed text-zinc-500">{hint}</span>
+        <span className="block text-xs font-bold text-white">{title}</span>
+        <span className="block text-[11px] leading-relaxed text-[#A8B3C7] mt-0.5">{hint}</span>
       </span>
     </button>
   );

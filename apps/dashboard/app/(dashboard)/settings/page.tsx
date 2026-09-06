@@ -127,56 +127,88 @@ export default function SettingsPage() {
   return (
     <DashboardShell title="Configurações">
       <div className="space-y-6">
-        <Card>
-          <CardHeader
-            title="WhatsApp (Baileys)"
-            subtitle="Sessão persistente no servidor — escaneie o QR para conectar"
-            action={
-              <Badge tone={wa.data?.connected ? 'emerald' : wa.data?.qrAvailable ? 'amber' : 'zinc'}>
-                {wa.data?.connected ? 'Conectado' : wa.data?.qrAvailable ? 'Aguardando QR' : 'Desconectado'}
-              </Badge>
-            }
-          />
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#008CFF]/10 border border-[#008CFF]/30 text-[#00E5FF] shadow-[0_0_12px_rgba(0,140,255,0.2)]">
+            <MessageCircle className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-white">Configurações de Canais & Sistema</h1>
+            <p className="text-xs text-slate-400">Instância WhatsApp Baileys, limites operacionais e parada de emergência</p>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-[#080D18]/80 p-6 backdrop-blur-xl shadow-xl">
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-4">
+            <div>
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <span className={`h-2 w-2 rounded-full ${wa.data?.connected ? 'bg-[#00E5A0] shadow-[0_0_8px_#00E5A0]' : wa.data?.qrAvailable ? 'bg-[#FFB020] shadow-[0_0_8px_#FFB020]' : 'bg-slate-500'}`} />
+                WhatsApp (Baileys Multi-Device)
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">Sessão criptografada ponta a ponta persistente no servidor — escaneie para parear</p>
+            </div>
+            <Badge tone={wa.data?.connected ? 'emerald' : wa.data?.qrAvailable ? 'amber' : 'zinc'}>
+              {wa.data?.connected ? 'Instância Conectada' : wa.data?.qrAvailable ? 'Aguardando Leitura do QR' : 'Desconectado'}
+            </Badge>
+          </div>
+
+          <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
             {wa.data?.qrDataUrl && !wa.data.connected ? (
-              <div className="rounded-xl border border-zinc-200 bg-white p-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={wa.data.qrDataUrl} alt="QR code do WhatsApp" className="h-64 w-64" />
-              </div>
-            ) : (
-              <div className="flex h-64 w-64 flex-col items-center justify-center rounded-xl border border-dashed border-zinc-200 bg-white p-4 text-center">
-                <MessageCircle className="mb-2 h-8 w-8 text-zinc-500" />
-                <div className="text-sm text-zinc-500">
-                  {wa.data?.connected ? `Conectado como ${wa.data.phone ?? ''}` : wa.data?.state === 'connecting' ? 'Conectando…' : 'Sem sessão ativa'}
+              <div className="relative group">
+                <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#008CFF] to-[#00E5FF] opacity-50 blur-lg group-hover:opacity-75 transition duration-500" />
+                <div className="relative rounded-2xl border-2 border-[#00E5FF]/50 bg-white p-3 shadow-2xl">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={wa.data.qrDataUrl} alt="QR code do WhatsApp" className="h-64 w-64 rounded-lg" />
                 </div>
               </div>
+            ) : (
+              <div className="flex h-64 w-64 flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#020409]/60 p-6 text-center shadow-inner">
+                <div className={`mb-3 flex h-12 w-12 items-center justify-center rounded-xl ${wa.data?.connected ? 'bg-[#00E5A0]/10 border border-[#00E5A0]/30 text-[#00E5A0] shadow-[0_0_12px_rgba(0,229,160,0.2)]' : 'bg-white/5 text-slate-500'}`}>
+                  <MessageCircle className="h-6 w-6" />
+                </div>
+                <div className="text-sm font-semibold text-slate-300">
+                  {wa.data?.connected ? `Conectado como ${wa.data.phone ?? ''}` : wa.data?.state === 'connecting' ? 'Estabelecendo conexão…' : 'Nenhuma sessão ativa'}
+                </div>
+                <p className="text-xs text-slate-400 mt-1">
+                  {wa.data?.connected ? 'Aparelho online e pronto para envios' : 'Clique no botão ao lado para inicializar'}
+                </p>
+              </div>
             )}
-            <div className="flex flex-col gap-2">
-              {!wa.data?.connected ? (
-                <Button onClick={() => void waConnect()} loading={waBusy} disabled={wa.data?.state === 'connecting'}>
-                  Conectar WhatsApp
-                </Button>
-              ) : (
-                <Button variant="danger" onClick={() => void waDisconnect()} loading={waBusy}>
-                  Desconectar
-                </Button>
-              )}
-              {canAdmin ? (
-                <Button variant="outline" className="text-red-600 hover:bg-red-500/10 hover:text-red-600" onClick={() => setClearSessionOpen(true)} disabled={clearingSession}>
-                  <Eraser className="h-4 w-4" /> Limpar sessão
-                </Button>
-              ) : null}
-              <p className="max-w-xs text-[11px] text-zinc-500">
-                Abra o WhatsApp no celular → Aparelhos conectados → Conectar um aparelho → Escaneie o QR.
-                A sessão fica salva em {process.env.NEXT_PUBLIC_WHATSAPP_SESSION || 'diretório seguro no servidor'}.
-              </p>
+            <div className="flex flex-col gap-3 flex-1">
+              <div className="flex flex-wrap items-center gap-3">
+                {!wa.data?.connected ? (
+                  <Button onClick={() => void waConnect()} loading={waBusy} disabled={wa.data?.state === 'connecting'} className="shadow-[0_0_15px_rgba(0,140,255,0.35)]">
+                    Conectar WhatsApp
+                  </Button>
+                ) : (
+                  <Button variant="danger" onClick={() => void waDisconnect()} loading={waBusy} className="shadow-[0_0_12px_rgba(255,51,102,0.25)]">
+                    Desconectar Instância
+                  </Button>
+                )}
+                {canAdmin ? (
+                  <Button variant="outline" className="border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300 hover:border-red-500/50" onClick={() => setClearSessionOpen(true)} disabled={clearingSession}>
+                    <Eraser className="h-4 w-4" /> Limpar sessão
+                  </Button>
+                ) : null}
+              </div>
+              <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4 text-xs text-slate-400 space-y-1.5 mt-2">
+                <p className="font-semibold text-slate-300">Instruções de Pareamento:</p>
+                <p>1. Abra o WhatsApp no celular principal.</p>
+                <p>2. Toque em <span className="text-white font-medium">Configurações / Opções → Aparelhos Conectados</span>.</p>
+                <p>3. Toque em <span className="text-[#00E5FF] font-medium">Conectar um aparelho</span> e aponte a câmera para o QR Code.</p>
+                <p className="text-[11px] text-slate-400 pt-1">
+                  Sessão persistente armazenada com chave de criptografia de ponta a ponta.
+                </p>
+              </div>
             </div>
           </div>
-        </Card>
+        </div>
 
-        <Card>
-          <CardHeader title="Limites e intervalo" subtitle="Valores padrão para novas campanhas" />
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-white/10 bg-[#080D18]/80 p-6 backdrop-blur-xl shadow-xl">
+          <div className="mb-5 border-b border-white/5 pb-4">
+            <h2 className="text-base font-bold text-white">Limites Operacionais e Cadência</h2>
+            <p className="text-xs text-slate-400 mt-0.5">Defina a cadência segura de disparos para proteger seus números contra restrições</p>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Input
               label="Limite WhatsApp/dia"
               type="number"
@@ -199,19 +231,25 @@ export default function SettingsPage() {
               placeholder={String(settings.data?.interval_seconds ?? 7200)}
             />
           </div>
-          <div className="mt-4 flex justify-end">
-            <Button onClick={() => void saveSettings()} loading={saving}>
-              <Save className="h-4 w-4" /> Salvar
+          <div className="mt-5 flex justify-end">
+            <Button onClick={() => void saveSettings()} loading={saving} className="shadow-[0_0_15px_rgba(0,140,255,0.35)]">
+              <Save className="h-4 w-4" /> Salvar alterações
             </Button>
           </div>
-        </Card>
+        </div>
 
-        <Card>
-          <CardHeader title="Parada de emergência" subtitle="Pausa imediatamente todas as campanhas ativas" />
-          <Button variant="danger" onClick={() => void pauseAll()}>
-            <AlertOctagon className="h-4 w-4" /> Pausar todas as campanhas
+        <div className="rounded-2xl border border-[#FF3366]/20 bg-[#080D18]/80 p-6 backdrop-blur-xl shadow-xl">
+          <div className="mb-4">
+            <h2 className="text-base font-bold text-[#FF3366] flex items-center gap-2">
+              <AlertOctagon className="h-5 w-5" />
+              Parada de Emergência
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">Interrompe instantaneamente o envio de todas as mensagens e campanhas em execução</p>
+          </div>
+          <Button variant="danger" onClick={() => void pauseAll()} className="shadow-[0_0_15px_rgba(255,51,102,0.3)]">
+            <AlertOctagon className="h-4 w-4" /> Pausar todas as campanhas ativas
           </Button>
-        </Card>
+        </div>
       </div>
 
       <ConfirmModal
@@ -225,9 +263,9 @@ export default function SettingsPage() {
         message={
           <span>
             Todos os dados da sessão do WhatsApp desta empresa serão{' '}
-            <strong className="text-red-600">apagados permanentemente do servidor</strong>. O aparelho atualmente pareado será
+            <strong className="text-red-400 font-bold">apagados permanentemente do servidor</strong>. O aparelho atualmente pareado será
             deslogado e você precisará escanear um QR code novo. Digite{' '}
-            <strong className="text-zinc-900">EXCLUIR</strong> para confirmar.
+            <strong className="text-white font-mono bg-white/10 px-1.5 py-0.5 rounded">EXCLUIR</strong> para confirmar.
           </span>
         }
       />

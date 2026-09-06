@@ -151,15 +151,15 @@ export default function CampaignsPage() {
         {campaigns.data && campaigns.data.length > 0 ? (
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {campaigns.data.map((c) => (
-              <Card key={c.id} className="cursor-pointer hover:bg-zinc-100" onClick={() => router.push(`/campaigns/${c.id}`)}>
+              <Card key={c.id} className="cursor-pointer hover:border-[#008CFF]/50 hover:shadow-[0_0_20px_rgba(0,140,255,0.15)] transition-all duration-200" onClick={() => router.push(`/campaigns/${c.id}`)}>
                 <div className="mb-3 flex items-start justify-between gap-2">
                   <div>
                     <div className="flex items-center gap-2">
-                      <Megaphone className="h-4 w-4 text-emerald-600" />
-                      <span className="font-semibold text-zinc-900">{c.name}</span>
+                      <Megaphone className="h-4 w-4 text-[#00E5FF]" />
+                      <span className="font-bold text-white">{c.name}</span>
                       {c.is_test ? <Badge tone="blue">teste</Badge> : null}
                     </div>
-                    <div className="mt-1 text-[11px] text-zinc-500">
+                    <div className="mt-1 text-[11px] text-[#A8B3C7]">
                       Canal {CHANNEL_LABEL[c.channel_mode ?? 'WHATSAPP']} · WA {c.daily_whatsapp_limit}/dia · E-mail {c.daily_email_limit}/dia · a cada {c.interval_seconds}s
                       {startHourLabel(c.start_hour) ? ` · inicia ${startHourLabel(c.start_hour)}` : ''}
                     </div>
@@ -167,20 +167,19 @@ export default function CampaignsPage() {
                   <Badge tone={STATUS_TONE[c.status]}>{c.status === 'ACTIVE' ? 'Ativa' : c.status === 'PAUSED' ? 'Pausada' : 'Encerrada'}</Badge>
                 </div>
 
-                <Progress value={c.stats.processed} max={Math.max(1, c.stats.total)} />
+                <Progress value={c.stats.processed} max={Math.max(1, c.stats.total)} tone="gradient" />
 
                 <div className="mt-3 flex items-center justify-between">
                   <NextSendCountdown targetAt={c.next_send_at} status={c.status} running={c.status === 'ACTIVE'} variant="compact" />
-                  <span className="text-[11px] font-medium text-[#64748B]">intervalo {c.interval_seconds}s</span>
+                  <span className="text-[11px] font-semibold text-[#A8B3C7]">intervalo {c.interval_seconds}s</span>
                 </div>
 
-
-                <div className="mt-3 grid grid-cols-5 gap-2 text-center text-[11px] text-zinc-500">
-                  <div><div className="font-semibold text-zinc-700">{c.stats.total}</div>total</div>
-                  <div><div className="font-semibold text-zinc-700">{c.stats.pending}</div>fila</div>
-                  <div><div className="font-semibold text-zinc-700">{c.stats.responded}</div>respostas</div>
-                  <div><div className="font-semibold text-emerald-600">{c.stats.interested}</div>interes.</div>
-                  <div><div className="font-semibold text-red-600">{c.stats.errors}</div>erros</div>
+                <div className="mt-3 grid grid-cols-5 gap-2 text-center text-[11px] text-[#A8B3C7]">
+                  <div className="rounded-xl border border-white/5 bg-[#0C1427]/60 p-1.5"><div className="font-bold text-white">{c.stats.total}</div>total</div>
+                  <div className="rounded-xl border border-white/5 bg-[#0C1427]/60 p-1.5"><div className="font-bold text-white">{c.stats.pending}</div>fila</div>
+                  <div className="rounded-xl border border-white/5 bg-[#0C1427]/60 p-1.5"><div className="font-bold text-white">{c.stats.responded}</div>respostas</div>
+                  <div className="rounded-xl border border-white/5 bg-[#0C1427]/60 p-1.5"><div className="font-bold text-[#00E5A0]">{c.stats.interested}</div>interes.</div>
+                  <div className="rounded-xl border border-white/5 bg-[#0C1427]/60 p-1.5"><div className="font-bold text-[#FF3366]">{c.stats.errors}</div>erros</div>
                 </div>
 
                 <div className="mt-4 flex flex-wrap items-center gap-2" onClick={(e) => e.stopPropagation()}>
@@ -207,7 +206,7 @@ export default function CampaignsPage() {
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="text-red-600 hover:bg-red-500/10 hover:text-red-600"
+                    className="text-[#FF3366] hover:bg-red-500/10 hover:text-[#FF3366]"
                     onClick={() => setDeleteTarget(c)}
                   >
                     <Trash2 className="h-4 w-4" /> Excluir
@@ -218,7 +217,7 @@ export default function CampaignsPage() {
           </div>
         ) : (
           <Card className="py-12 text-center">
-            <div className="text-sm text-zinc-500">Nenhuma campanha criada ainda.</div>
+            <div className="text-sm text-[#A8B3C7]">Nenhuma campanha criada ainda.</div>
             <Button className="mt-4" onClick={() => setOpen(true)}>
               Criar primeira campanha
             </Button>
@@ -249,11 +248,11 @@ export default function CampaignsPage() {
           </div>
           <Input label="Intervalo entre envios (segundos)" type="number" value={interval} onChange={(e) => setInterval(e.target.value)} min={5} hint="Recomendado: 7200s (2 horas) para WhatsApp" />
           <Input label="Início diário (horário de Brasília)" type="time" value={startHour} onChange={(e) => setStartHour(e.target.value)} hint="Ex.: 09:00 — a campanha começa a enviar nesse horário todos os dias" />
-          <label className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-3">
-            <input type="checkbox" checked={isTest} onChange={(e) => setIsTest(e.target.checked)} className="h-4 w-4 accent-emerald-500" />
+          <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#0C1427]/60 p-3.5 cursor-pointer hover:border-[#00E5FF]/40 transition-colors">
+            <input type="checkbox" checked={isTest} onChange={(e) => setIsTest(e.target.checked)} className="h-4 w-4 accent-[#00E5FF] rounded" />
             <div>
-              <div className="text-sm font-medium text-zinc-700">Campanha de teste</div>
-              <div className="text-[11px] text-zinc-500">Usa limites reduzidos para validação</div>
+              <div className="text-xs font-bold text-white">Campanha de Teste</div>
+              <div className="text-[11px] text-[#A8B3C7]">Usa limites reduzidos para validação</div>
             </div>
           </label>
         </div>
@@ -274,8 +273,8 @@ export default function CampaignsPage() {
           </>
         }
       >
-        <p className="text-sm text-zinc-500">
-          Tem certeza que deseja excluir a campanha <strong className="text-zinc-900">{deleteTarget?.name}</strong>?
+        <p className="text-xs text-[#A8B3C7] leading-relaxed">
+          Tem certeza que deseja excluir a campanha <strong className="text-white">{deleteTarget?.name}</strong>?
           Os leads importados não são apagados — apenas o vínculo com esta campanha.
         </p>
       </Modal>
