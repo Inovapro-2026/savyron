@@ -103,7 +103,8 @@ export async function jarvisChat(
   userId: string,
   transcript: string,
   history: Array<{ role: "user" | "assistant"; content: string }>,
-): Promise<{ text: string; pendingAction: boolean }> {
+): Promise<{ text: string; pendingAction: boolean; toolsUsed: string[] }> {
+  const toolsUsed: string[] = [];
   try {
     await new Promise((r) => setTimeout(r, 500));
 
@@ -173,6 +174,7 @@ export async function jarvisChat(
         }
 
         const { result } = await executeReadonlyTool(toolCall.name, businessId, userId, toolCall.args);
+        if (!toolsUsed.includes(toolCall.name)) toolsUsed.push(toolCall.name);
 
         if (result.error) {
           const readonlyRefusal =
@@ -204,7 +206,7 @@ export async function jarvisChat(
             entity: "agent",
             metadata: { tool: toolCall.name },
           });
-          return { text: finalText(response.text), pendingAction: false };
+          return { text: finalText(response.text), pendingAction: false, toolsUsed };
         }
 
         const resultStr = JSON.stringify(result, null, 2);
@@ -223,7 +225,7 @@ export async function jarvisChat(
           entity: "agent",
           metadata: { tool: toolCall.name },
         });
-        return { text: finalText(response.text), pendingAction: false };
+        return { text: finalText(response.text), pendingAction: false, toolsUsed };
       }
     }
 
@@ -234,12 +236,13 @@ export async function jarvisChat(
       entity: "agent",
       metadata: { tools_used: [] },
     });
-    return { text: finalText(response.text), pendingAction: false };
+    return { text: finalText(response.text), pendingAction: false, toolsUsed };
   } catch (error) {
     logger.error("Erro no JARVIS", { error: error instanceof Error ? error.message : String(error) });
     return {
       text: "Desculpe, ocorreu um erro ao processar sua solicitação. Por favor, tente novamente.",
       pendingAction: false,
+      toolsUsed,
     };
   }
 }

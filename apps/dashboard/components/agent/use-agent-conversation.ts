@@ -8,6 +8,11 @@ import type { MicDiagnostic } from "@/hooks/use-microphone";
 import { VoiceState } from "./agent-visual-state";
 import type { ChatMessage } from "./conversation-bubble";
 import {
+  detectIntentFromText,
+  detectIntentFromTools,
+  type IntentSignal,
+} from "./intent-visual-state";
+import {
   VAD_CONFIG,
   isValidUserUtterance,
   VOICE_THRESHOLD,
@@ -34,6 +39,8 @@ export interface AgentConversationResult {
   micDisabled: boolean;
   showErrorCard: boolean;
   errorInfo: ReturnType<typeof micErrorAction> | null;
+  /** Intenção visual detectada (transcrição do usuário + ferramentas reais usadas pela IA). */
+  intent: IntentSignal | null;
   handlePress: () => void;
   handleRetry: () => void;
   stopSession: () => void;
@@ -70,6 +77,8 @@ export function useAgentConversation(): AgentConversationResult {
   const [history, setHistory] = useState<ChatMessage[]>([]);
   const [lastAssistant, setLastAssistant] = useState("");
   const [usingBrowserVoice, setUsingBrowserVoice] = useState(false);
+  // Camada visual de intenção (intent → visual state): não decide negócio.
+  const [intent, setIntent] = useState<IntentSignal | null>(null);
 
   // Refs de controle de áudio e gravação
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -662,6 +671,10 @@ export function useAgentConversation(): AgentConversationResult {
       }
 
       setTranscript(userText);
+      // DETECÇÃO VISUAL DE INTENÇÃO (fallback por texto — refinada adiante
+      // pelas ferramentas que a IA realmente executar).
+      setIntent(detectIntentFromText(userText));
+
       const nextHistory: ChatMessage[] = [
         ...historyRef.current,
         { role: "user" as const, content: userText },
@@ -701,6 +714,13 @@ export function useAgentConversation(): AgentConversationResult {
         return;
       }
 
+      // Intenção oficial: ferramentas que a IA REALMENTE executou (fonte confiável).
+      const toolsUsed: string[] = Array.isArray(chatData.data?.toolsUsed)
+        ? chatData.data.toolsUsed
+        : [];
+      const toolIntent = detectIntentFromTools(toolsUsed);
+      if (toolIntent) setIntent(toolIntent);
+
       const finalHistory: ChatMessage[] = [
         ...historyRef.current,
         { role: "assistant" as const, content: reply },
@@ -710,6 +730,16 @@ export function useAgentConversation(): AgentConversationResult {
       setLastAssistant(reply);
 
       await speak(reply);
+
+      // Mantém o card de contexto iluminado por um curto período após a fala,
+      // então retorna suavemente ao estado neutro.
+      if (toolIntent || intent) {
+        window.setTimeout(() => {
+          if (statusRef.current !== "agent-thinking" && statusRef.current !== "processing") {
+            setIntent(null);
+          }
+        }, 6000);
+      }
 
       // Retoma a escuta automaticamente após a fala do agente
       if (sessionActiveRef.current) resumeListeningRef.current?.();
@@ -879,6 +909,7 @@ export function useAgentConversation(): AgentConversationResult {
     setStatus("idle");
     setTranscript("");
     setIsMuted(false);
+    setIntent(null);
   }, [stopVad, stopPlayback, stopStream]);
 
   /** Alterna mudo do microfone */
@@ -943,6 +974,7 @@ export function useAgentConversation(): AgentConversationResult {
     micDisabled,
     showErrorCard,
     errorInfo,
+    intent,
     handlePress,
     handleRetry,
     stopSession,

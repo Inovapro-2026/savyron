@@ -9,6 +9,17 @@ interface SavyronCoreProps {
   className?: string;
 }
 
+/** Cor neon do anel por módulo ativo (label do módulo; null = padrão cyan/violeta). */
+const MODULE_RING_COLOR: Record<string, string> = {
+  PLANEJA: "#00E5FF", // AGENDA — cyan
+  ANALISA: "#00E5A0", // FINANCEIRO — verde
+  EXECUTA: "#A855F7", // CAMPANHAS — roxo
+  PESQUISA: "#008CFF", // PESQUISA — azul elétrico
+  OBJETIVO: "#38BDF8",
+  APRENDE: "#818CF8",
+  COMUNICA: "#38BDF8",
+};
+
 /** Núcleo holográfico 3D do SAVYRON (robô + anéis neon + pedestal). */
 export function SavyronCore({
   state = "idle",
@@ -40,6 +51,19 @@ export function SavyronCore({
       : isProcessing
         ? "opacity-95"
         : "opacity-80";
+
+  // Anel de módulo: cor específica quando um módulo está ativo (AGENDA→cyan etc.)
+  const moduleRingColor = activeModuleName
+    ? (MODULE_RING_COLOR[activeModuleName] ?? "#00E5FF")
+    : null;
+  const ringStroke = isError
+    ? "rgba(239, 68, 68, 0.7)"
+    : moduleRingColor ?? "#00e5ff";
+  const ringFilter = isError
+    ? "url(#coreNeonGlow)"
+    : moduleRingColor
+      ? `drop-shadow(0 0 10px ${moduleRingColor})`
+      : "url(#coreNeonGlow)";
 
   return (
     <div
@@ -157,9 +181,9 @@ export function SavyronCore({
             cy="195"
             r="120"
             fill="none"
-            stroke={isError ? "rgba(239, 68, 68, 0.7)" : "#00e5ff"}
-            strokeWidth="3"
-            filter="url(#coreNeonGlow)"
+            stroke={ringStroke}
+            strokeWidth={moduleRingColor ? 3.6 : 3}
+            filter={ringFilter}
             className="animate-pulse-rings"
           />
 

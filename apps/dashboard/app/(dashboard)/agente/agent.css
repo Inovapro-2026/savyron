@@ -233,6 +233,77 @@
   animation: float-soft 5s ease-in-out infinite;
 }
 
+/* ══════════ CONEXÃO NEURAL (núcleo ↔ módulos) ══════════ */
+
+/* Título de status: fade suave na troca de texto dinâmico */
+.agent-status-title {
+  animation: statusTitleSwap 0.35s ease-out;
+}
+
+@keyframes statusTitleSwap {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Linha neon: cresce da origem até o destino ao conectar */
+@keyframes neonLineGrow {
+  0% {
+    stroke-dashoffset: 400;
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.savyron-neon-line-grow {
+  stroke-dasharray: 400;
+  animation: neonLineGrow 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Órbitas do globo de pesquisa */
+@keyframes savGlobeOrbit {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-sav-globe-orbit {
+  animation: savGlobeOrbit 9s linear infinite;
+}
+
+@keyframes savGlobeSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes savGlobeSpinRev {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+
 .animate-pulse-core {
   animation: pulse-core-glow 4s ease-in-out infinite;
 }
@@ -479,7 +550,9 @@
   .animate-scan-sweep,
   .animate-bar-1,
   .animate-bar-2,
-  .animate-bar-3 {
+  .animate-bar-3,
+  .animate-sav-globe-orbit,
+  .savyron-neon-line-grow {
     animation: none !important;
   }
 }

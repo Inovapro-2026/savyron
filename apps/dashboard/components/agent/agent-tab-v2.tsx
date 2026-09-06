@@ -1,5 +1,7 @@
 "use client";
 
+import { useCallback, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { RotateCcw } from "lucide-react";
 
 import { AgentStatus } from "./agent-status";
@@ -11,12 +13,20 @@ import { MicUnsupported } from "./mic-unsupported";
 import { useAgentConversation } from "./use-agent-conversation";
 import { mapVoiceStateToSavyron } from "./agent-visual-state";
 import { SavyronAIBackground } from "./savyron";
+import type { SavyronModuleId } from "./savyron";
+import { AgentContextOverlay } from "./AgentContextOverlay";
+import { SearchGlobe } from "./SearchGlobe";
 
 /**
  * Agente visual V2 — núcleo holográfico SAVYRON dirigido pelo MOTOR REAL.
  * O fundo full-bleed (SavyronAIBackground) reage exclusivamente ao estado do
  * agente (mapVoiceStateToSavyron) e à amplitude real do microfone/TTS
  * (audioLevel). Nenhum estado, métrica ou módulo é simulado.
+ *
+ * Camada de CONTEXTO (nova): quando o usuário pede algo de um módulo
+ * (agenda/financeiro/campanha/pesquisa), o núcleo acende o módulo orbital,
+ * puxa o card com DADOS REAIS via linha neon e o mantém iluminado durante a
+ * fala. A IA e as ferramentas permanecem inalteradas.
  */
 export function AgentTabV2() {
   const {
@@ -32,6 +42,7 @@ export function AgentTabV2() {
     micDisabled,
     showErrorCard,
     errorInfo,
+    intent,
     handlePress,
     handleRetry,
     stopSession,
@@ -40,6 +51,11 @@ export function AgentTabV2() {
   } = useAgentConversation();
 
   const savyronState = mapVoiceStateToSavyron(status);
+  const [highlightedModule, setHighlightedModule] = useState<string | null>(null);
+
+  const handleModuleHighlight = useCallback((label: string | null) => {
+    setHighlightedModule(label);
+  }, []);
 
   // Amplitude real (microfone ou TTS) alimenta boca/olhos/anéis do núcleo sem valores artificiais em repouso
   const amplitude =
@@ -54,10 +70,31 @@ export function AgentTabV2() {
       state={savyronState}
       audioAmplitude={amplitude}
       showStatusPill={true}
+      activeModule={(highlightedModule as SavyronModuleId) || undefined}
     >
+      {/* Globo de pesquisa — quando a IA está pesquisando (tool real search_web) */}
+      <AnimatePresence>
+        {intent?.mode === "search" &&
+        (status === "agent-thinking" ||
+          status === "processing" ||
+          status === "agent-speaking") ? (
+          <SearchGlobe
+            key="search-globe"
+            active
+            done={status === "agent-speaking"}
+          />
+        ) : null}
+      </AnimatePresence>
+
+      {/* Overlay de contexto: linha neon + card com dados reais do módulo */}
+      <AgentContextOverlay
+        intentMode={intent?.mode ?? "idle"}
+        onModuleHighlight={handleModuleHighlight}
+      />
+
       <div className="relative z-30 w-full h-[100dvh] flex flex-col items-center justify-end pointer-events-none">
         <div className="pointer-events-auto w-full max-w-2xl mx-auto px-4 pb-2 flex flex-col items-center gap-2">
-          <AgentStatus state={status} sessionActive={sessionActive} />
+          <AgentStatus state={status} sessionActive={sessionActive} intentMode={intent?.mode} />
 
           {/* Modo consulta — SOMENTE LEITURA */}
           <div className="mt-1 inline-flex items-center gap-1.5 rounded-full agent-glass-card px-3 py-1 text-[11px] font-medium text-cyan-300/90">

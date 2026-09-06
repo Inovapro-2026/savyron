@@ -116,7 +116,7 @@ export async function processChat(
   userId: string,
   transcript: string,
   history: Array<{ role: "user" | "assistant"; content: string }>,
-): Promise<{ text: string; pendingAction: boolean }> {
+): Promise<{ text: string; pendingAction: boolean; toolsUsed: string[] }> {
   const { jarvisChat } = await import("./jarvis-service");
   return jarvisChat(businessId, userId, transcript, history);
 }
