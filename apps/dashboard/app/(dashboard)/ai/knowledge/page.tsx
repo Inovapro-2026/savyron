@@ -126,7 +126,6 @@ export default function AIKnowledgePage() {
   const inactive = total - active;
 
   return (
-  return (
     <DashboardShell title="Base de Conhecimento IA">
       <div className="space-y-6">
         <div className="flex items-center gap-3">
