@@ -11,8 +11,10 @@ export const MAX_RECORDING_MS = 20000;
 export const VAD_CONFIG = {
   /** Duração mínima de fala contínua humana para disparar SPEECH_STARTED (250-400ms) */
   minSpeechDurationMs: 250,
-  /** Silêncio consecutivo necessário para considerar fim da fala (hangover) */
-  minSilenceDurationMs: 1000,
+  /** Silêncio consecutivo necessário para considerar fim da fala (hangover).
+   *  3s: respeita pausas naturais ao pensar/falar. O clique no microfone
+   *  processa imediatamente, sem esperar esse timeout. */
+  minSilenceDurationMs: 3000,
   /** Período inicial de calibração do ruído de fundo ambiente */
   calibrationDurationMs: 1000,
   /** Intervalo de amostragem do VAD via AnalyserNode */

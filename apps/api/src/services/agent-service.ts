@@ -1,5 +1,4 @@
 import { createLogger } from "@prospector/logger";
-import { config } from "@prospector/config";
 import { resolveApiKey, markApiKeyExhausted } from "./api-keys";
 
 const logger = createLogger("api.agent");
@@ -122,10 +121,10 @@ export async function processChat(
   return jarvisChat(businessId, userId, transcript, history);
 }
 
-// --- TTS via ElevenLabs (com rotação de chaves) ---
+// --- TTS via Kokoro (self-hosted, local) com fallback para voz do navegador ---
 export interface TtsResult {
   ok: boolean;
-  /** Áudio MP3 (buffer) quando ok=true. */
+  /** Áudio WAV (buffer) quando ok=true. */
   audio?: Buffer;
   /** true quando deve usar a voz nativa do navegador (quota/erro). */
   fallbackToBrowser: boolean;
@@ -133,54 +132,57 @@ export interface TtsResult {
   fallbackReason?: "quota" | "error";
 }
 
+const KOKORO_URL = process.env.KOKORO_URL ?? "http://localhost:8000";
+const KOKORO_VOICE = process.env.KOKORO_VOICE ?? "pm_alex";
+const KOKORO_LANG = process.env.KOKORO_LANG ?? "p";
+const KOKORO_SPEED = Number(process.env.KOKORO_SPEED ?? "1");
+const KOKORO_TIMEOUT_MS = Number(process.env.KOKORO_TIMEOUT_MS ?? "30000");
+
 export async function textToSpeech(text: string): Promise<TtsResult> {
   const { normalizeForTTS } = await import("./tts-normalizer");
   const ttsText = normalizeForTTS(text);
+  logger.info("[DEBUG TTS] Texto normalizado enviado ao Kokoro", { ttsText });
 
-  const res = await callWithKeyRotation<Buffer>("elevenlabs", async (key) => {
-    const url = `https://api.elevenlabs.io/v1/text-to-speech/${config.ai.agentVoiceId}?output_format=mp3_44100_128`;
-    const response = await fetch(url, {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), KOKORO_TIMEOUT_MS);
+    const response = await fetch(`${KOKORO_URL}/tts`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "xi-api-key": key,
-      },
-      body: JSON.stringify({ text: ttsText, model_id: "eleven_multilingual_v2" }),
-      signal: AbortSignal.timeout(30000),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text: ttsText,
+        voice: KOKORO_VOICE,
+        lang: KOKORO_LANG,
+        speed: KOKORO_SPEED,
+      }),
+      signal: controller.signal,
     });
-    const body = await response.arrayBuffer().then((b) => Buffer.from(b));
-    const textBody = response.headers
-      .get("content-type")
-      ?.includes("application/json")
-      ? body.toString("utf8")
-      : "";
-    if (response.status < 200 || response.status >= 300) {
-      return { status: response.status, body: textBody, value: body };
+    clearTimeout(timer);
+
+    if (response.ok) {
+      const audio = Buffer.from(await response.arrayBuffer());
+      if (audio.length > 0) {
+        return { ok: true, audio, fallbackToBrowser: false };
+      }
     }
-    return { status: response.status, body: textBody, value: body };
-  });
-
-  if (res.ok && res.value) {
-    return { ok: true, audio: res.value, fallbackToBrowser: false };
-  }
-
-  const isQuota = Boolean(
-    res.error && isQuotaError(res.error.status, res.error.body),
-  );
-  if (isQuota) {
-    logger.warn(
-      "ElevenLabs sem créditos/quota — agente usará voz do navegador",
-      { fallback: "quota" },
-    );
-  } else {
-    logger.warn("ElevenLabs indisponível — agente usará voz do navegador", {
-      fallback: "error",
-      error: res.error?.body?.slice(0, 200) ?? res.error?.status,
+    logger.warn("Kokoro TTS retornou resposta inválida", {
+      status: response.status,
     });
+    return {
+      ok: false,
+      fallbackToBrowser: true,
+      fallbackReason: "error",
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.warn("Kokoro TTS indisponível — agente usará voz do navegador", {
+      fallback: "error",
+      error: message,
+    });
+    return {
+      ok: false,
+      fallbackToBrowser: true,
+      fallbackReason: "error",
+    };
   }
-  return {
-    ok: false,
-    fallbackToBrowser: true,
-    fallbackReason: isQuota ? "quota" : "error",
-  };
 }

@@ -1,4 +1,4 @@
-# SAVYRON — MAICON
+# SAVYRON — SAVYRON
 
 Plataforma **multi-tenant** de **prospecção comercial automatizada** e atendimento
 com IA. Importe ou prospecte leads na web (e agora também de **grupos do
@@ -20,7 +20,7 @@ CRM/
 ├── apps/
 │   ├── dashboard/   # Frontend Next.js (porta 3005) — dark/light, mobile-first, PWA
 │   │                #   Rotas públicas e autenticadas (ver "Navegação" abaixo)
-│   │                #   Inclui /agente — MAICON V2: núcleo visual orbital + voz
+│   │                #   Inclui /agente — SAVYRON V2: núcleo visual orbital + voz
 │   ├── api/         # API REST Express (porta 4005) — auth, rotas, filas, Socket.IO
 │   │                #   Rotas extras: /agent, /calendar, /financial, /memory,
 │   │                #   /whatsapp/groups (JARVIS + módulos do agente)
@@ -232,7 +232,7 @@ O SAVYRON é dividido em **área pública** (marketing + onboarding),
 Área pública          Painel do cliente (autenticado)              Admin (plataforma)
 ─────────────────     ────────────────────────────────────────     ─────────────────────
 /vitrine (landing)    /dashboard              /settings            /admin
-/login                /agente (MAICON V2)     /settings/empresa-ia /admin/businesses
+/login                /agente (SAVYRON V2)     /settings/empresa-ia /admin/businesses
 /signup               /prospect               /settings/plano      /admin/plans
 /change-password      /campaigns              /ai/knowledge        /admin/subscriptions
 /payment              /inbox                  /ai/playground       /admin/payments
@@ -315,7 +315,7 @@ Visão geral em tempo real (refetch 15s). Cards e botões:
 - Gráfico de pizza (recharts) — performance WhatsApp vs E-mail.
 - Relógio de **Brasília** no canto superior direito.
 
-### `/agente` — Agente de voz (MAICON V2)
+### `/agente` — Agente de voz (SAVYRON V2)
 
 Assistente de voz em tela cheia (`hideHeader`/`fullBleed`) com núcleo visual
 orbital dirigido pelo motor real. Ativado por feature flag
@@ -673,7 +673,7 @@ crossfit"…), não só os exemplos do placeholder.
 
 ---
 
-## Agente de voz (MAICON) — arquitetura
+## Agente de voz (SAVYRON) — arquitetura
 
 ```
 Mic → VAD adaptativo (Web Audio) → MediaRecorder (webm)
@@ -689,7 +689,7 @@ Mic → VAD adaptativo (Web Audio) → MediaRecorder (webm)
   (`READONLY_TOOLS`), filtro por nome (`isWriteToolName`) e execução
   (`executeReadonlyTool`). O agente consulta leads, clientes, campanhas,
   financeiro, agenda e memória, mas **nunca** altera dados.
-- **Núcleo visual MAICON V2**: orbitais, partículas e boca sincronizada com o
+- **Núcleo visual SAVYRON V2**: orbitais, partículas e boca sincronizada com o
   loop de fala; tema futurista escopado; 100% da tela sem header branco.
 
 ---

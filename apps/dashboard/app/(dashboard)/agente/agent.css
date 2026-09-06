@@ -135,7 +135,7 @@
 }
 
 /* ==========================================================================
-   SAVYRON AI CORE (MAICON) — portado para /agente (V2)
+   SAVYRON AI CORE (V2) — portado para /agente (V2)
    ========================================================================== */
 
 /* Custom Keyframes for SAVYRON AI CORE */
@@ -427,7 +427,7 @@
   animation: scan-sweep 1.8s ease-in-out infinite;
 }
 
-/* Fade-in (usado pelo HUD CANAL ATIVO — ausente no MAICON original) */
+/* Fade-in (usado pelo HUD CANAL ATIVO — ausente no original) */
 @keyframes fade-in {
   from {
     opacity: 0;

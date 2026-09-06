@@ -1,7 +1,7 @@
 /**
- * Tipos do núcleo visual MAICON portado para o SAVYRON.
+ * Tipos do núcleo visual SAVYRON portado para o SAVYRON.
  * `SavyronState` ganhou `error` (só o tipo; os componentes tratam por default).
- * Removidas todas as métricas fictícias do MAICON original.
+ * Removidas todas as métricas fictícias do original.
  */
 
 export type SavyronState = "idle" | "thinking" | "listening" | "speaking" | "processing" | "error";

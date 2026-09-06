@@ -67,7 +67,7 @@ interface SavyronAIProps extends SavyronAIBackgroundProps {
   children?: ReactNode;
 }
 
-/** Composição de fundo full-bleed do núcleo visual (portada do MAICON, sem métricas fictícias). */
+/** Composição de fundo full-bleed do núcleo visual (portada do SAVYRON, sem métricas fictícias). */
 export function SavyronAIBackground({
   state = "idle",
   activeModule: controlledActiveModule,

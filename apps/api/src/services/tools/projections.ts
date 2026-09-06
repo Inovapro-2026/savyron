@@ -64,6 +64,9 @@ export async function executeProjectionTool(
   businessId: string,
   args: Record<string, unknown>,
 ): Promise<ToolResult> {
+  const formatBRL = (value: number): string =>
+    new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+
   switch (name) {
     case "project_month": {
       const monthsAhead = Math.min(Math.max(Number(args.months_ahead) || 1, 1), 6);
@@ -110,16 +113,16 @@ export async function executeProjectionTool(
         const projectedCost = currentCost * Math.pow(1 + (growthRate / 2) / 100, m);
         monthlyProjections.push({
           month: m,
-          projected_revenue: Math.round(projectedRevenue * 100) / 100,
-          projected_expenses: Math.round(projectedCost * 100) / 100,
-          projected_result: Math.round((projectedRevenue - projectedCost) * 100) / 100,
+          projected_revenue: formatBRL(Math.round(projectedRevenue * 100) / 100),
+          projected_expenses: formatBRL(Math.round(projectedCost * 100) / 100),
+          projected_result: formatBRL(Math.round((projectedRevenue - projectedCost) * 100) / 100),
         });
       }
 
       return {
         result: {
-          current_month: { revenue: currentRevenue, expenses: currentCost, result: currentRevenue - currentCost },
-          last_month: { revenue: lastMonthRevenue, expenses: lastMonthCost, result: lastMonthRevenue - lastMonthCost },
+          current_month: { revenue: formatBRL(currentRevenue), expenses: formatBRL(currentCost), result: formatBRL(currentRevenue - currentCost) },
+          last_month: { revenue: formatBRL(lastMonthRevenue), expenses: formatBRL(lastMonthCost), result: formatBRL(lastMonthRevenue - lastMonthCost) },
           growth_rate_percent: Math.round(growthRate * 100) / 100,
           projections: monthlyProjections,
           campaigns_total_leads: campaignStats._count,
@@ -152,16 +155,16 @@ export async function executeProjectionTool(
         let recurringTotal = 0;
         const recurringItems = recurring.map(r => {
           const amount = Number(r.amount);
-          if (r.recurrence === "MONTHLY") { recurringTotal += amount; return { description: r.description, amount, type: "mensal" }; }
+          if (r.recurrence === "MONTHLY") { recurringTotal += amount; return { description: r.description, amount: formatBRL(amount), type: "mensal" }; }
           return null;
         }).filter(Boolean);
 
         months.push({
           month: m + 1,
           month_name: start.toLocaleString("pt-BR", { month: "long", year: "numeric" }),
-          recurring_expenses: { total: Math.round(recurringTotal * 100) / 100, items: recurringItems },
-          planned_expenses: { total: Math.round(Number(planned._sum.amount || 0) * 100) / 100, count: planned._count },
-          total_projected: Math.round((recurringTotal + Number(planned._sum.amount || 0)) * 100) / 100,
+          recurring_expenses: { total: formatBRL(Math.round(recurringTotal * 100) / 100), items: recurringItems },
+          planned_expenses: { total: formatBRL(Math.round(Number(planned._sum.amount || 0) * 100) / 100), count: planned._count },
+          total_projected: formatBRL(Math.round((recurringTotal + Number(planned._sum.amount || 0)) * 100) / 100),
         });
       }
 
@@ -197,16 +200,16 @@ export async function executeProjectionTool(
         let recurringTotal = 0;
         const recurringItems = recurring.map(r => {
           const amount = Number(r.amount);
-          if (r.recurrence === "MONTHLY") { recurringTotal += amount; return { description: r.description, amount, type: "mensal" }; }
+          if (r.recurrence === "MONTHLY") { recurringTotal += amount; return { description: r.description, amount: formatBRL(amount), type: "mensal" }; }
           return null;
         }).filter(Boolean);
 
         months.push({
           month: m + 1,
           month_name: start.toLocaleString("pt-BR", { month: "long", year: "numeric" }),
-          recurring_income: { total: Math.round(recurringTotal * 100) / 100, items: recurringItems },
-          planned_income: { total: Math.round(Number(planned._sum.amount || 0) * 100) / 100, count: planned._count },
-          total_projected: Math.round((recurringTotal + Number(planned._sum.amount || 0)) * 100) / 100,
+          recurring_income: { total: formatBRL(Math.round(recurringTotal * 100) / 100), items: recurringItems },
+          planned_income: { total: formatBRL(Math.round(Number(planned._sum.amount || 0) * 100) / 100), count: planned._count },
+          total_projected: formatBRL(Math.round((recurringTotal + Number(planned._sum.amount || 0)) * 100) / 100),
         });
       }
 

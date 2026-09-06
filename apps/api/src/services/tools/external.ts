@@ -92,46 +92,166 @@ export async function executeExternalTool(
         return { result: { error: "Termo de pesquisa é obrigatório" }, stateChanged: false };
       }
 
-      try {
-        const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`;
-        const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
-        if (res.ok) {
-          const data = await res.json() as any;
-          return {
-            result: {
-              source: "Wikipedia",
-              title: data.title,
-              extract: data.extract?.slice(0, 2000) ?? "Sem informações disponíveis",
-              url: data.content_urls?.desktop?.page ?? null,
-            },
-            stateChanged: false,
-          };
+      // Helper: extrai URL real do redirect do DuckDuckGo (uddg=...)
+      const decodeDdgUrl = (href: string): string => {
+        try {
+          const m = href.match(/[?&]uddg=([^&]+)/);
+          return m ? decodeURIComponent(m[1]) : href.startsWith("//") ? `https:${href}` : href;
+        } catch {
+          return href;
         }
+      };
 
+      const stripHtml = (html: string): string =>
+        html.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&quot;/g, '"')
+          .replace(/&#x27;|&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim();
+
+      // --- 0) Cotações de moeda via AwesomeAPI (gratuita, sem chave) ---
+      const qLower = query.toLowerCase();
+      const CURRENCY_PAIRS: Array<[RegExp, string, string, string]> = [
+        [/d[óo]lar|dolar|usd/i, "USD", "BRL", "Dólar americano"],
+        [/euro|eur\b/i, "EUR", "BRL", "Euro"],
+        [/libra|gbp/i, "GBP", "BRL", "Libra esterlina"],
+        [/iene|yen|jpy/i, "JPY", "BRL", "Iene japonês"],
+        [/bitcoin|btc/i, "BTC", "BRL", "Bitcoin"],
+      ];
+      for (const [re, from, to, label] of CURRENCY_PAIRS) {
+        if (re.test(qLower) && /(hoje|cota|pre[çc]o|valor|quanto)/i.test(qLower)) {
+          try {
+            const cres = await fetch(`https://economia.awesomeapi.com.br/last/${from}-${to}`, { signal: AbortSignal.timeout(8000) });
+            if (cres.ok) {
+              const cdata = await cres.json() as any;
+              const c = cdata[`${from}${to}`];
+              if (c) {
+                const changePct = Number(c.pctChange);
+                return {
+                  result: {
+                    source: "AwesomeAPI (cotação oficial)",
+                    query,
+                    moeda: label,
+                    valor_atual: `R$ ${Number(c.bid).toFixed(4).replace(".", ",")}`,
+                    maximo_do_dia: `R$ ${Number(c.high).toFixed(4).replace(".", ",")}`,
+                    minimo_do_dia: `R$ ${Number(c.low).toFixed(4).replace(".", ",")}`,
+                    variacao_pct: `${changePct >= 0 ? "+" : ""}${changePct.toFixed(2)}%`,
+                    atualizado_em: new Date(Number(c.timestamp) * 1000).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
+                  },
+                  stateChanged: false,
+                };
+              }
+            }
+          } catch { /* segue para busca web */ }
+        }
+      }
+
+      // --- 1) DuckDuckGo HTML (resultados reais da web) ---
+      try {
+        const res = await fetch("https://html.duckduckgo.com/html/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+          },
+          body: `q=${encodeURIComponent(query)}`,
+          signal: AbortSignal.timeout(12000),
+        });
+        if (res.ok) {
+          const html = await res.text();
+          // Ambas as variações capturam: grupo 1 = href, grupo 2 = título
+          // a) <a class="result__a" href="...">título</a>
+          // b) <a href="..." class="result__a">título</a>
+          const seen = new Set<string>();
+          const all = [
+            ...html.matchAll(/<a[^>]*class="result__a"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g),
+            ...html.matchAll(/<a[^>]*href="([^"]+)"[^>]*class="result__a"[^>]*>([\s\S]*?)<\/a>/g),
+          ];
+          const snippets = [...html.matchAll(/class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g)].map(m => stripHtml(m[1]));
+          const results = all
+            .map((m, i) => ({ title: stripHtml(m[2]), url: decodeDdgUrl(m[1]), snippet: snippets[i] ?? "" }))
+            .filter(r => {
+              if (!r.title || !r.url || seen.has(r.url)) return false;
+              seen.add(r.url);
+              return true;
+            })
+            .slice(0, maxResults);
+
+          if (results.length > 0) {
+            return {
+              result: {
+                source: "DuckDuckGo",
+                query,
+                results,
+                count: results.length,
+              },
+              stateChanged: false,
+            };
+          }
+        }
+      } catch (error) {
+        logger.warn("Falha no DuckDuckGo HTML, tentando fallback", { error: error instanceof Error ? error.message : String(error) });
+      }
+
+      // --- 2) Wikipédia PT (busca real por título + resumo) ---
+      try {
+        const searchUrl = `https://pt.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&srlimit=${maxResults}`;
+        const sres = await fetch(searchUrl, { signal: AbortSignal.timeout(10000) });
+        if (sres.ok) {
+          const sdata = await sres.json() as any;
+          const hits = sdata?.query?.search ?? [];
+          const results: Array<{ title: string; snippet: string; url: string }> = [];
+          for (const hit of hits.slice(0, maxResults)) {
+            let extract = stripHtml(hit.snippet ?? "") + "...";
+            try {
+              const sumUrl = `https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(hit.title)}`;
+              const sumRes = await fetch(sumUrl, { signal: AbortSignal.timeout(8000) });
+              if (sumRes.ok) {
+                const sumData = await sumRes.json() as any;
+                if (sumData.extract) extract = String(sumData.extract).slice(0, 1200);
+              }
+            } catch { /* usa snippet */ }
+            results.push({
+              title: hit.title,
+              snippet: extract,
+              url: `https://pt.wikipedia.org/wiki/${encodeURIComponent(hit.title.replace(/ /g, "_"))}`,
+            });
+          }
+          if (results.length > 0) {
+            return {
+              result: { source: "Wikipedia", query, results, count: results.length },
+              stateChanged: false,
+            };
+          }
+        }
+      } catch (error) {
+        logger.warn("Falha na Wikipédia PT", { error: error instanceof Error ? error.message : String(error) });
+      }
+
+      // --- 3) DuckDuckGo Instant Answer (último recurso) ---
+      try {
         const duckUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1`;
         const duckRes = await fetch(duckUrl, { signal: AbortSignal.timeout(10000) });
         if (duckRes.ok) {
           const duckData = await duckRes.json() as any;
           const results = duckData.RelatedTopics?.slice(0, maxResults).map((r: any) => ({
-            text: r.Text ?? r.Result ?? "",
+            title: (r.Text ?? "").slice(0, 80),
             url: r.FirstURL ?? "",
-          })) ?? [];
-          return {
-            result: {
-              source: "DuckDuckGo",
-              abstract: duckData.AbstractText ?? "",
-              results,
-              count: results.length,
-            },
-            stateChanged: false,
-          };
+            snippet: r.Text ?? "",
+          })).filter((r: any) => r.title) ?? [];
+          if (duckData.AbstractText || results.length > 0) {
+            return {
+              result: {
+                source: "DuckDuckGo",
+                query,
+                abstract: duckData.AbstractText ?? "",
+                results,
+                count: results.length,
+              },
+              stateChanged: false,
+            };
+          }
         }
+      } catch { /* segue para erro */ }
 
-        return { result: { error: "Pesquisa web indisponível no momento", results: [] }, stateChanged: false };
-      } catch (error) {
-        logger.warn("Falha na pesquisa web", { error: error instanceof Error ? error.message : String(error) });
-        return { result: { error: "Pesquisa web indisponível no momento. Tente novamente mais tarde.", results: [] }, stateChanged: false };
-      }
+      return { result: { error: "Pesquisa web indisponível no momento. Tente novamente mais tarde.", results: [] }, stateChanged: false };
     }
 
     case "get_weather": {
@@ -195,60 +315,42 @@ export async function executeExternalTool(
       const topic = String(args.topic ?? "").trim();
       const maxResults = Math.min(Math.max(Number(args.max_results) || 5, 1), 10);
 
+      // Google News RSS (gratuito, sem chave, em português)
       try {
-        const query = topic ? encodeURIComponent(topic) : "notícias+brasil";
-        const url = `https://newsapi.org/v2/everything?q=${query}&language=pt&pageSize=${maxResults}&apiKey=demo`;
-        const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
-
+        const query = topic ? encodeURIComponent(topic) : encodeURIComponent("Brasil");
+        const url = `https://news.google.com/rss/search?q=${query}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
+        const res = await fetch(url, {
+          headers: { "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" },
+          signal: AbortSignal.timeout(12000),
+        });
         if (res.ok) {
-          const data = await res.json() as any;
-          if (data.articles?.length > 0) {
+          const xml = await res.text();
+          const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].slice(0, maxResults).map(m => {
+            const item = m[1];
+            const pick = (tag: string) => {
+              const mm = item.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`));
+              return mm ? mm[1].replace(/<!\\[CDATA\\[|\\]\\]>/g, "").trim() : "";
+            };
             return {
-              result: {
-                topic: topic || "geral",
-                articles: data.articles.slice(0, maxResults).map((a: any) => ({
-                  title: a.title,
-                  description: a.description,
-                  url: a.url,
-                  source: a.source?.name,
-                  published_at: a.publishedAt,
-                })),
-                count: Math.min(data.articles.length, maxResults),
-                source: "NewsAPI",
-              },
+              title: pick("title"),
+              url: pick("link"),
+              source: pick("source") || (item.match(/<source[^>]*>([\s\S]*?)<\/source>/)?.[1] ?? ""),
+              published_at: pick("pubDate"),
+            };
+          }).filter(a => a.title);
+
+          if (items.length > 0) {
+            return {
+              result: { topic: topic || "geral", articles: items, count: items.length, source: "Google News" },
               stateChanged: false,
             };
           }
         }
-
-        const gnewsUrl = `https://gnews.io/api/v4/search?q=${query}&lang=pt&max=${maxResults}&token=demo`;
-        const gres = await fetch(gnewsUrl, { signal: AbortSignal.timeout(10000) });
-        if (gres.ok) {
-          const gdata = await gres.json() as any;
-          if (gdata.articles?.length > 0) {
-            return {
-              result: {
-                topic: topic || "geral",
-                articles: gdata.articles.slice(0, maxResults).map((a: any) => ({
-                  title: a.title,
-                  description: a.description,
-                  url: a.url,
-                  source: a.source?.name,
-                  published_at: a.publishedAt,
-                })),
-                count: Math.min(gdata.articles.length, maxResults),
-                source: "GNews",
-              },
-              stateChanged: false,
-            };
-          }
-        }
-
-        return { result: { error: "Notícias indisponíveis no momento", articles: [] }, stateChanged: false };
       } catch (error) {
-        logger.warn("Falha ao obter notícias", { error: error instanceof Error ? error.message : String(error) });
-        return { result: { error: "Notícias indisponíveis no momento" }, stateChanged: false };
+        logger.warn("Falha no Google News RSS", { error: error instanceof Error ? error.message : String(error) });
       }
+
+      return { result: { error: "Notícias indisponíveis no momento", articles: [] }, stateChanged: false };
     }
 
     case "get_feriados": {

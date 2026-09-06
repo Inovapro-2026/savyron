@@ -13,7 +13,7 @@ import { mapVoiceStateToSavyron } from "./agent-visual-state";
 import { SavyronAIBackground } from "./savyron";
 
 /**
- * Agente visual V2 — núcleo holográfico MAICON dirigido pelo MOTOR REAL.
+ * Agente visual V2 — núcleo holográfico SAVYRON dirigido pelo MOTOR REAL.
  * O fundo full-bleed (SavyronAIBackground) reage exclusivamente ao estado do
  * agente (mapVoiceStateToSavyron) e à amplitude real do microfone/TTS
  * (audioLevel). Nenhum estado, métrica ou módulo é simulado.

@@ -224,6 +224,13 @@ export default function AgendaPage() {
     setRefreshKey(k => k + 1);
   };
 
+  const handleDeleteReminder = async (id: string) => {
+    const res = await fetch(`${API_BASE}/calendar/reminders/${id}`, { method: "DELETE" });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error?.message ?? "Erro ao remover lembrete");
+    setRefreshKey(k => k + 1);
+  };
+
   const prevMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
   const nextMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
 
@@ -382,6 +389,7 @@ export default function AgendaPage() {
                   <p className="text-xs text-slate-400 mt-0.5">{new Date(r.remind_at).toLocaleDateString("pt-BR")} às {new Date(r.remind_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}{r.recurring ? ` · Repete: ${r.recurrence}` : ""}</p>
                 </div>
                 <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${r.status === "PENDING" ? "bg-amber-500/10 text-amber-400 border border-amber-500/30" : "bg-[#00E5A0]/10 text-[#00E5A0] border border-[#00E5A0]/30 shadow-[0_0_8px_rgba(0,229,160,0.2)]"}`}>{r.status}</span>
+                <button onClick={() => { if (confirm(`Remover o lembrete "${r.title}"?`)) handleDeleteReminder(r.id); }} aria-label="Excluir lembrete" title="Excluir lembrete" className="rounded-xl p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"><Trash2 className="h-4 w-4" /></button>
               </div>
             ))}
           </div>

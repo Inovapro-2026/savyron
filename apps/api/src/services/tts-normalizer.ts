@@ -83,19 +83,52 @@ export function normalizeForTTS(text: string): string {
   // 1. Valores monetários "R$ 1.234,56", "R$ 1.500" ou "R$ 50" → fala natural.
   //    O prefixo "R$" é OBRIGATÓRIO para nunca converter números comuns
   //    (dias, quantidades, anos) em reais.
+  //    Alternativas (ordem importa — a mais específica primeiro):
+  //    a) \d{1,3}(\.\d{3})+ com centavos opcionais → milhar BR ("4.060,00")
+  //    b) \d+\.\d{2} → malformado do LLM ("4.60") → trata como 460 reais
+  //    c) \d+ com centavos opcionais por vírgula → número simples ("460,00")
   result = result.replace(
-    /\bR\$\s*(\d{1,3}(?:\.\d{3})*(?:,\d{1,2})?|\d+(?:,\d{1,2})?)\b/g,
+    /\bR\$\s*(\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+\.\d{2}|\d+(?:,\d{1,2})?)\b/g,
     (match, value) => {
-      const cleaned = value.replace(/\./g, "").replace(",", ".");
+      let cleaned = value.replace(/\./g, "").replace(",", ".");
+      // Formato malformado "4.60" (ponto decimal do LLM): o valor real é o
+      // inteiro sem o ponto — "4.60" significa 460 reais, não 4,60.
+      if (/^\d+\.\d{2}$/.test(value)) {
+        return currencyToWords(parseInt(value.replace(".", ""), 10));
+      }
       const num = parseFloat(cleaned);
       if (isNaN(num)) return match;
       return currencyToWords(num);
     },
   );
 
-  // 2. Porcentagem "X%" → "X por cento"
-  result = result.replace(/\b(\d+)\s*%/g, (match, value) => {
-    return numberToWords(parseInt(value, 10)) + " por cento";
+  // 1b. Números inteiros com separador de milhar "4.184" → por extenso.
+  //     Exige grupos EXATOS de 3 dígitos após o ponto (convenção BR),
+  //     então não conflita com decimais nem com datas/horas.
+  result = result.replace(/\b(\d{1,3}(?:\.\d{3})+)\b/g, (match, value) => {
+    const num = parseInt(value.replace(/\./g, ""), 10);
+    if (isNaN(num)) return match;
+    return numberToWords(num);
+  });
+
+  // 1c. Durações "1800s" → "mil e oitocentos segundos" (intervalos de campanha)
+  result = result.replace(/\b(\d+)\s*s\b/gi, (match, value) => {
+    const num = parseInt(value, 10);
+    if (isNaN(num)) return match;
+    return numberToWords(num) + " segundos";
+  });
+
+  // 2. Porcentagem "X%" ou "X,Y%" → "X por cento" (aceita decimais)
+  result = result.replace(/\b(\d+(?:,\d{1,2})?)\s*%/g, (match, value) => {
+    const [intStr, decStr] = String(value).split(",");
+    const intPart = parseInt(intStr, 10);
+    if (isNaN(intPart)) return match;
+    let out = numberToWords(intPart);
+    if (decStr) {
+      const decNum = parseInt(decStr, 10);
+      if (decNum > 0) out += " vírgula " + numberToWords(decNum);
+    }
+    return out + " por cento";
   });
 
   // 3. Datas DD/MM/YYYY ou DD/MM/YY → "DD de MÊS de ANO"
@@ -122,6 +155,15 @@ export function normalizeForTTS(text: string): string {
   // 5. Abreviações comuns
   result = result.replace(/\b(\d+)\s*km\b/gi, (match, value) => {
     return numberToWords(parseInt(value, 10)) + " quilômetros";
+  });
+
+  // 4b. Números inteiros grandes SEM separador (>= 1000) → por extenso.
+  //     Roda APÓS datas/horas/porcentagens para não interferir. Cobre
+  //     contagens cruas do LLM (ex.: "4184 leads") que o TTS leria mal.
+  result = result.replace(/\b(\d{4,9})\b/g, (match, value) => {
+    const num = parseInt(value, 10);
+    if (isNaN(num)) return match;
+    return numberToWords(num);
   });
   result = result.replace(/\b(\d+)\s*h\b/gi, (match, value) => {
     return numberToWords(parseInt(value, 10)) + (parseInt(value, 10) === 1 ? " hora" : " horas");

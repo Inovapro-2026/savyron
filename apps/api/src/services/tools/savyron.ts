@@ -134,6 +134,9 @@ export async function executeSavyronTool(
   _userId: string,
   args: Record<string, unknown>,
 ): Promise<ToolResult> {
+  const formatBRL = (value: number): string =>
+    new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+
   switch (name) {
     case "get_dashboard_stats": {
       const metrics = await getDashboardMetrics(businessId);
@@ -378,9 +381,9 @@ export async function executeSavyronTool(
 
       return {
         result: {
-          current_month: { label: current.label, sales_count: current.sales_count, revenue: current.revenue },
-          ticket_medio: current.sales_count > 0 ? Math.round((current.revenue / current.sales_count) * 100) / 100 : 0,
-          months,
+          current_month: { label: current.label, sales_count: current.sales_count, revenue: formatBRL(current.revenue) },
+          ticket_medio: current.sales_count > 0 ? formatBRL(Math.round((current.revenue / current.sales_count) * 100) / 100) : formatBRL(0),
+          months: months.map(m => ({ label: m.label, sales_count: m.sales_count, revenue: formatBRL(m.revenue) })),
           note: "Vendas consideram receitas (lançamentos INCOME). Suposições devem ser tratadas como ESTIMATIVA.",
         },
         stateChanged: false,
@@ -458,10 +461,10 @@ export async function executeSavyronTool(
             active_count: activeCampaigns.length,
           },
           financial: {
-            revenue,
+            revenue: formatBRL(revenue),
             sales_count: incomeAgg._count,
-            expenses,
-            balance: revenue - expenses,
+            expenses: formatBRL(expenses),
+            balance: formatBRL(revenue - expenses),
             current_balance_note: "Saldo do período = vendas - despesas. Dados reais e previstos combinados.",
           },
           dashboard_metrics: metrics,

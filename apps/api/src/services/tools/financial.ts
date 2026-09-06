@@ -4,6 +4,10 @@ import type { ToolDefinition, ToolResult } from "./index";
 
 const logger = createLogger("api.tools.financial");
 
+function formatBRL(value: number): string {
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+}
+
 /**
  * Ferramentas FINANCEIRAS — SOMENTE LEITURA.
  * A aba AGENTE pode consultar resumos, listar transações, categorias e projetar,
@@ -107,9 +111,9 @@ export async function executeFinancialTool(
       return {
         result: {
           period: { start: startDate.toISOString(), end: endDate.toISOString() },
-          incomes: { total: totalIncome, count: incomes._count },
-          expenses: { total: totalExpense, count: expenses._count },
-          balance,
+          incomes: { total: formatBRL(totalIncome), count: incomes._count },
+          expenses: { total: formatBRL(totalExpense), count: expenses._count },
+          balance: formatBRL(balance),
           include_planned: includePlanned,
         },
         stateChanged: false,
@@ -147,7 +151,7 @@ export async function executeFinancialTool(
         result: {
           count: transactions.length,
           transactions: transactions.map(t => ({
-            id: t.id, type: t.type, description: t.description, amount: Number(t.amount),
+            id: t.id, type: t.type, description: t.description, amount: formatBRL(Number(t.amount)),
             date: t.date, category: t.category?.name ?? null, status: t.status, recurrence: t.recurrence, notes: t.notes,
           })),
         },
@@ -234,16 +238,16 @@ export async function executeFinancialTool(
       return {
         result: {
           current_month: {
-            income: Number(currentIncomes._sum.amount || 0),
-            expenses: Number(currentExpenses._sum.amount || 0),
-            balance: currentBalance,
+            income: formatBRL(Number(currentIncomes._sum.amount || 0)),
+            expenses: formatBRL(Number(currentExpenses._sum.amount || 0)),
+            balance: formatBRL(currentBalance),
           },
           projection: {
             months_ahead: monthsAhead,
-            projected_income: projectedIncome,
-            projected_expenses: projectedExpense,
-            projected_balance: currentBalance + projectedIncome - projectedExpense,
-            estimated_final_balance: currentBalance + projectedIncome - projectedExpense,
+            projected_income: formatBRL(projectedIncome),
+            projected_expenses: formatBRL(projectedExpense),
+            projected_balance: formatBRL(currentBalance + projectedIncome - projectedExpense),
+            estimated_final_balance: formatBRL(currentBalance + projectedIncome - projectedExpense),
           },
           note: "Projeção baseada em transações recorrentes e valores previstos. Valores podem variar.",
         },

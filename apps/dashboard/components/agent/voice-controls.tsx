@@ -31,6 +31,19 @@ export function VoiceControls({
     return 1 + Math.min(audioLevel * 0.4, 0.4);
   }, [sessionActive, audioLevel]);
 
+  // Gravando = escutando ou usuário falando. Nesse estado, o 2º clique ENVIA.
+  const isRecording = sessionActive && (state === "listening" || state === "user-speaking");
+  // Microfone inativo enquanto o agente pensa, processa ou fala
+  const isBusy =
+    state === "agent-thinking" || state === "processing" || state === "agent-speaking";
+  const micActionLabel = isRecording
+    ? "Toque para enviar"
+    : isBusy
+      ? "Aguarde, estou pensando"
+      : sessionActive
+        ? "Toque para desligar"
+        : "Toque para falar";
+
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-6">
       <div className="flex items-center justify-center gap-6 sm:gap-10">
@@ -94,11 +107,11 @@ export function VoiceControls({
           <button
             type="button"
             onClick={onToggleMic}
-            disabled={disabled}
-            aria-label={sessionActive ? "Desligar microfone" : "Ligar microfone"}
-            title={sessionActive ? "Toque para desligar" : "Toque para ligar"}
+            disabled={disabled || isBusy}
+            aria-label={isRecording ? "Enviar fala" : isBusy ? "Aguarde" : sessionActive ? "Desligar microfone" : "Ligar microfone"}
+            title={isRecording ? "Toque para enviar" : isBusy ? "Aguarde, estou pensando" : sessionActive ? "Toque para desligar" : "Toque para ligar"}
             className={`group relative z-10 flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-full transition-all duration-200 p-[2.5px] ${
-              disabled ? "cursor-not-allowed opacity-50" : "hover:scale-105 active:scale-95 cursor-pointer"
+              disabled || isBusy ? "cursor-not-allowed opacity-60" : "hover:scale-105 active:scale-95 cursor-pointer"
             } ${
               state === "user-speaking"
                 ? "bg-gradient-to-tr from-[#0284C7] via-[#38BDF8] to-[#A855F7] shadow-[0_0_50px_rgba(56,189,248,0.7)]"
@@ -149,7 +162,7 @@ export function VoiceControls({
 
       {/* Legenda de ação rápida */}
       <span className="text-xs font-medium text-[#64748B] tracking-wide mt-1">
-        {sessionActive ? "Toque para desligar" : "Toque para falar"}
+        {micActionLabel}
       </span>
     </div>
   );

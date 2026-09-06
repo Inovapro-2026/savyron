@@ -4,7 +4,7 @@ import { AgentTabV2 } from "@/components/agent/agent-tab-v2";
 import "./agent.css";
 
 export default function AgentPage() {
-  // Feature flag do núcleo visual MAICON (V2).
+  // Feature flag do núcleo visual SAVYRON (V2).
   // ON por padrão (rollback = SAVYRON_AGENT_CORE_V2=false no ambiente).
   const coreV2 = process.env.SAVYRON_AGENT_CORE_V2 !== "false";
 

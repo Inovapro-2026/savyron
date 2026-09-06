@@ -27,7 +27,7 @@ export const VOICE_STATES: readonly VoiceState[] = [
   "error",
 ];
 
-/** Estados visuais compatíveis com o núcleo MAICON (SavyronCore + error). */
+/** Estados visuais compatíveis com o núcleo SAVYRON (SavyronCore + error). */
 export const SAVYRON_STATES: readonly SavyronState[] = [
   "idle",
   "thinking",
@@ -46,7 +46,7 @@ export function isSavyronState(value: unknown): value is SavyronState {
 }
 
 /**
- * Mapeia o estado real do agente para o estado visual do núcleo MAICON.
+ * Mapeia o estado real do agente para o estado visual do núcleo SAVYRON.
  */
 export function mapVoiceStateToSavyron(state: VoiceState): SavyronState {
   switch (state) {
@@ -96,7 +96,7 @@ export function isAllowedVoiceTransition(from: VoiceState, to: VoiceState): bool
   return (ALLOWED_VOICE_TRANSITIONS[from] as readonly VoiceState[]).includes(to);
 }
 
-/** Valida uma transição do núcleo visual MAICON. */
+/** Valida uma transição do núcleo visual SAVYRON. */
 export function isAllowedSavyronTransition(from: SavyronState, to: SavyronState): boolean {
   return (ALLOWED_SAVYRON_TRANSITIONS[from] as readonly SavyronState[]).includes(to);
 }

@@ -56,11 +56,12 @@ agentRouter.post(
       .filter((m: { content: string }) => m.content.trim());
 
     const result = await processChat(businessId, userId, transcript, history);
+    logger.info('[DEBUG TTS] Resposta do chat (texto que será falado)', { reply: result.text });
     return ok(res, result);
   })
 );
 
-/** POST /agent/tts — TTS (ElevenLabs). Retorna o áudio MP3 ou fallback. */
+/** POST /agent/tts — TTS (Kokoro self-hosted). Retorna o áudio WAV ou fallback. */
 agentRouter.post(
   '/tts',
   asyncHandler(async (req: Request, res: Response) => {
@@ -83,7 +84,7 @@ agentRouter.post(
       });
     }
 
-    res.setHeader('Content-Type', 'audio/mpeg');
+    res.setHeader('Content-Type', 'audio/wav');
     res.setHeader('Content-Length', String(result.audio.length));
     res.setHeader('Cache-Control', 'no-store');
     return res.send(result.audio);
@@ -97,8 +98,9 @@ agentRouter.get(
     const { config } = await import('@prospector/config');
     return ok(res, {
       stt: Boolean(config.ai.groqApiKey),
-      tts: Boolean(config.ai.elevenlabsApiKey),
-      voiceId: config.ai.agentVoiceId,
+      tts: true, // Kokoro self-hosted (sempre disponível)
+      provider: 'kokoro',
+      voiceId: process.env.KOKORO_VOICE ?? 'pm_alex',
     });
   })
 );

@@ -48,7 +48,7 @@ export interface AgentConversationResult {
  * - sessão requestId (`sessionTokenRef`): impede que respostas STT/chat/TTS de
  *   uma sessão antiga sobrescrevam estado visual/transcrição de uma sessão nova;
  * - estado derivado `agent-thinking` antes da chamada de chat (LLM/Funções),
- *   mapeado para o núcleo MAICON como `thinking`.
+ *   mapeado para o núcleo SAVYRON como `thinking`.
  */
 export function useAgentConversation(): AgentConversationResult {
   const { error: toastError } = useToast();
@@ -571,18 +571,9 @@ export function useAgentConversation(): AgentConversationResult {
 
         if (silenceStart === null) silenceStart = now;
 
-        // Se o usuário falou e fez pausa (silêncio consecutivo), encerra e processa
-        if (
-          stats.voicedFrames >= 1 &&
-          now - silenceStart >= VAD_CONFIG.minSilenceDurationMs
-        ) {
-          console.log("[SAVYRON VAD] Fim de fala confirmado por silêncio:", {
-            voicedFrames: stats.voicedFrames,
-            peakRms: stats.peakRms,
-          });
-          finishUtterance();
-          return;
-        }
+        // PUSH-TO-TALK: o VAD NÃO envia mais automaticamente. O envio é
+        // exclusivamente pelo clique no microfone (handlePress → finishUtterance).
+        // O VAD aqui serve apenas para visual (user-speaking) e anti-eco.
 
         // Volta visualmente para "listening" durante pausas curtas
         if (statusRef.current === "user-speaking" && stats.voicedFrames === 0) {
@@ -590,20 +581,16 @@ export function useAgentConversation(): AgentConversationResult {
         }
       }
 
-      // Watchdog de segurança: encerra gravação se ultrapassar o tempo máximo
+      // Watchdog de segurança: se a gravação passar do tempo máximo,
+      // apenas reinicia a janela de estatísticas (NÃO envia sozinho).
       if (now - recordingStartTimeRef.current >= VAD_CONFIG.maxRecordingMs) {
-        if (stats.voicedFrames >= 1) {
-          finishUtterance();
-        } else {
-          // Apenas silêncio — reinicia a janela de gravação sem travar
-          vadStatsRef.current = { voicedFrames: 0, totalFrames: 0, peakRms: 0 };
-          recordingStartTimeRef.current = now;
-        }
+        vadStatsRef.current = { voicedFrames: 0, totalFrames: 0, peakRms: 0 };
+        recordingStartTimeRef.current = now;
       }
     }, VAD_CONFIG.vadIntervalMs);
 
     vadTimerRef.current = interval;
-  }, [finishUtterance, stopVad]);
+  }, [stopVad]);
 
   /** Volta para o estado OUVINDO em modo contínuo */
   const resumeListeningRef = useRef<() => void>(() => undefined);
@@ -622,10 +609,15 @@ export function useAgentConversation(): AgentConversationResult {
       peakRms: stats.peakRms,
     });
 
-    // Descarte se não houve fala detectada
-    if (stats.voicedFrames < 1) {
+    // Descarte APENAS de gravações muito curtas (< ~0,5s = 2 chunks de 250ms).
+    // Com áudio suficiente, envia ao STT mesmo sem voicedFrames — mics fracos
+    // podiam nunca ser confirmados pelo VAD e a fala era descartada em silêncio.
+    // O filtro isValidUserUtterance (pós-STT) continua rejeitando ruído real.
+    if (stats.voicedFrames < 1 && audioChunksRef.current.length < 2) {
       console.log(
-        "[SAVYRON VAD] Áudio descartado: voicedFrames insuficientes:",
+        "[SAVYRON VAD] Áudio descartado (gravação muito curta):",
+        audioChunksRef.current.length,
+        "chunks, voicedFrames:",
         stats.voicedFrames,
       );
       audioChunksRef.current = [];
@@ -903,17 +895,25 @@ export function useAgentConversation(): AgentConversationResult {
   const handlePress = useCallback(() => {
     if (!sessionActiveRef.current) {
       void beginListening();
-    } else {
-      // Se estava gravando e o usuário já falou algo, conclui e processa imediatamente
-      if (
-        mediaRecorderRef.current?.state === "recording" &&
-        vadStatsRef.current.voicedFrames > 0
-      ) {
-        finishUtterance();
-        return;
-      }
-      stopSession();
+      return;
     }
+    // Microfone INATIVO enquanto o agente pensa, processa ou fala:
+    // cliques são ignorados (não envia, não desliga).
+    if (
+      statusRef.current === "agent-thinking" ||
+      statusRef.current === "processing" ||
+      statusRef.current === "agent-speaking"
+    ) {
+      return;
+    }
+    // PUSH-TO-TALK: 2º clique SEMPRE conclui e envia o que foi gravado,
+    // sem depender da confirmação do VAD (mic fraco/ruído não descarta a fala).
+    if (mediaRecorderRef.current?.state === "recording") {
+      finishUtterance();
+      return;
+    }
+    // Sem gravação ativa → encerra a sessão
+    stopSession();
   }, [beginListening, finishUtterance, stopSession]);
 
   const handleRetry = useCallback(() => {

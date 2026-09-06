@@ -23,7 +23,7 @@ export function AgentHeader() {
   );
   const unreadCount = notifQuery.data?.unreadCount ?? 0;
 
-  const displayName = user?.email ? user.email.split("@")[0] : "Maicon Silva";
+  const displayName = user?.email ? user.email.split("@")[0] : "Usuário SAVYRON";
   const formattedName =
     displayName.charAt(0).toUpperCase() + displayName.slice(1);
   const displayRole =
