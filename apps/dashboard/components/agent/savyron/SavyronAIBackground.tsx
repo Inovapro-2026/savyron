@@ -87,6 +87,7 @@ export function SavyronAIBackground({
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [mobileCoreScale, setMobileCoreScale] = useState<number>(0.68);
   const containerRef = useRef<HTMLDivElement>(null);
+  const childrenRef = useRef<HTMLDivElement>(null);
 
   const activeModule =
     controlledActiveModule !== undefined
@@ -113,11 +114,20 @@ export function SavyronAIBackground({
       setIsMobile(mobile);
 
       if (mobile) {
-        const scaleW = (vw - 32) / 440;
-        const scaleH = (vh * 0.45) / 420;
-        setMobileCoreScale(
-          Math.min(Math.max(0.58, Math.min(scaleW, scaleH)), 0.78),
-        );
+        // Reservas: topo (status/safe-area) + base (children + Bottom Navigation).
+        // Núcleo deve caber SEM cortes entre ~30% e ~50% da altura.
+        const childrenH = Number(
+          getComputedStyle(document.documentElement)
+            .getPropertyValue("--savyron-children-h")
+            .replace("px", ""),
+        ) || 300;
+        const reserveTop = Math.max(56, Math.min(90, vh * 0.08));
+        const reserveBottom =
+          Math.min(childrenH, 340) + 76 + 8;
+        const availH = vh - reserveTop - reserveBottom;
+        const scaleW = (vw - 20) / 440;
+        const scaleH = availH / 480;
+        setMobileCoreScale(Math.min(Math.max(0.42, Math.min(scaleW, scaleH)), 0.9));
       } else {
         const targetW = 1000;
         const targetH = 700;
@@ -133,6 +143,25 @@ export function SavyronAIBackground({
     return () => window.removeEventListener("resize", computeViewport);
   }, []);
 
+  // Publica a altura real do bloco de controles (children) como CSS var —
+  // usada pelo posicionamento do card contextual e pela escala do núcleo.
+  useEffect(() => {
+    const el = childrenRef.current;
+    const container = document.getElementById("savyron-ai-background-container");
+    if (!el || !container) return;
+    const update = () => {
+      container.style.setProperty("--savyron-children-h", `${Math.round(el.offsetHeight)}px`);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener("resize", update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, [isMobile]);
+
   return (
     <div
       ref={containerRef}
@@ -146,19 +175,23 @@ export function SavyronAIBackground({
       }}
     >
       <div
-        className="absolute top-[12%] sm:top-[15%] md:top-[17%] left-1/2 -translate-x-1/2 pointer-events-none select-none z-0 flex flex-col items-center justify-center w-full max-w-[100vw] overflow-hidden px-4"
+        className="absolute left-1/2 -translate-x-1/2 pointer-events-none select-none z-0 flex flex-col items-center justify-center w-full max-w-[100vw] overflow-hidden px-4 max-lg:top-[13%] max-lg:opacity-[0.06]"
         aria-hidden="true"
+        style={isMobile ? { top: "13%", opacity: 0.06 } : undefined}
       >
         <div className="relative flex flex-col items-center">
           <span
             className="font-black tracking-[0.14em] sm:tracking-[0.20em] md:tracking-[0.26em] uppercase text-transparent bg-clip-text text-center whitespace-nowrap"
             style={{
-              fontSize: "clamp(2.75rem, 14vw, 12rem)",
+              fontSize: isMobile
+                ? "clamp(2.2rem, 11vw, 3.6rem)"
+                : "clamp(2.75rem, 14vw, 12rem)",
               lineHeight: 0.85,
               backgroundImage:
                 "linear-gradient(180deg, rgba(147, 197, 253, 0.16) 0%, rgba(99, 102, 241, 0.08) 50%, rgba(168, 85, 247, 0.03) 100%)",
-              filter:
-                "drop-shadow(0 0 25px rgba(59, 130, 246, 0.18)) drop-shadow(0 0 60px rgba(139, 92, 246, 0.10))",
+              filter: isMobile
+                ? "none"
+                : "drop-shadow(0 0 25px rgba(59, 130, 246, 0.18)) drop-shadow(0 0 60px rgba(139, 92, 246, 0.10))",
             }}
           >
             SAVYRON
@@ -201,48 +234,41 @@ export function SavyronAIBackground({
       <SavyronParticles state={state} />
 
       {isMobile ? (
-        <div className="relative z-10 flex flex-col items-center justify-between w-full h-full pt-16 pb-28 px-3 overflow-hidden">
-          <div className="relative flex flex-col items-center justify-center flex-1 w-full max-h-[50vh] min-h-[220px]">
+        /* ══════════ MOBILE: composição própria, fullscreen sem scroll ══════════
+           Estrutura: [núcleo centrado 35–45% da altura] + [children na base,
+           acima da Bottom Navigation com safe-area]. Sem strip de módulos. */
+        <>
+          <div className="relative z-10 flex flex-col w-full h-full">
+            {/* Zona do núcleo: centro visual entre ~35% e 45% da altura útil */}
+            <div className="flex-1 min-h-0 w-full flex items-start justify-center px-2 pt-[calc(max(48px,env(safe-area-inset-top,0px))+(100dvh-max(48px,env(safe-area-inset-top,0px))-var(--savyron-children-h,300px)-76px-env(safe-area-inset-bottom,0px)-100%)*0.28)] pb-[calc(var(--savyron-children-h,300px)+76px+env(safe-area-inset-bottom,0px))]">
+              <div
+                className="transition-transform duration-300 origin-center"
+                style={{ transform: `scale(${mobileCoreScale})` }}
+              >
+                <SavyronCore
+                  state={state}
+                  audioAmplitude={audioAmplitude}
+                  activeModuleName={activeModuleData?.label}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Children (status, controles de voz, cards) ancorados na base,
+              SEMPRE acima da Bottom Navigation */}
+          {children ? (
             <div
-              className="transition-transform duration-300 origin-center"
-              style={{ transform: `scale(${mobileCoreScale})` }}
+              ref={childrenRef}
+              className="absolute inset-x-0 bottom-0 z-30 pointer-events-none"
+              style={{
+                paddingBottom:
+                  "calc(76px + env(safe-area-inset-bottom, 0px) + 6px)",
+              }}
             >
-              <SavyronCore
-                state={state}
-                audioAmplitude={audioAmplitude}
-                activeModuleName={activeModuleData?.label}
-              />
+              {children}
             </div>
-          </div>
-
-          <div className="w-full flex flex-col items-center gap-1.5 shrink-0 z-20">
-            <div className="flex items-center gap-2 mb-0.5 opacity-70">
-              <div className="w-7 h-[1px] bg-gradient-to-r from-transparent to-cyan-400" />
-              <span className="text-[8.5px] font-mono tracking-[0.25em] text-cyan-300 uppercase">
-                7 MÓDULOS CONECTADOS
-              </span>
-              <div className="w-7 h-[1px] bg-gradient-to-l from-transparent to-cyan-400" />
-            </div>
-
-            <div className="w-full max-w-full overflow-x-auto no-scrollbar py-1.5 px-2 flex items-center gap-2 snap-x touch-pan-x">
-              {MODULES.map((m) => (
-                <div key={m.id} className="snap-center shrink-0">
-                  <SavyronModule
-                    id={m.id}
-                    label={m.label}
-                    floatDuration={m.floatDuration}
-                    isActive={activeModule === m.id}
-                    isHovered={hoveredModule === m.id}
-                    systemState={state}
-                    compact={true}
-                    onHover={(h) => setHoveredModule(h ? m.id : null)}
-                    onClick={() => handleModuleClick(m.id)}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+          ) : null}
+        </>
       ) : (
         <div
           className="relative transition-transform duration-200 ease-out origin-center z-10"
@@ -389,7 +415,7 @@ export function SavyronAIBackground({
         </div>
       )}
 
-      {children && <div className="relative z-30 w-full">{children}</div>}
+      {children && !isMobile && <div className="relative z-30 w-full">{children}</div>}
     </div>
   );
 }

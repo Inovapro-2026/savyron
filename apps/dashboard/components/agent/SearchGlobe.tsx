@@ -56,7 +56,7 @@ export function SearchGlobe({ active, phase, done = false }: SearchGlobeProps) {
           ? { duration: 0.15 }
           : { duration: 0.6, ease: [0.22, 1, 0.36, 1] }
       }
-      className="pointer-events-none absolute left-[17%] top-[38%] z-30 -translate-x-1/2 -translate-y-1/2 max-lg:left-1/2 max-lg:top-[15%]"
+      className="pointer-events-none absolute left-[17%] top-[38%] z-30 -translate-x-1/2 -translate-y-1/2 max-lg:left-1/2 max-lg:top-[12%] max-lg:scale-[0.8]"
       role="status"
       aria-label={`Pesquisa em andamento: ${label}`}
     >

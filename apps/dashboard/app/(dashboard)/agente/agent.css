@@ -233,6 +233,53 @@
   animation: float-soft 5s ease-in-out infinite;
 }
 
+/* ══════════ MOBILE: /agente como APP FULLSCREEN ══════════ */
+
+/* Sem scroll vertical no mobile (desktop preservado) */
+@media (max-width: 1023px) {
+  .agent-page-viewport,
+  #savyron-ai-background-container {
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  /* Shell externo: /agente é fullscreen — neutraliza min-h-screen + pb-20
+     da navegação mobile (a BottomNav é própria da aba; conteúdo nunca fica
+     atrás dela porque os controles já reservam 76px + safe-area). */
+  main.flex-1:has(#savyron-ai-background-container),
+  div.flex.min-h-screen:has(#savyron-ai-background-container) {
+    min-height: 0 !important;
+    padding-bottom: 0 !important;
+    height: 100dvh;
+    overflow: hidden;
+  }
+}
+
+/* Status próximo do núcleo + badge sem encostar no microfone */
+@media (max-width: 1023px) {
+  .agent-voice-root .agent-voice-stack {
+    gap: 0.25rem;
+  }
+  .agent-voice-root h2 {
+    font-size: 24px !important;
+    line-height: 1.15;
+    margin-bottom: 0;
+  }
+}
+
+/* Telas baixas (< 700px): reduzir composição vertical, sem scroll */
+@media (max-width: 1023px) and (max-height: 700px) {
+  .agent-voice-root h2 {
+    font-size: 21px !important;
+  }
+  .agent-voice-stack .py-2,
+  .agent-voice-stack [class*="py-"] {
+    scroll-margin-top: 0;
+  }
+}
+
 /* ══════════ CONEXÃO NEURAL (núcleo ↔ módulos) ══════════ */
 
 /* Título de status: fade suave na troca de texto dinâmico */

@@ -71,7 +71,7 @@ export function AgentStatus({ state, sessionActive, intentMode }: AgentStatusPro
                 : "text-white/90";
 
   return (
-    <div className="mt-8 text-center px-4">
+    <div className="mt-1 sm:mt-8 text-center px-4">
       <h2
         key={title}
         className={`text-2xl sm:text-3xl font-bold tracking-tight transition-colors duration-200 agent-status-title ${titleColorClass}`}

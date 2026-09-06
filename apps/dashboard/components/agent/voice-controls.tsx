@@ -45,7 +45,7 @@ export function VoiceControls({
         : "Toque para falar";
 
   return (
-    <div className="flex flex-col items-center justify-center gap-3 py-6">
+    <div className="flex flex-col items-center justify-center gap-2 max-lg:py-1 py-6">
       <div className="flex items-center justify-center gap-6 sm:gap-10">
         {/* Botão lateral esquerdo: Mutar / Desmutar Microfone */}
         <button

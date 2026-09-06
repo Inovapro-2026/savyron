@@ -23,10 +23,9 @@ import { SearchGlobe } from "./SearchGlobe";
  * agente (mapVoiceStateToSavyron) e à amplitude real do microfone/TTS
  * (audioLevel). Nenhum estado, métrica ou módulo é simulado.
  *
- * Camada de CONTEXTO (nova): quando o usuário pede algo de um módulo
- * (agenda/financeiro/campanha/pesquisa), o núcleo acende o módulo orbital,
- * puxa o card com DADOS REAIS via linha neon e o mantém iluminado durante a
- * fala. A IA e as ferramentas permanecem inalteradas.
+ * MOBILE: composição fullscreen própria — núcleo centrado, status/controles
+ * ancorados na base ACIMA da Bottom Navigation (via SavyronAIBackground),
+ * sem scroll.
  */
 export function AgentTabV2() {
   const {
@@ -92,32 +91,33 @@ export function AgentTabV2() {
         onModuleHighlight={handleModuleHighlight}
       />
 
-      <div className="relative z-30 w-full h-[100dvh] flex flex-col items-center justify-end pointer-events-none">
-        <div className="pointer-events-auto w-full max-w-2xl mx-auto px-4 pb-2 flex flex-col items-center gap-2">
+      <div className="agent-voice-root relative z-30 w-full h-full lg:h-[100dvh] flex flex-col items-center justify-end pointer-events-none">
+        <div className="agent-voice-stack pointer-events-auto w-full max-w-2xl mx-auto px-4 pb-1 flex flex-col items-center gap-1">
+          {/* Estado da IA — imediatamente acima dos controles (mobile) */}
           <AgentStatus state={status} sessionActive={sessionActive} intentMode={intent?.mode} />
 
           {/* Modo consulta — SOMENTE LEITURA */}
-          <div className="mt-1 inline-flex items-center gap-1.5 rounded-full agent-glass-card px-3 py-1 text-[11px] font-medium text-cyan-300/90">
-            <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
-            JARVIS · Modo consulta (somente leitura)
+          <div className="agent-readonly-badge mt-0.5 inline-flex max-w-[calc(100%-32px)] items-center gap-1.5 rounded-full agent-glass-card px-3 py-2 text-[11px] leading-tight font-medium text-cyan-300/90">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400" />
+            <span className="truncate">JARVIS · Modo consulta (somente leitura)</span>
           </div>
 
           {/* Fallback indicador: Voz do navegador */}
           {usingBrowserVoice && status !== "error" && (
-            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full agent-glass-card px-3 py-1 text-[11px] font-medium text-amber-300">
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-              Voz do navegador (fallback)
+            <div className="inline-flex max-w-[calc(100%-32px)] items-center gap-1.5 rounded-full agent-glass-card px-3 py-2 text-[11px] font-medium text-amber-300">
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400 animate-pulse" />
+              <span className="truncate">Voz do navegador (fallback)</span>
             </div>
           )}
 
           {/* Card de Erro Específico com Orientação */}
           {showErrorCard && errorInfo && (
-            <div className="mt-6 w-full max-w-sm rounded-2xl border border-red-500/30 bg-red-950/40 p-5 text-center backdrop-blur-md shadow-xl">
+            <div className="mt-2 w-full max-w-sm rounded-2xl border border-red-500/30 bg-red-950/40 p-4 text-center backdrop-blur-md shadow-xl">
               <div className="text-sm font-semibold text-red-300">
                 {errorInfo.title}
               </div>
               <p className="mt-1 text-xs text-red-400">{errorInfo.message}</p>
-              <div className="mt-4 flex justify-center gap-2">
+              <div className="mt-3 flex justify-center gap-2">
                 <button
                   type="button"
                   onClick={() => void handleRetry()}
@@ -138,7 +138,7 @@ export function AgentTabV2() {
           ) : (
             <>
               {/* Controles de Voz (Microfone, Mute, Encerrar) */}
-              <div className="mt-1 w-full">
+              <div className="w-full">
                 <VoiceControls
                   state={status}
                   sessionActive={sessionActive}
@@ -154,7 +154,7 @@ export function AgentTabV2() {
           )}
 
           {/* Barra Inferior com Indicadores (Status de Conexão + Idioma) */}
-          <div className="flex w-full items-center justify-between px-4 sm:px-8 py-2 border-t border-white/5 text-xs">
+          <div className="flex w-full items-center justify-between px-2 sm:px-8 py-1.5 border-t border-white/5 text-[11px]">
             <ConnectionStatus state={status} sessionActive={sessionActive} />
             <LanguageSelector />
           </div>

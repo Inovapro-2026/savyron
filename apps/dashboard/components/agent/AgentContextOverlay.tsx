@@ -95,16 +95,31 @@ export function AgentContextOverlay({
 
   return (
     <>
-      {/* Linhas neon nas duas laterais do núcleo (desktop ≥ 1024px) */}
+      {/* Linhas neon laterais do núcleo (desktop ≥ 1024px) */}
       <div className="pointer-events-none absolute left-1/2 top-1/2 z-30 hidden -translate-x-1/2 -translate-y-1/2 lg:block">
         {lines}
       </div>
 
-      {/* Cards de contexto — laterais no desktop, abaixo do núcleo no mobile.
-          Ficam montados enquanto `lastMode` existir; `visible` anima a saída. */}
-      <div className="pointer-events-none absolute inset-0 z-40">
+      {/* Linha neon VERTICAL (mobile): núcleo → card abaixo do robô */}
+      {hasContext ? (
+        <div className="pointer-events-none absolute left-1/2 top-1/2 z-30 lg:hidden">
+          <NeonConnectionLine
+            color={color}
+            connected={intentMode !== "idle"}
+            pulse={context.loading}
+            vertical
+            length={110}
+          />
+        </div>
+      ) : null}
+
+      {/* Cards de contexto — laterais no desktop; abaixo do núcleo (acima do
+          mic/BottomNav) no mobile, com max-width calc(100% - 32px). Ficam
+          montados enquanto `lastMode` existir; `visible` anima a saída. */}
+      <div className="pointer-events-none absolute inset-0 z-40 max-lg:top-0">
         <div
-          className="absolute left-4 top-1/2 -translate-y-1/2 max-lg:left-1/2 max-lg:top-auto max-lg:bottom-[24vh] max-lg:-translate-x-1/2 max-lg:translate-y-0"
+          className="absolute left-4 top-1/2 -translate-y-1/2 max-lg:left-1/2 max-lg:top-auto max-lg:-translate-x-1/2 max-lg:translate-y-0 max-lg:w-[calc(100%-32px)]"
+          style={{ bottom: "calc(var(--savyron-children-h, 300px) + 76px + env(safe-area-inset-bottom, 0px) + 8px)" }}
         >
           <ContextCardsBody
             mode={lastMode === "idle" ? "reports" : lastMode}

@@ -66,7 +66,7 @@ export function AgentContextCard({
           ? { duration: 0.15, ease: "easeOut" }
           : { duration: 0.65, ease: [0.22, 1, 0.36, 1] }
       }
-      className="pointer-events-auto relative z-40 w-[min(320px,calc(100vw-48px))]"
+      className="pointer-events-auto relative z-40 w-[min(340px,calc(100vw-32px))]"
       style={{ display: visible ? undefined : "none" }}
     >
       <div
@@ -137,8 +137,10 @@ export function AgentContextCard({
           ) : null}
         </div>
 
-        {/* Conteúdo (dados reais) */}
-        <div className="relative px-5 pb-4 pt-3">{children}</div>
+        {/* Conteúdo (dados reais) — mobile: altura limitada com scroll interno */}
+        <div className="relative px-5 pb-4 pt-3 max-lg:max-h-[30dvh] max-lg:overflow-y-auto">
+          {children}
+        </div>
 
         {/* Status footer */}
         {status ? (
