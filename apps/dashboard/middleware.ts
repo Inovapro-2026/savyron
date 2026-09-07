@@ -1,73 +1,85 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const SECRET = () => new TextEncoder().encode(process.env.SESSION_SECRET || 'dev-secret');
+const getSecret = () => {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret && process.env.NODE_ENV === 'production') {
+    throw new Error('CRITICAL: SESSION_SECRET must be configured');
+  }
+  return new TextEncoder().encode(secret || 'dev-secret');
+};
 const SESSION_COOKIE = 'acp_token';
 
-const PROTECTED_PREFIXES = ['/dashboard', '/lead-import', '/prospect', '/campaigns', '/inbox', '/clientes', '/reports', '/settings', '/change-password', '/payment', '/admin', '/ai'];
-const PUBLIC_PATHS = ['/login', '/signup'];
+// Rotas estritamente públicas (não exigem autenticação)
+const PUBLIC_AUTH_PATHS = ['/login', '/signup'];
+const PUBLIC_PATHS = ['/login', '/signup', '/vitrine'];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const isPublicAuth = PUBLIC_AUTH_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
   const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-  const isProtected = PROTECTED_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-  const isAsset = pathname.startsWith('/_next') || pathname.startsWith('/favicon') || pathname.includes('.');
+  const isAsset =
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/favicon') ||
+    pathname.startsWith('/icons/') ||
+    pathname.includes('.');
 
-  // Raiz -> login (ou dashboard se já autenticado)
-  if (pathname === '/') {
-    const token = req.cookies.get(SESSION_COOKIE)?.value;
-    let authed = false;
-    if (token) {
-      try {
-        await jwtVerify(token, SECRET());
-        authed = true;
-      } catch {
-        authed = false;
-      }
-    }
-    const url = req.nextUrl.clone();
-    url.pathname = authed ? '/dashboard' : '/login';
-    url.search = '';
-    return NextResponse.redirect(url);
-  }
-
-  if (isAsset || (!isProtected && !isPublic)) {
+  // Assets estáticos não passam por verificação de autenticação
+  if (isAsset) {
     return NextResponse.next();
   }
 
   const token = req.cookies.get(SESSION_COOKIE)?.value;
-  let session: { must_change_password?: boolean; platform_role?: string } | null = null;
+  let session: { must_change_password?: boolean; platform_role?: string; sub?: string } | null = null;
 
   if (token) {
     try {
-      const { payload } = await jwtVerify(token, SECRET());
-      session = {
-        must_change_password: Boolean(payload.must_change_password),
-        platform_role: (payload.platform_role as string) || undefined,
-      };
+      const { payload } = await jwtVerify(token, getSecret());
+      if (payload && payload.sub) {
+        session = {
+          sub: String(payload.sub),
+          must_change_password: Boolean(payload.must_change_password),
+          platform_role: (payload.platform_role as string) || undefined,
+        };
+      }
     } catch {
       session = null;
     }
   }
 
-  const isChangePassword = pathname === '/change-password';
+  // Raiz -> dashboard se autenticado, login se não autenticado
+  if (pathname === '/') {
+    const url = req.nextUrl.clone();
+    url.pathname = session ? '/dashboard' : '/login';
+    url.search = '';
+    return NextResponse.redirect(url);
+  }
 
-  // Sem sessão válida -> login
+  // Se não possui sessão válida e NÃO é rota pública -> REDIRECIONA PARA LOGIN
   if (!session) {
-    if (isPublic) return NextResponse.next();
+    if (isPublic) {
+      return NextResponse.next();
+    }
     const url = req.nextUrl.clone();
     url.pathname = '/login';
     url.search = '';
     return NextResponse.redirect(url);
   }
 
-  // Sessão válida em página pública -> dashboard
-  if (isPublic) {
+  // Possui sessão válida mas tenta acessar tela de login/signup -> redireciona para dashboard
+  if (isPublicAuth) {
     const url = req.nextUrl.clone();
     url.pathname = '/dashboard';
     url.search = '';
     return NextResponse.redirect(url);
   }
+
+  // Se for outra rota pública (/vitrine) com sessão válida, permite acesso normal
+  if (isPublic) {
+    return NextResponse.next();
+  }
+
+  const isChangePassword = pathname === '/change-password';
 
   // Precisa trocar a senha -> força a tela de troca
   if (session.must_change_password && !isChangePassword) {

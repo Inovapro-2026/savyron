@@ -15,6 +15,7 @@ import {
   Plug,
   BookOpen,
   FlaskConical,
+  GraduationCap,
   Sparkles,
   ShieldCheck,
   Settings,
@@ -46,6 +47,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/clientes", label: "Clientes", icon: Users, group: "main" },
   { href: "/emails", label: "E-mails enviados", icon: Mail, group: "main" },
   { href: "/reports", label: "Relatórios", icon: BarChart3, group: "main" },
+  { href: "/treinamento", label: "Treinamento", icon: GraduationCap, group: "main" },
   { href: "/agenda", label: "Agenda", icon: Calendar, group: "main" },
   { href: "/financeiro", label: "Financeiro", icon: Wallet, group: "main" },
 ];

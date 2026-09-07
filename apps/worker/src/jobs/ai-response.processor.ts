@@ -231,6 +231,25 @@ async function processConversationTurn(ctx: TurnContext): Promise<void> {
   // pular a sequência por causa dele.
   const realLeadName = hasRealLeadName(lead.name) ? lead.name : null;
 
+  // ANOTAÇÕES INTERNAS (CRM): as 5 mais recentes entram como contexto interno
+  // da equipe. A IA usa para melhorar a postura — e o prompt garantirá que
+  // JAMAIS sejam reveladas ao cliente.
+  let internalNotes: string[] = [];
+  try {
+    const recentNotes = await prisma.conversationNote.findMany({
+      where: { business_id: resolvedBusinessId, conversation_id: conversationId },
+      orderBy: { created_at: "desc" },
+      take: 5,
+      select: { content: true },
+    });
+    internalNotes = recentNotes.map((n) => n.content).filter((c) => c.trim().length > 0);
+  } catch (error) {
+    logger.warn("Falha ao carregar anotações internas para contexto da IA", {
+      conversation_id: conversationId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+
   const context: AgentContext = {
     leadName: realLeadName,
     businessName: lead.business_name,
@@ -239,6 +258,7 @@ async function processConversationTurn(ctx: TurnContext): Promise<void> {
     history,
     contactType,
     conversationStage: conversation.stage,
+    internalNotes,
   };
 
   const agentConfig = await loadAIConfiguration(prisma, resolvedBusinessId);

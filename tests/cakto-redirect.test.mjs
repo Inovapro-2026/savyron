@@ -37,6 +37,11 @@ test("pagamento: UI volta do checkout e confirma (verificar pagamento)", () => {
   const page = read("apps/dashboard/app/payment/page.tsx");
   assert.match(page, /params\.get\("from"\) === "checkout"/);
   assert.match(page, /fromCheckout/);
-  assert.match(page, /Já paguei — verificar pagamento/);
   assert.match(page, /router\.push\("\/dashboard"\)/);
+  // O botão "Já paguei — verificar pagamento" vive no componente PIX
+  // compartilhado, renderizado pela página /payment quando AbacatePay está
+  // configurado (consulta o status REAL no gateway — nunca ativa pelo clique).
+  const pix = read("apps/dashboard/components/billing/pix-checkout.tsx");
+  assert.match(pix, /Já paguei — verificar pagamento/);
+  assert.match(pix, /billing\/abacatepay\/pix\/status/);
 });

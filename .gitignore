@@ -47,3 +47,7 @@ backups/
 .DS_Store
 coverage/
 *.pid
+
+# Uploads de mídia dos usuários (não versionar)
+uploads/
+**/uploads/

@@ -113,7 +113,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def run():
-    server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
+    server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
     server.serve_forever()
 
 

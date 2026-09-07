@@ -2,7 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useToast } from "@/components/ui/toast";
-import { useMicrophone, micErrorAction } from "@/hooks/use-microphone";
+import {
+  useMicrophone,
+  micErrorAction,
+  diagnoseMicError,
+} from "@/hooks/use-microphone";
 import type { MicDiagnostic } from "@/hooks/use-microphone";
 
 import { VoiceState } from "./agent-visual-state";
@@ -791,23 +795,36 @@ export function useAgentConversation(): AgentConversationResult {
 
     try {
       if (!streamRef.current) {
-        const diag = await requestPermission();
+        // CAPTURA ÚNICA: pede permissão mantendo o stream vivo e o REUTILIZA.
+        // Antes havia DOIS getUserMedia em sequência (requestPermission pegava
+        // um stream, parava as tracks e o agente pedia de novo) — a 2ª captura
+        // podia falhar com NotAllowed/NotReadable transitório mesmo com a
+        // permissão concedida no navegador (dispositivo ainda em liberação).
+        const diag = await requestPermission({ keepStream: true });
         setMicDiagnostic(diag);
-        if (token !== sessionTokenRef.current) return;
+        if (token !== sessionTokenRef.current) {
+          diag.stream?.getTracks().forEach((t) => t.stop());
+          return;
+        }
         if (!diag.available || diag.permission === "denied") {
+          diag.stream?.getTracks().forEach((t) => t.stop());
           setSessionActive(false);
           sessionActiveRef.current = false;
           setStatus("error");
           return;
         }
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true,
-          },
-        });
+        // Fallback defensivo (nunca deve faltar com keepStream=true):
+        let stream = diag.stream;
+        if (!stream) {
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true,
+            },
+          });
+        }
         if (token !== sessionTokenRef.current) {
           stream.getTracks().forEach((t) => t.stop());
           return;
@@ -846,40 +863,24 @@ export function useAgentConversation(): AgentConversationResult {
       startVad();
     } catch (error) {
       if (token !== sessionTokenRef.current) return;
-      const diag = micErrorAction(
-        micDiagnostic ?? {
-          available: false,
-          permission: "unknown",
-          reason: "Não foi possível acessar o microfone.",
-          errorCode: "UNKNOWN",
-        },
-      );
-      setMicDiagnostic({
-        available: false,
-        permission: "unknown",
-        reason: diag.message,
-        errorCode:
-          (error as DOMException)?.name === "NotAllowedError"
-            ? "NOT_ALLOWED"
-            : (error as DOMException)?.name === "NotFoundError"
-              ? "NOT_FOUND"
-              : (error as DOMException)?.name === "NotReadableError"
-                ? "NOT_READABLE"
-                : "UNKNOWN",
-      });
+      // Diagnóstico REAL do erro — diferencia NotAllowed/NotFound/NotReadable/
+      // Overconstrained/Security/Abort em vez de tratar tudo como "bloqueado".
+      const diag = diagnoseMicError(error);
+      setMicDiagnostic(diag);
+      stopStream();
       setSessionActive(false);
       sessionActiveRef.current = false;
       setStatus("error");
-      toastError("Não foi possível acessar o microfone.");
+      toastError(diag.reason ?? "Não foi possível acessar o microfone.");
     }
   }, [
     requestPermission,
     toastError,
-    micDiagnostic,
     resumeAudioContext,
     startAudioMeter,
     processAudio,
     startVad,
+    stopStream,
   ]);
 
   /** Encerra a sessão imediatamente */

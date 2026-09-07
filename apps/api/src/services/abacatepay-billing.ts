@@ -19,6 +19,7 @@ import { createLogger } from "@prospector/logger";
 import {
   createAbacatepayCustomer,
   createAbacatepayPix,
+  getAbacatepayTransparentStatus,
   AbacatepayWebhookPayload,
   isAbacatepayConfigured,
   isValidBrazilianTaxId,
@@ -274,9 +275,109 @@ async function resolveSubscriptionFromEvent(
 }
 
 /**
- * transparent.completed / checkout.completed — confirmação REAL do pagamento:
- * ativa a empresa, renova o período (+30d a partir do fim atual, ou de hoje
- * se a assinatura estava expirada) e marca o pagamento CONFIRMED.
+ * Confirma uma cobrança PIX e ativa/renova a empresa. IDEMPOTENTE por
+ * pagamento: se a cobrança já estiver CONFIRMED, retorna { already: true }
+ * sem repetir a extensão de período nem reativar nada. Usado tanto pelo
+ * webhook (fonte primária) quanto pela consulta de status da tela de
+ * pagamento ("Já paguei" / polling).
+ */
+export async function confirmAbacatepayPayment(input: {
+  businessId: string;
+  subscriptionId: string;
+  checkoutId: string | null;
+  paymentId: string | null;
+  value: number;
+  ts?: Date;
+}): Promise<{ already: boolean }> {
+  const { businessId, subscriptionId, checkoutId, paymentId, value } = input;
+  const ts = input.ts ?? new Date();
+
+  const existing = paymentId
+    ? await prisma.payment.findUnique({ where: { id: paymentId } })
+    : checkoutId
+      ? await prisma.payment.findUnique({
+          where: { abacatepay_checkout_id: checkoutId },
+        })
+      : null;
+
+  // Idempotência: mesma cobrança já confirmada não renova de novo.
+  if (existing?.status === "CONFIRMED") return { already: true };
+
+  const subscription = await prisma.subscription.findUnique({
+    where: { id: subscriptionId },
+  });
+  if (!subscription) throw new Error("Assinatura não encontrada");
+
+  const isRenewal = subscription.status === "ACTIVE";
+  const basePeriodEnd = subscription.current_period_end?.getTime() ?? Date.now();
+  const periodStart = isRenewal ? new Date(basePeriodEnd) : ts;
+  const periodEnd = new Date(periodStart.getTime() + THIRTY_DAYS_MS);
+
+  await prisma.$transaction(async (tx) => {
+    if (existing) {
+      await tx.payment.update({
+        where: { id: existing.id },
+        data: { status: "CONFIRMED", paid_at: ts },
+      });
+    } else if (checkoutId) {
+      await tx.payment.create({
+        data: {
+          subscription_id: subscriptionId,
+          business_id: businessId,
+          abacatepay_checkout_id: checkoutId,
+          abacatepay_event: "transparent.completed",
+          method: "PIX",
+          status: "CONFIRMED",
+          value,
+          paid_at: ts,
+          external_reference: businessId,
+        },
+      });
+    }
+
+    await tx.subscription.update({
+      where: { id: subscriptionId },
+      data: {
+        status: "ACTIVE",
+        current_period_start: periodStart,
+        current_period_end: periodEnd,
+        ...(checkoutId ? { abacatepay_checkout_id: checkoutId } : {}),
+      },
+    });
+
+    await tx.business.update({
+      where: { id: businessId },
+      data: { status: "ACTIVE", suspension_reason: null },
+    });
+  });
+
+  void writeAudit({
+    actor: "abacatepay",
+    businessId,
+    action: "payment.confirmed",
+    entity: "Payment",
+    entityId: existing?.id ?? checkoutId ?? subscriptionId,
+    metadata: {
+      provider: "abacatepay",
+      checkout_id: checkoutId,
+      status: "CONFIRMED",
+      via: isRenewal ? "renewal" : "activation",
+    },
+  });
+  logger.info("Pagamento AbacatePay confirmado — empresa ativada/renovada", {
+    businessId,
+    checkoutId,
+    renewal: isRenewal,
+    periodEnd: periodEnd.toISOString(),
+  });
+  return { already: false };
+}
+
+/**
+ * transparent.completed / checkout.completed — confirmação REAL do pagamento
+ * (webhook). Delega a ativação a confirmAbacatepayPayment (idempotente): se o
+ * gateway reenviar o mesmo evento, a cobrança já estará CONFIRMED e nada é
+ * duplicado (mesma cobrança, mesma assinatura, mesmo período).
  */
 export async function processAbacatepayCompleted(
   payload: AbacatepayWebhookPayload,
@@ -292,70 +393,13 @@ export async function processAbacatepayCompleted(
   }
   const { subscription, payment } = resolved;
   const checkoutId = typeof data.id === "string" ? data.id : null;
-  const ts = new Date();
-  const isRenewal = subscription.status === "ACTIVE";
 
-  const basePeriodEnd =
-    subscription.current_period_end?.getTime() ?? Date.now();
-  const periodStart = isRenewal ? new Date(basePeriodEnd) : ts;
-  const periodEnd = new Date(periodStart.getTime() + THIRTY_DAYS_MS);
-
-  await prisma.$transaction(async (tx) => {
-    if (payment) {
-      await tx.payment.update({
-        where: { id: payment.id },
-        data: { status: "CONFIRMED", paid_at: ts },
-      });
-    } else if (checkoutId) {
-      await tx.payment.create({
-        data: {
-          subscription_id: subscription.id,
-          business_id: subscription.business_id,
-          abacatepay_checkout_id: checkoutId,
-          abacatepay_event: "transparent.completed",
-          method: "PIX",
-          status: "CONFIRMED",
-          value: Number(subscription.plan_price ?? 0),
-          paid_at: ts,
-          external_reference: subscription.business_id,
-        },
-      });
-    }
-
-    await tx.subscription.update({
-      where: { id: subscription.id },
-      data: {
-        status: "ACTIVE",
-        current_period_start: periodStart,
-        current_period_end: periodEnd,
-        ...(checkoutId ? { abacatepay_checkout_id: checkoutId } : {}),
-      },
-    });
-
-    await tx.business.update({
-      where: { id: subscription.business_id },
-      data: { status: "ACTIVE", suspension_reason: null },
-    });
-  });
-
-  void writeAudit({
-    actor: "abacatepay-webhook",
+  await confirmAbacatepayPayment({
     businessId: subscription.business_id,
-    action: "payment.confirmed",
-    entity: "Payment",
-    entityId: payment?.id ?? checkoutId ?? subscription.id,
-    metadata: {
-      provider: "abacatepay",
-      checkout_id: checkoutId,
-      status: "CONFIRMED",
-      via: isRenewal ? "renewal" : "activation",
-    },
-  });
-  logger.info("Pagamento AbacatePay confirmado — empresa ativada/renovada", {
-    businessId: subscription.business_id,
+    subscriptionId: subscription.id,
     checkoutId,
-    renewal: isRenewal,
-    periodEnd: periodEnd.toISOString(),
+    paymentId: payment?.id ?? null,
+    value: Number(payment?.value ?? subscription.plan_price ?? 0),
   });
   return true;
 }
@@ -467,4 +511,129 @@ export async function expireSubscription(businessId: string): Promise<boolean> {
   });
   logger.info("Assinatura expirada pelo watchdog", { businessId });
   return true;
+}
+
+// ---------------------------------------------------------------------------
+// Consulta de status — "Já paguei" e polling (NUNCA cria cobrança)
+// ---------------------------------------------------------------------------
+
+export type AbacatepayPixStatus =
+  | "PENDING"
+  | "CONFIRMED"
+  | "EXPIRED"
+  | "CANCELLED"
+  | "NOT_FOUND"
+  | "ERROR"
+  | "NOT_CONFIGURED";
+
+export interface AbacatepayPixStatusResult {
+  status: AbacatepayPixStatus;
+  paymentId?: string;
+  checkoutId?: string;
+  amount?: number;
+  brCode?: string;
+  brCodeBase64?: string;
+  expiresAt?: string | null;
+}
+
+/**
+ * Normaliza o status devolvido pelo gateway (/transparents/check):
+ * PENDING, PAID, EXPIRED, CANCELLED, UNDER_DISPUTE, REFUNDED, REDEEMED,
+ * APPROVED, FAILED (tolerante a variações).
+ */
+function normalizeGatewayStatus(
+  raw: string,
+): "paid" | "expired" | "cancelled" | "pending" {
+  const s = String(raw ?? "").toUpperCase();
+  if (/PAID|APPROVED|REDEEMED|COMPLETE|SUCCEEDED|CONFIRMED/.test(s))
+    return "paid";
+  if (/EXPIRED/.test(s)) return "expired";
+  if (/CANCEL|REFUND|DISPUTE|FAILED/.test(s)) return "cancelled";
+  return "pending";
+}
+
+/**
+ * Consulta o status REAL do PIX existente no gateway (transparents/:id) e,
+ * quando o gateway confirma o pagamento, ativa a assinatura de forma
+ * idempotente. NÃO cria cobrança: apenas consulta a cobrança já existente
+ * (mais recente) da empresa autenticada.
+ */
+export async function getAbacatepayPixStatus(
+  businessId: string,
+): Promise<AbacatepayPixStatusResult> {
+  if (!isAbacatepayConfigured()) return { status: "NOT_CONFIGURED" };
+
+  const payment = await prisma.payment.findFirst({
+    where: { business_id: businessId },
+    orderBy: { created_at: "desc" },
+  });
+  if (!payment?.abacatepay_checkout_id) {
+    return { status: "NOT_FOUND", paymentId: payment?.id };
+  }
+
+  const base: Omit<AbacatepayPixStatusResult, "status"> = {
+    paymentId: payment.id,
+    checkoutId: payment.abacatepay_checkout_id,
+    amount: Number(payment.value),
+    brCode: payment.pix_payload ?? "",
+    brCodeBase64: payment.pix_qr_base64 ?? "",
+    expiresAt: payment.due_date?.toISOString() ?? null,
+  };
+
+  // Webhook já confirmou localmente (fonte primária) — retorna direto.
+  if (payment.status === "CONFIRMED") return { status: "CONFIRMED", ...base };
+
+  let ghostStatus: string | null = null;
+  try {
+    const ghost = await getAbacatepayTransparentStatus(
+      payment.abacatepay_checkout_id,
+    );
+    ghostStatus = String(ghost.status ?? "");
+  } catch (error) {
+    logger.error("Falha ao consultar PIX AbacatePay no gateway", {
+      businessId,
+      checkoutId: payment.abacatepay_checkout_id,
+      error,
+    });
+    return { status: "ERROR", ...base };
+  }
+
+  const kind = normalizeGatewayStatus(ghostStatus);
+  if (kind === "paid") {
+    const subscription = await prisma.subscription.findUnique({
+      where: { business_id: businessId },
+    });
+    if (!subscription) return { status: "ERROR", ...base };
+    await confirmAbacatepayPayment({
+      businessId,
+      subscriptionId: subscription.id,
+      checkoutId: payment.abacatepay_checkout_id,
+      paymentId: payment.id,
+      value: Number(payment.value),
+    });
+    return { status: "CONFIRMED", ...base };
+  }
+
+  const expiredLocally =
+    payment.due_date !== null && payment.due_date.getTime() < Date.now();
+  if (kind === "expired" || expiredLocally) {
+    // Só marca localmente se ainda estiver pendente (não sobrescreve CONFIRMED).
+    if (payment.status === "PENDING") {
+      await prisma.payment
+        .update({ where: { id: payment.id }, data: { status: "OVERDUE" } })
+        .catch(() => {});
+    }
+    return { status: "EXPIRED", ...base };
+  }
+
+  if (kind === "cancelled") {
+    if (payment.status === "PENDING") {
+      await prisma.payment
+        .update({ where: { id: payment.id }, data: { status: "CANCELLED" } })
+        .catch(() => {});
+    }
+    return { status: "CANCELLED", ...base };
+  }
+
+  return { status: "PENDING", ...base };
 }

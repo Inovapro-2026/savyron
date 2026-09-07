@@ -14,10 +14,15 @@ export function fingerprintFromDigits(digits: string): string {
   return `+${cleaned}`;
 }
 
-/** Localiza um lead por número de telefone (fingerprint). */
+/** Localiza um lead por número de telefone (fingerprint OU phone). */
 export async function resolveLeadByPhone(digits: string, businessId: string): Promise<{ id: string; phone: string | null; email: string | null; status: string } | null> {
   const fp = fingerprintFromDigits(digits);
-  const lead = await prisma.lead.findFirst({ where: { business_id: businessId, fingerprint_phone: fp } });
+  const lead = await prisma.lead.findFirst({
+    where: {
+      business_id: businessId,
+      OR: [{ fingerprint_phone: fp }, { phone: fp }],
+    },
+  });
   if (lead) return { id: lead.id, phone: lead.phone, email: lead.email, status: lead.status };
   return null;
 }
@@ -25,11 +30,27 @@ export async function resolveLeadByPhone(digits: string, businessId: string): Pr
 /**
  * Localiza um lead por telefone; se não existir, cria um novo automaticamente
  * (a IA responde a qualquer número que contatar, registrando o lead).
+ *
+ * Busca por fingerprint_phone OU phone: leads vindos de campanha podem ter o
+ * `phone` preenchido mas `fingerprint_phone` nulo — nesse caso o match pelo
+ * número é essencial para não tentar recriar (e violar a unicidade de phone).
  */
 export async function resolveOrCreateLeadByPhone(digits: string, businessId: string): Promise<{ id: string; phone: string | null; email: string | null; status: string }> {
   const fp = fingerprintFromDigits(digits);
-  const existing = await prisma.lead.findFirst({ where: { business_id: businessId, fingerprint_phone: fp } });
+  const existing = await prisma.lead.findFirst({
+    where: {
+      business_id: businessId,
+      OR: [{ fingerprint_phone: fp }, { phone: fp }],
+    },
+  });
   if (existing) {
+    // Garante que o fingerprint fique preenchido (match por phone com fp nulo)
+    if (!existing.fingerprint_phone || existing.fingerprint_phone !== fp) {
+      await prisma.lead.update({
+        where: { id: existing.id },
+        data: { fingerprint_phone: fp },
+      }).catch(() => {});
+    }
     return { id: existing.id, phone: existing.phone, email: existing.email, status: existing.status };
   }
   // upsert para evitar corrida de criação para o mesmo número

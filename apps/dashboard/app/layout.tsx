@@ -41,9 +41,9 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
+    <html lang="pt-BR" data-theme="light" className={`${inter.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
       <head>
-        {/* Anti-flash: aplica data-theme ANTES da primeira pintura (default = dark).
+        {/* Anti-flash: aplica data-theme ANTES da primeira pintura (default = light; dark só se o usuário escolheu em configurações).
             Script raw no <head> — o browser o executa antes do body ser pintado. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>

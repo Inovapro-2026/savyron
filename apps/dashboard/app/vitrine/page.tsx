@@ -129,8 +129,8 @@ function CtaButton({
     "inline-flex items-center justify-center rounded-xl px-7 py-3.5 text-sm font-bold transition-all duration-200";
   const styles =
     variant === "primary"
-      ? "bg-gradient-to-r from-[#008CFF] to-[#00E5FF] text-black shadow-[0_0_25px_rgba(0,140,255,0.35)] hover:brightness-110 hover:shadow-[0_0_35px_rgba(0,140,255,0.5)]"
-      : "border border-white/15 bg-white/5 text-slate-200 hover:border-white/30 hover:bg-white/10 hover:text-white";
+      ? "bg-[#0052FF] text-white shadow-[0_4px_16px_rgba(0,82,255,0.28)] hover:bg-[#0040D9] hover:shadow-[0_6px_22px_rgba(0,82,255,0.38)]"
+      : "border border-slate-300 bg-white text-slate-700 shadow-sm hover:border-[#0052FF] hover:text-[#0052FF] hover:bg-slate-50";
   return (
     <Link href={href} className={`${base} ${styles} ${className}`}>
       {children}
@@ -149,14 +149,14 @@ function SectionTitle({
 }) {
   return (
     <div className="mx-auto mb-14 max-w-2xl text-center">
-      <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-[#008CFF]/30 bg-[#008CFF]/10 px-3.5 py-1 text-[11px] font-bold uppercase tracking-widest text-[#00E5FF] shadow-[0_0_12px_rgba(0,140,255,0.15)]">
+      <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-[#0052FF]/20 bg-[#0052FF]/10 px-3.5 py-1 text-[11px] font-bold uppercase tracking-widest text-[#0052FF] shadow-sm">
         {kicker}
       </div>
-      <h2 className="font-display text-3xl font-black tracking-tight text-white sm:text-4xl">
+      <h2 className="font-display text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
         {title}
       </h2>
       {subtitle ? (
-        <p className="mt-3 text-base text-slate-400 sm:text-lg">{subtitle}</p>
+        <p className="mt-3 text-base text-slate-600 sm:text-lg">{subtitle}</p>
       ) : null}
     </div>
   );
@@ -164,39 +164,39 @@ function SectionTitle({
 
 export default function VitrinePage() {
   return (
-    <div className="min-h-screen bg-[#020409] text-slate-100 selection:bg-[#008CFF]/30 selection:text-white">
+    <div className="vitrine-container min-h-screen bg-[#F8FAFC] text-[#1F2328] selection:bg-[#0052FF]/20 selection:text-[#0052FF]">
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#080D18]/90 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link href="/vitrine" aria-label="SAVYRON">
             <Logo height={40} />
           </Link>
-          <nav className="hidden items-center gap-8 text-sm font-medium text-slate-400 sm:flex">
+          <nav className="hidden items-center gap-8 text-sm font-semibold text-slate-600 sm:flex">
             <a
               href="#como-funciona"
-              className="transition-colors hover:text-[#00E5FF]"
+              className="transition-colors hover:text-[#0052FF]"
             >
               Como Funciona
             </a>
             <a
               href="#para-quem"
-              className="transition-colors hover:text-[#00E5FF]"
+              className="transition-colors hover:text-[#0052FF]"
             >
               Para Quem É
             </a>
             <a
               href="#recursos"
-              className="transition-colors hover:text-[#00E5FF]"
+              className="transition-colors hover:text-[#0052FF]"
             >
               Recursos
             </a>
-            <a href="#planos" className="transition-colors hover:text-[#00E5FF]">
+            <a href="#planos" className="transition-colors hover:text-[#0052FF]">
               Planos
             </a>
           </nav>
           <Link
             href="/login"
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 transition-all hover:border-[#008CFF]/40 hover:bg-[#008CFF]/10 hover:text-white"
+            className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:border-[#0052FF] hover:bg-[#0052FF]/5 hover:text-[#0052FF]"
           >
             Entrar no Painel
           </Link>
@@ -205,23 +205,23 @@ export default function VitrinePage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
-        {/* Glows de fundo */}
+        {/* Glows de fundo suaves */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 h-[500px] w-[800px] rounded-full bg-gradient-to-b from-[#008CFF]/15 via-[#7C3CFF]/10 to-transparent blur-[140px]"
+          className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 h-[500px] w-[800px] rounded-full bg-gradient-to-b from-[#0052FF]/10 via-[#6366F1]/5 to-transparent blur-[120px]"
         />
         <div className="relative mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 sm:py-32">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#008CFF]/30 bg-[#008CFF]/10 px-4 py-1.5 text-xs font-semibold text-[#00E5FF] shadow-[0_0_20px_rgba(0,140,255,0.2)]">
-            <Sparkles className="h-3.5 w-3.5 animate-pulse text-[#00E5FF]" />
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#0052FF]/25 bg-[#0052FF]/10 px-4 py-1.5 text-xs font-semibold text-[#0052FF] shadow-sm">
+            <Sparkles className="h-3.5 w-3.5 animate-pulse text-[#0052FF]" />
             Motor Comercial Autônomo &bull; IA de Alta Precisão
           </div>
-          <h1 className="font-display text-4xl font-black leading-[1.1] tracking-tight text-white sm:text-6xl">
+          <h1 className="font-display text-4xl font-black leading-[1.1] tracking-tight text-slate-900 sm:text-6xl">
             Seu negócio está perdendo{" "}
-            <span className="bg-gradient-to-r from-[#008CFF] via-[#00E5FF] to-[#00E5A0] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#0052FF] via-[#0066FF] to-[#0047FF] bg-clip-text text-transparent">
               clientes todos os dias.
             </span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-300 sm:text-xl">
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-600 sm:text-xl">
             Enquanto você trabalha, o SAVYRON prospecta novos leads, inicia
             conversas qualificadas e engaja no WhatsApp — usando inteligência artificial
             para entender cada cliente, contornar objeções e acelerar conversões em tempo real.
@@ -247,7 +247,7 @@ export default function VitrinePage() {
       {/* Como funciona */}
       <section
         id="como-funciona"
-        className="border-t border-white/10 bg-[#080D18]/50 py-24 relative"
+        className="border-t border-slate-200/80 bg-white py-24 relative"
       >
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <SectionTitle
@@ -259,20 +259,20 @@ export default function VitrinePage() {
             {STEPS.map(({ icon: Icon, title, text }, i) => (
               <div
                 key={title}
-                className="group relative rounded-2xl border border-white/10 bg-[#080D18]/80 p-6 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-[#008CFF]/40 hover:shadow-[0_0_25px_rgba(0,140,255,0.15)]"
+                className="group relative rounded-2xl border border-slate-200/80 bg-slate-50/60 p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#0052FF]/40 hover:bg-white hover:shadow-md"
               >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-[#008CFF]/30 bg-[#008CFF]/15 text-[#00E5FF] transition-colors group-hover:bg-[#008CFF]/25">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-[#0052FF]/20 bg-[#0052FF]/10 text-[#0052FF] transition-colors group-hover:bg-[#0052FF]/20">
                   <Icon className="h-6 w-6" />
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-sm font-black text-[#00E5FF]">
+                  <span className="font-mono text-sm font-black text-[#0052FF]">
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <h3 className="text-lg font-bold text-white">
+                  <h3 className="text-lg font-bold text-slate-900">
                     {title}
                   </h3>
                 </div>
-                <p className="mt-2 text-xs leading-relaxed text-slate-400">
+                <p className="mt-2 text-xs leading-relaxed text-slate-600">
                   {text}
                 </p>
               </div>
@@ -292,10 +292,10 @@ export default function VitrinePage() {
           {SEGMENTS.map((segment) => (
             <span
               key={segment}
-              className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-[#080D18]/80 px-5 py-2.5 text-xs font-semibold text-slate-300 backdrop-blur-md transition-all hover:border-[#008CFF]/40 hover:text-white shadow-sm"
+              className="inline-flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-xs font-semibold text-slate-700 shadow-sm transition-all hover:border-[#0052FF]/40 hover:text-[#0052FF]"
             >
               {segment !== "E qualquer outro negócio" ? (
-                <Store className="h-4 w-4 text-[#00E5A0]" />
+                <Store className="h-4 w-4 text-[#0052FF]" />
               ) : null}
               {segment}
             </span>
@@ -304,7 +304,7 @@ export default function VitrinePage() {
       </section>
 
       {/* Recursos */}
-      <section id="recursos" className="border-t border-white/10 bg-[#080D18]/50 py-24">
+      <section id="recursos" className="border-t border-slate-200/80 bg-white py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <SectionTitle
             kicker="Poder Computacional"
@@ -315,15 +315,15 @@ export default function VitrinePage() {
             {FEATURES.map(({ icon: Icon, title, text }) => (
               <div
                 key={title}
-                className="group rounded-2xl border border-white/10 bg-[#080D18]/80 p-6 backdrop-blur-md transition-all duration-300 hover:border-white/20 hover:shadow-[0_4px_24px_rgba(0,0,0,0.4)]"
+                className="group rounded-2xl border border-slate-200/80 bg-slate-50/60 p-6 shadow-sm transition-all duration-300 hover:border-slate-300 hover:bg-white hover:shadow-md"
               >
-                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-[#020409]/60 text-[#00E5FF] transition-colors group-hover:border-[#008CFF]/30 group-hover:bg-[#008CFF]/10">
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-[#0052FF]/20 bg-[#0052FF]/10 text-[#0052FF] transition-colors group-hover:border-[#0052FF]/40 group-hover:bg-[#0052FF]/20">
                   <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="text-base font-bold text-white">
+                <h3 className="text-base font-bold text-slate-900">
                   {title}
                 </h3>
-                <p className="mt-2 text-xs leading-relaxed text-slate-400">
+                <p className="mt-2 text-xs leading-relaxed text-slate-600">
                   {text}
                 </p>
               </div>
@@ -348,23 +348,23 @@ export default function VitrinePage() {
       </section>
 
       {/* CTA final */}
-      <section className="relative overflow-hidden border-t border-white/10 bg-[#080D18] py-24">
+      <section className="relative overflow-hidden border-t border-slate-200/80 bg-slate-50 py-24">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#008CFF]/15 via-transparent to-[#7C3CFF]/10 blur-3xl"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#0052FF]/8 via-transparent to-[#6366F1]/5 blur-3xl"
         />
         <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
           <div className="mx-auto mb-8 w-fit">
             <Logo height={64} priority={false} />
           </div>
-          <h2 className="font-display text-3xl font-black tracking-tight text-white sm:text-5xl">
+          <h2 className="font-display text-3xl font-black tracking-tight text-slate-900 sm:text-5xl">
             SAVYRON.
             <br />
-            <span className="bg-gradient-to-r from-[#008CFF] via-[#00E5FF] to-[#00E5A0] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#0052FF] via-[#0066FF] to-[#0047FF] bg-clip-text text-transparent">
               Prospecte. Engaje. Venda. Atenda.
             </span>
           </h2>
-          <p className="mx-auto mt-5 max-w-xl text-base text-slate-400 sm:text-lg">
+          <p className="mx-auto mt-5 max-w-xl text-base text-slate-600 sm:text-lg">
             Recupere clientes perdidos e coloque sua operação comercial no piloto automático agora mesmo.
           </p>
           <div className="mt-10">
@@ -376,19 +376,19 @@ export default function VitrinePage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 bg-[#020409]">
+      <footer className="border-t border-slate-200/80 bg-white">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-10 sm:flex-row sm:px-6">
           <Link href="/vitrine" aria-label="SAVYRON">
             <Logo height={44} priority={false} />
           </Link>
-          <div className="flex items-center gap-6 text-xs text-slate-400">
+          <div className="flex items-center gap-6 text-xs font-semibold text-slate-600">
             <Link
               href="/login"
-              className="transition-colors hover:text-[#00E5FF]"
+              className="transition-colors hover:text-[#0052FF]"
             >
               Entrar
             </Link>
-            <a href="#planos" className="transition-colors hover:text-[#00E5FF]">
+            <a href="#planos" className="transition-colors hover:text-[#0052FF]">
               Planos
             </a>
           </div>

@@ -210,7 +210,7 @@ export function InboxCard({
           <div className="flex min-w-0 items-start gap-1.5">
             <span
               title={c.lead_name ?? "Contato"}
-              className="min-w-0 flex-1 break-words font-bold leading-snug text-white line-clamp-2"
+              className="inbox-contact-name min-w-0 flex-1 break-words font-bold leading-snug text-foreground line-clamp-2"
             >
               {c.lead_name ?? "Contato"}
             </span>

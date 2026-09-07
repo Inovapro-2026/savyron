@@ -1,6 +1,11 @@
 import { createLogger } from '@prospector/logger';
 import { QUEUE_NAMES } from '@prospector/queues';
-import { getWhatsAppManager, IncomingMessage } from '@prospector/whatsapp';
+import {
+  getWhatsAppManager,
+  setConnectionSetupHook,
+  IncomingMessage,
+  WhatsAppConnection,
+} from '@prospector/whatsapp';
 import { hasPersistentSession } from '@prospector/whatsapp';
 import { prisma } from '@prospector/database';
 import { getWorkerQueue } from '../queues';
@@ -16,8 +21,12 @@ const logger = createLogger('worker.whatsapp-runtime');
  *  em ordem não-determinística (2 → 3 → 2), e rebaixar faria o painel
  *  perder a confirmação de entrega. */
 export function setupAckTracking(businessId?: string): void {
-  const manager = getWhatsAppManager(businessId);
-  manager.on('ack', async ({ id, status }: { id: string; status: number }) => {
+  setupAckTrackingFor(getWhatsAppManager(businessId), businessId);
+}
+
+/** Variante que recebe a conexão pronta (evita reentrância no registry). */
+export function setupAckTrackingFor(conn: WhatsAppConnection, businessId?: string): void {
+  conn.on('ack', async ({ id, status }: { id: string; status: number }) => {
     try {
       const dbStatus = status >= 4 ? 'READ' : status === 3 ? 'DELIVERED' : status >= 2 ? 'SENT' : null;
       if (!dbStatus) {
@@ -90,8 +99,12 @@ export function setupAckTracking(businessId?: string): void {
 
 /** Conecta o handler de mensagens recebidas à fila message-received. */
 export function setupWhatsAppReceiver(businessId?: string): void {
-  const manager = getWhatsAppManager(businessId);
-  manager.setMessageHandler(async (message: IncomingMessage) => {
+  setupWhatsAppReceiverFor(getWhatsAppManager(businessId), businessId);
+}
+
+/** Variante que recebe a conexão pronta (evita reentrância no registry). */
+export function setupWhatsAppReceiverFor(conn: WhatsAppConnection, businessId?: string): void {
+  conn.setMessageHandler(async (message: IncomingMessage) => {
     try {
       await getWorkerQueue(QUEUE_NAMES.MESSAGE_RECEIVED).add(
         'received',
@@ -114,8 +127,12 @@ export function setupWhatsAppReceiver(businessId?: string): void {
 
 /** Registra o callback getMessage usado pelo Baileys em fluxos de retry/prekey. */
 export function setupGetMessage(businessId?: string): void {
-  const manager = getWhatsAppManager(businessId);
-  manager.setGetMessage(async (key: any) => {
+  setupGetMessageFor(getWhatsAppManager(businessId), businessId);
+}
+
+/** Variante que recebe a conexão pronta (evita reentrância no registry). */
+export function setupGetMessageFor(conn: WhatsAppConnection, businessId?: string): void {
+  conn.setGetMessage(async (key: any) => {
     try {
       if (!key?.id) return undefined;
       const msg = await prisma.message.findFirst({
@@ -135,16 +152,6 @@ export function setupGetMessage(businessId?: string): void {
 /** Registra handlers e conecta uma conexão WhatsApp específica. */
 async function setupAndConnect(businessId?: string): Promise<void> {
   const manager = getWhatsAppManager(businessId);
-  manager.on('status', (status) => {
-    logger.info('WhatsApp status alterado', { business_id: businessId, state: status.state, connected: status.connected });
-  });
-  manager.on('qr', () => {
-    logger.info('QR code do WhatsApp gerado (aguardando leitura)', { business_id: businessId });
-  });
-  setupAckTracking(businessId);
-  setupGetMessage(businessId);
-  setupWhatsAppReceiver(businessId);
-
   const hasSession = await hasPersistentSession(businessId);
   if (hasSession) {
     logger.info('Sessão WhatsApp persistente encontrada; conectando automaticamente', { business_id: businessId });
@@ -154,8 +161,34 @@ async function setupAndConnect(businessId?: string): Promise<void> {
   }
 }
 
+/**
+ * Registra o hook global de setup: TODA conexão criada pelo registry (boot,
+ * reconexão via painel ou recriação após clear-session) recebe os handlers
+ * de ACK, getMessage e mensagens recebidas. Corrige o bug em que a conexão
+ * recriada pelo /whatsapp/connect não enfileirava as mensagens recebidas,
+ * fazendo as respostas não aparecerem no Início.
+ */
+function registerConnectionSetupHook(): void {
+  setConnectionSetupHook((conn: WhatsAppConnection, businessId?: string) => {
+    // Configura a própria conexão passada pelo registry — sem getWhatsAppManager(),
+    // que causaria reentrância infinita durante a criação.
+    conn.on('status', (status) => {
+      logger.info('WhatsApp status alterado', { business_id: businessId, state: status.state, connected: status.connected });
+    });
+    conn.on('qr', () => {
+      logger.info('QR code do WhatsApp gerado (aguardando leitura)', { business_id: businessId });
+    });
+    setupAckTrackingFor(conn, businessId);
+    setupGetMessageFor(conn, businessId);
+    setupWhatsAppReceiverFor(conn, businessId);
+    logger.info('Handlers de WhatsApp registrados na conexão', { business_id: businessId ?? 'default' });
+  });
+}
+
 /** Inicia as conexões do WhatsApp no worker (empresa padrão + todas com sessão). */
 export async function startWhatsAppRuntime(): Promise<void> {
+  registerConnectionSetupHook();
+
   // Empresa padrão (backward-compat)
   await setupAndConnect(undefined);
 

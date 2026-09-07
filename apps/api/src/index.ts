@@ -13,10 +13,10 @@ async function bootstrap(): Promise<void> {
   const app = createApp();
   const port = config.ports.api;
 
-  const server = app.listen(port, () => {
+  const server = app.listen(port, '127.0.0.1', () => {
     logger.info(`API SAVYRON rodando na porta ${port}`, {
       env: config.env,
-      url: `http://localhost:${port}`,
+      url: `http://127.0.0.1:${port}`,
     });
   });
 

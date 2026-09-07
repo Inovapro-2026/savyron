@@ -129,7 +129,7 @@ export function createControlServer(): Express {
 
 export function startControlServer(port: number): void {
   const app = createControlServer();
-  app.listen(port, () => {
+  app.listen(port, '127.0.0.1', () => {
     logger.info(`Worker control server rodando na porta ${port}`);
   });
 }

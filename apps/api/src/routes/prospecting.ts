@@ -9,7 +9,7 @@ import { prisma } from "@prospector/database";
 import { createLogger } from "@prospector/logger";
 import { QUEUE_NAMES } from "@prospector/queues";
 import { asyncHandler, ok, ApiError } from "../lib/http";
-import { requireAuth, requireBusiness } from "../middleware/auth";
+import { requireAuth, requireBusiness, requireRole } from "../middleware/auth";
 import { requireActiveSubscription } from "../middleware/active-subscription";
 import { getQueue } from "../services/queues";
 import { writeAudit } from "../services/audit";
@@ -318,6 +318,7 @@ prospectingRouter.post(
  */
 prospectingRouter.delete(
   "/prospections/:id",
+  requireRole(["OWNER", "BUSINESS_ADMIN"]),
   asyncHandler(async (req: Request, res: Response) => {
     const businessId = req.user!.businessId!;
     const run = await prisma.prospectionRun.findFirst({

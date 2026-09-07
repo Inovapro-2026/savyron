@@ -149,6 +149,11 @@ export default function PaymentPage() {
 
   useEffect(() => {
     void loadStatus();
+    // Polling da página apenas quando o usuário saiu para o checkout
+    // externo (Stripe/Cakto). No caso AbacatePay o PixCheckout já faz o
+    // polling único de confirmação ("Já paguei"/auto) e chama onPaid -> loadStatus,
+    // evitando polling duplicado sobre o mesmo recurso.
+    if (status?.abacatepay_configured) return undefined;
     pollRef.current = setInterval(() => {
       void api<BillingStatus>("/api/proxy/billing/status")
         .then((s) => {
@@ -169,7 +174,7 @@ export default function PaymentPage() {
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
     };
-  }, [isPaid, loadStatus, router]);
+  }, [isPaid, loadStatus, router, status?.abacatepay_configured]);
 
   /** Cria a Checkout Session Stripe e redireciona para o pagamento hospedado. */
   const startCheckout = async () => {

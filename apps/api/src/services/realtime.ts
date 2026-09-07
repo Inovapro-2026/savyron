@@ -154,13 +154,16 @@ class RealtimeService {
     return this.io;
   }
 
-  /** Retransmite um evento. Se tiver businessId, entrega apenas à sala da empresa. */
+  /** Retransmite um evento. Entrega estritamente à sala da empresa para isolamento multi-tenant. */
   broadcast(event: RealtimeEventMessage): void {
     if (!this.io) return;
     if (event.businessId) {
       this.io.to(event.businessId).emit(event.type, event);
     } else {
-      this.io.emit(event.type, event);
+      logger.warn(
+        "Evento realtime descartado por ausência de businessId (isolamento multi-tenant)",
+        { type: event.type },
+      );
     }
   }
 

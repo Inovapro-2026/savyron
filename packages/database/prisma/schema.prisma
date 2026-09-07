@@ -199,6 +199,7 @@ model Business {
   prospection_runs ProspectionRun[]
   messages   Message[]
   conversations Conversation[]
+  conversation_notes ConversationNote[]
   ai_generations AIGeneration[]
   opt_outs   OptOut[]
   delivery_events DeliveryEvent[]
@@ -593,10 +594,28 @@ model Conversation {
   business       Business        @relation(fields: [business_id], references: [id])
   lead           Lead            @relation(fields: [lead_id], references: [id], onDelete: Cascade)
   ai_generations AIGeneration[]
+  notes          ConversationNote[]
 
   @@unique([business_id, lead_id])
   @@index([business_id, last_message_at])
   @@index([business_id, stage])
+}
+
+/// ANOTAÇÕES INTERNAS da conversa (CRM) — NUNCA são mensagens do WhatsApp.
+model ConversationNote {
+  id             String   @id @default(cuid())
+  business_id    String
+  conversation_id String
+  content        String
+  created_by     String
+  created_by_name String?
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  business     Business     @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  conversation Conversation @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+
+  @@index([business_id, conversation_id])
 }
 
 // ============================= IA =============================
@@ -1313,3 +1332,22 @@ model ApiKey {
   @@index([key_hash])
 }
 
+
+// Treinamentos (vídeos do YouTube) — GLOBAIS da plataforma (sem business_id),
+// administrados pelo Admin (padrão de dado de plataforma, como Plan).
+// Usuários veem apenas isPublished=true. Ordenação manual via sort_order.
+model Training {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+  youtube_url     String
+  youtube_video_id String
+  thumbnail_url   String?
+  is_published    Boolean  @default(false)
+  sort_order      Int      @default(0) // menor = primeiro
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@index([is_published, sort_order])
+  @@index([sort_order, created_at])
+}

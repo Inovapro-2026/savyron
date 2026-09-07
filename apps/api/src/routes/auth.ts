@@ -3,6 +3,7 @@ import { prisma } from "@prospector/database";
 import { createLogger } from "@prospector/logger";
 import { asyncHandler, ok, ApiError } from "../lib/http";
 import { requireAuth } from "../middleware/auth";
+import { rateLimit } from "../middleware/rate-limit";
 import { signToken } from "../services/jwt";
 import {
   hashPassword,
@@ -25,6 +26,13 @@ import { writeAudit } from "../services/audit";
 const logger = createLogger("api.auth");
 
 export const authRouter = Router();
+
+// Strict rate limiters to prevent brute force and credential stuffing
+const loginLimiter = rateLimit({ windowMs: 60 * 1000, max: 10 });
+const sendCodeLimiter = rateLimit({ windowMs: 5 * 60 * 1000, max: 5 });
+const verifyCodeLimiter = rateLimit({ windowMs: 5 * 60 * 1000, max: 10 });
+const signupLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5 });
+const changePasswordLimiter = rateLimit({ windowMs: 5 * 60 * 1000, max: 5 });
 
 /** Serializa o usuário para resposta pública (sem hash). */
 function toPublicUser(user: {
@@ -62,6 +70,7 @@ function pickDefaultBusiness(
 
 authRouter.post(
   "/login",
+  loginLimiter,
   asyncHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body ?? {};
 
@@ -153,6 +162,7 @@ authRouter.post(
 
 authRouter.post(
   "/change-password",
+  changePasswordLimiter,
   requireAuth,
   asyncHandler(async (req: Request, res: Response) => {
     const { current_password, new_password } = req.body ?? {};
@@ -330,6 +340,7 @@ authRouter.get(
 /** POST /auth/send-code — envia código de verificação para o e-mail. */
 authRouter.post(
   "/send-code",
+  sendCodeLimiter,
   asyncHandler(async (req: Request, res: Response) => {
     const email = String(req.body?.email ?? "");
     if (!email) throw ApiError.badRequest("Informe o e-mail");
@@ -341,6 +352,7 @@ authRouter.post(
 /** POST /auth/verify-code — valida o código (uso único). */
 authRouter.post(
   "/verify-code",
+  verifyCodeLimiter,
   asyncHandler(async (req: Request, res: Response) => {
     const email = String(req.body?.email ?? "");
     const code = String(req.body?.code ?? "");
@@ -357,6 +369,7 @@ authRouter.post(
  */
 authRouter.post(
   "/signup",
+  signupLimiter,
   asyncHandler(async (req: Request, res: Response) => {
     const {
       email,

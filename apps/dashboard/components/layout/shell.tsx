@@ -11,6 +11,8 @@ import { realtimeClient } from "@/lib/socket-client";
 import { useApi, request } from "@/hooks/use-api";
 import { Button } from "@/components/ui/button";
 
+import { useSidebarCollapse } from "@/hooks/use-sidebar";
+
 interface BillingStatus {
   business: { status: string };
   is_expired: boolean;
@@ -36,7 +38,7 @@ export function DashboardShell({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
+  const { collapsed, toggleCollapsed } = useSidebarCollapse();
   const billing = useApi<BillingStatus>(["billing-status"], "billing/status", {
     refetchInterval: 60000,
   });
@@ -69,7 +71,7 @@ export function DashboardShell({
 
   return (
     <div className={`dashboard-wrapper ${fullBleed ? "!bg-[#020409]" : ""}`}>
-      <Sidebar collapsed={collapsed} onToggleCollapsed={() => setCollapsed((v) => !v)} />
+      <Sidebar collapsed={collapsed} onToggleCollapsed={toggleCollapsed} />
       <div className={`flex min-h-screen flex-col ${collapsed ? "lg:pl-20" : "lg:pl-64"} transition-[padding] duration-200`}>
         {!hideHeader && <Topbar title={title} />}
         <OfflineBanner />

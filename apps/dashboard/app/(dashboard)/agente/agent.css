@@ -628,21 +628,26 @@ html[data-theme='light'] #savyron-ai-background-container > .bg-violet-900\/15 {
   background-color: rgba(130, 80, 223, 0.06);
 }
 
+html[data-theme='light'] .agent-page-viewport {
+  background: #F6F8FA !important;
+  color: #1F2328 !important;
+}
+
 /* Nome gigante SAVYRON → quase invisível, tons de azul claro */
 html[data-theme='light'] #savyron-ai-background-container span[class*="bg-clip-text"] {
-  background-image: linear-gradient(180deg, rgba(9, 105, 218, 0.14) 0%, rgba(130, 80, 223, 0.08) 50%, rgba(130, 80, 223, 0.04) 100%) !important;
+  background-image: linear-gradient(180deg, rgba(0, 82, 255, 0.14) 0%, rgba(130, 80, 223, 0.08) 50%, rgba(130, 80, 223, 0.04) 100%) !important;
 }
 
 /* Pill "CANAL ATIVO" e badges de vidro → branco com borda azul */
 html[data-theme='light'] .agent-glass-card {
   background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(9, 105, 218, 0.25);
+  border-color: rgba(0, 82, 255, 0.25);
   color: #1F2328;
 }
 
 html[data-theme='light'] .agent-glass-button {
   background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(9, 105, 218, 0.25);
+  border-color: rgba(0, 82, 255, 0.25);
   color: #57606A;
 }
 
@@ -669,7 +674,7 @@ html[data-theme='light'] [class*="bg-[#030B18]/90"][class*="border-[#008CFF]/40"
 }
 
 html[data-theme='light'] [class*="bg-[#030B18]/90"] [class*="text-cyan-200"] {
-  color: #0550AE;
+  color: #0052FF;
 }
 
 /* Card de contexto do agente (AgentContextCard): branco, mantendo neon sutil */

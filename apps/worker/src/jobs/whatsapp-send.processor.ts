@@ -99,6 +99,51 @@ export async function processWhatsAppSend(job: { id?: string; data: WhatsAppSend
   }
 
   try {
+    // Detecta imagem embarcada (data URI) e usa sendImage via Baileys.
+    const imageMatch = message.match(/!\[[^\]]*\]\(data:image\/([a-z0-9+.-]+);base64,([^)]+)\)/i);
+    if (imageMatch) {
+      let mime = `image/${imageMatch[1].toLowerCase()}`;
+      if (mime.includes('jfif') || mime.includes('pjpeg')) mime = 'image/jpeg';
+      const buffer = Buffer.from(imageMatch[2], 'base64');
+      // Caption = resto do conteúdo após o markdown da imagem
+      const caption = message.replace(/!\[[^\]]*\]\(data:image\/[^)]+\)/i, '').trim();
+
+      logger.info('WHATSAPP_MEDIA_SEND_STARTED', {
+        businessId,
+        leadId,
+        phone,
+        messageId,
+        mimeType: mime,
+        size: buffer.length,
+      });
+
+      try {
+        const externalId = await waManager.sendImage(phone, buffer, mime, caption || undefined, remoteJid);
+        await updateMessageStatus(messageId, 'SENT', externalId);
+        logger.info('WHATSAPP_MEDIA_SEND_SUCCESS', {
+          businessId,
+          leadId,
+          phone,
+          messageId,
+          externalId,
+          mimeType: mime,
+          size: buffer.length,
+        });
+        const conversationId = await ensureConversation(leadId, businessId ?? 'default');
+        await touchConversation(conversationId, businessId);
+        return;
+      } catch (sendErr) {
+        logger.error('WHATSAPP_MEDIA_SEND_FAILED', {
+          businessId,
+          leadId,
+          phone,
+          messageId,
+          error: sendErr instanceof Error ? sendErr.message : String(sendErr),
+        });
+        throw sendErr;
+      }
+    }
+
     const externalId = await waManager.sendText(phone, message, remoteJid);
     // SENT = aceita pelo SERVIDOR WhatsApp (SERVER_ACK). Entrega real ao aparelho
     // (DELIVERY_ACK) chega assíncrona via messages.update (runtime.ts) — e só

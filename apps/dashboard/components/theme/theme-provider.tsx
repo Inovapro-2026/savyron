@@ -3,12 +3,12 @@
 import * as React from 'react';
 
 /**
- * SISTEMA CENTRAL DE TEMA SAVYRON — dark (padrão) ↔ light.
+ * SISTEMA CENTRAL DE TEMA SAVYRON — light (padrão) ↔ dark.
  *
- * - Aplica `data-theme="dark|light"` no elemento raiz (<html>).
+ * - Aplica `data-theme="light|dark"` no elemento raiz (<html>).
  * - Persiste em localStorage (chave `savyron-theme`).
- * - Padrão OBRIGATÓRIO: dark — usuários existentes não mudam de experiência.
- * - Sem flash: layout.tsx aplica o atributo antes da hidratação (script inline).
+ * - Padrão OBRIGATÓRIO: light (branco) — o sistema só fica no tema preto se o usuário alterar nas configurações.
+ * - Sem flash: layout.tsx aplica data-theme="light" no <html> e script inline raw no <head>.
  * - Exclusivamente visual: nenhum dado, API ou comportamento é afetado.
  */
 
@@ -20,13 +20,13 @@ export function isValidTheme(value: unknown): value is Theme {
   return value === 'dark' || value === 'light';
 }
 
-/** Lê a preferência armazenada (null = sem preferência → dark). */
+/** Lê a preferência armazenada (null = sem preferência → light). */
 export function getStoredTheme(storage: Pick<Storage, 'getItem'> | null): Theme {
   try {
     const raw = storage?.getItem(THEME_STORAGE_KEY) ?? null;
-    return isValidTheme(raw) ? raw : 'dark';
+    return isValidTheme(raw) ? raw : 'light';
   } catch {
-    return 'dark';
+    return 'light';
   }
 }
 
@@ -42,18 +42,17 @@ export function storeTheme(storage: Pick<Storage, 'setItem'> | null, theme: Them
 /** Aplica o tema no elemento raiz. */
 export function applyTheme(root: Pick<HTMLElement, 'setAttribute' | 'removeAttribute'> | null, theme: Theme): void {
   if (!root) return;
-  if (theme === 'light') {
-    root.setAttribute('data-theme', 'light');
+  if (theme === 'dark') {
+    root.setAttribute('data-theme', 'dark');
   } else {
-    // dark é o default — atributo ausente mantém o tema atual intacto.
-    root.removeAttribute('data-theme');
+    root.setAttribute('data-theme', 'light');
   }
 }
 
 /** Lê o tema já aplicado no DOM (pelo script anti-flash). */
 function readAppliedTheme(): Theme {
-  if (typeof document === 'undefined') return 'dark';
-  return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  if (typeof document === 'undefined') return 'light';
+  return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
 }
 
 interface ThemeContextValue {
@@ -126,7 +125,7 @@ export function useTheme(): ThemeContextValue {
         } catch { /* noop */ }
       },
       toggleTheme: () => {
-        const next = readAppliedTheme() === 'light' ? 'dark' : 'light';
+        const next = readAppliedTheme() === 'dark' ? 'light' : 'dark';
         applyTheme(document.documentElement, next);
         try {
           window.localStorage.setItem(THEME_STORAGE_KEY, next);
@@ -139,6 +138,8 @@ export function useTheme(): ThemeContextValue {
 
 /**
  * Script anti-flash: aplica o tema ANTES da hidratação/primeira pintura.
- * Sem preferência salva → dark (default obrigatório).
+ * Sem preferência salva → light (default obrigatório).
+ * Apenas ativa dark se o usuário configurou expressamente no localStorage.
  */
-export const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('${THEME_STORAGE_KEY}');if(t==='light'){document.documentElement.setAttribute('data-theme','light');}else{document.documentElement.removeAttribute('data-theme');}}catch(e){}})();`;
+export const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('${THEME_STORAGE_KEY}');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}else{document.documentElement.setAttribute('data-theme','light');}}catch(e){document.documentElement.setAttribute('data-theme','light');}})();`;
+

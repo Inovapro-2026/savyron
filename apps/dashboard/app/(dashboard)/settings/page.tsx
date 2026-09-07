@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/toast';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { ThemeSelector } from '@/components/theme/theme-selector';
+import { InstallAppCard } from '@/components/pwa/install-app-card';
 import { HumanHandoffCard } from '@/components/settings/human-handoff-card';
 import { useApi, request } from '@/hooks/use-api';
 import { useQueryClient } from '@tanstack/react-query';
@@ -141,6 +142,9 @@ export default function SettingsPage() {
 
         {/* APARÊNCIA — seletor de tema dark/light (persistência local) */}
         <ThemeSelector />
+
+        {/* APLICATIVO — instalação PWA (mesmo componente reutilizável do Dashboard) */}
+        <InstallAppCard />
 
         {/* ATENDIMENTO HUMANO — pausa a IA e notifica o proprietário */}
         <HumanHandoffCard

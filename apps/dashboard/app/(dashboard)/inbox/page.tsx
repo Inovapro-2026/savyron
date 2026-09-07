@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { MessageSquare, Trash2 } from 'lucide-react';
+import { MessageSquare, Trash2, Search } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/shell';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,8 @@ const FILTERS = [
   { key: 'manual', label: 'Manual' },
   { key: 'closed', label: 'Encerradas' },
 ];
+
+const FILTER_KEYS = new Set(FILTERS.map((f) => f.key));
 
 const HIGHLIGHT_MS = 600;
 const UNSEEN_KEY = 'acp_inbox_unseen_v1';
@@ -53,6 +55,7 @@ export default function InboxPage() {
   const { success, error: toastError } = useToast();
   const { user } = useSession();
   const [filter, setFilter] = useState('responded');
+  const [search, setSearch] = useState('');
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const [unseen, setUnseen] = useState<Set<string>>(() => readUnseen());
   const [deleteTarget, setDeleteTarget] = useState<Conversation | null>(null);
@@ -66,6 +69,18 @@ export default function InboxPage() {
   );
 
   const list = useMemo(() => conversations.data?.conversations ?? [], [conversations.data]);
+
+  // Filtro local por nome/telefone/empresa (busca em tempo real no cliente)
+  const term = search.trim().toLowerCase();
+  const filteredList = useMemo(() => {
+    if (!term) return list;
+    return list.filter((c) => {
+      const name = (c.lead_name ?? '').toLowerCase();
+      const phone = (c.lead_phone ?? '').toLowerCase();
+      const biz = (c.business_name ?? '').toLowerCase();
+      return name.includes(term) || phone.replace(/\D/g, '').includes(term.replace(/\D/g, '')) || biz.includes(term);
+    });
+  }, [list, term]);
 
   const canAdmin = isBusinessOwnerOrAdmin(user?.businessRole);
 
@@ -210,36 +225,71 @@ export default function InboxPage() {
 
         {conversations.isLoading ? (
           <InboxSkeletonCards />
+        ) : conversations.isError ? (
+          <Card className="py-14 text-center">
+            <MessageSquare className="mx-auto mb-3 h-10 w-10 text-[#FF3366]/50" />
+            <div className="text-sm font-semibold text-[#A8B3C7]">Não foi possível carregar as conversas.</div>
+            <Button size="sm" variant="outline" className="mt-4" onClick={() => { void conversations.refetch(); }}>
+              Tentar novamente
+            </Button>
+          </Card>
         ) : list.length > 0 ? (
           <>
             <div className="flex items-center justify-between gap-2">
-              <p className="text-xs font-semibold text-[#A8B3C7]">
-                {conversations.data?.total ?? list.length} conversa{list.length === 1 ? '' : 's'}
-              </p>
-              {canAdmin ? (
-                <Button size="sm" variant="outline" className="text-[#FF3366] hover:bg-red-500/10 hover:text-white border-red-500/30" onClick={() => setClearAllOpen(true)}>
-                  <Trash2 className="h-4 w-4 mr-1.5" /> Limpar tudo
-                </Button>
-              ) : null}
+              {/* Busca */}
+              <div className="relative flex-1 max-w-xs">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A8B3C7]" />
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Buscar por nome, telefone ou empresa…"
+                  aria-label="Buscar conversas"
+                  className="h-10 w-full rounded-2xl border border-white/10 bg-[#080D18]/80 pl-9 pr-3 text-sm text-white placeholder-[#64748B] transition-all focus:border-[#00E5FF] focus:ring-2 focus:ring-[#00E5FF]/20 focus:outline-none"
+                />
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <p className="text-xs font-semibold text-[#A8B3C7]">
+                  {filteredList.length === list.length
+                    ? `${conversations.data?.total ?? list.length} conversa${list.length === 1 ? '' : 's'}`
+                    : `${filteredList.length} de ${list.length}`}
+                </p>
+                {canAdmin ? (
+                  <Button size="sm" variant="outline" className="text-[#FF3366] hover:bg-red-500/10 hover:text-white border-red-500/30" onClick={() => setClearAllOpen(true)}>
+                    <Trash2 className="h-4 w-4 mr-1.5" /> Limpar tudo
+                  </Button>
+                ) : null}
+              </div>
             </div>
             {/* Grid responsivo de cards compactos */}
-            <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-              {list.map((c) => (
-                <InboxCard
-                  key={c.id}
-                  conversation={c}
-                  onOpen={() => openConversation(c)}
-                  onDelete={() => setDeleteTarget(c)}
-                  highlighted={highlightedId === c.id}
-                  unread={unseen.has(c.id)}
-                />
-              ))}
-            </div>
+            {filteredList.length > 0 ? (
+              <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+                {filteredList.map((c) => (
+                  <InboxCard
+                    key={c.id}
+                    conversation={c}
+                    onOpen={() => openConversation(c)}
+                    onDelete={() => setDeleteTarget(c)}
+                    highlighted={highlightedId === c.id}
+                    unread={unseen.has(c.id)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <Card className="py-16 text-center">
+                <Search className="mx-auto mb-3 h-10 w-10 text-[#008CFF]/40" />
+                <div className="text-sm font-semibold text-[#A8B3C7]">Nenhuma conversa encontrada para “{search}”.</div>
+              </Card>
+            )}
           </>
         ) : (
           <Card className="py-16 text-center">
             <MessageSquare className="mx-auto mb-3 h-10 w-10 text-[#008CFF]/40 animate-pulse" />
-            <div className="text-sm font-semibold text-[#A8B3C7]">Nenhuma conversa neste filtro.</div>
+            <div className="text-sm font-semibold text-[#A8B3C7]">
+              {list.length === 0 && !search ? 'Nenhuma conversa neste filtro.' : 'Nenhuma conversa encontrada.'}
+            </div>
+            {list.length === 0 ? (
+              <p className="mt-1 text-xs text-[#64748B]">Quando seus clientes enviarem mensagens, elas aparecerão aqui.</p>
+            ) : null}
           </Card>
         )}
 

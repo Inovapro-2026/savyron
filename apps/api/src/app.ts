@@ -12,6 +12,8 @@ import { inboxRouter } from "./routes/inbox";
 import { reportsRouter } from "./routes/reports";
 import { whatsappRouter } from "./routes/whatsapp";
 import { whatsappGroupsRouter } from "./routes/whatsapp-groups";
+import { notesRouter } from "./routes/notes";
+import { trainingsRouter, adminTrainingsRouter } from "./routes/trainings";
 import { webhooksRouter } from "./routes/webhooks";
 import { billingRouter } from "./routes/billing";
 import { adminRouter } from "./routes/admin";
@@ -34,6 +36,8 @@ const logger = createLogger("api.app");
 
 export function createApp(): Express {
   const app = express();
+
+  app.set("trust proxy", 1);
 
   app.use(helmet());
   app.use(
@@ -91,8 +95,12 @@ export function createApp(): Express {
   app.use("/reports", reportsRouter);
   app.use("/whatsapp", whatsappRouter);
   app.use("/whatsapp/groups", whatsappGroupsRouter);
+  app.use("/notes", notesRouter);
+  app.use("/trainings", trainingsRouter);
   app.use("/webhooks", webhooksRouter);
   app.use("/billing", billingRouter);
+  // Ordem importa: /admin/trainings antes de /admin (evita pass-through do router admin).
+  app.use("/admin/trainings", adminTrainingsRouter);
   app.use("/admin", adminRouter);
   app.use("/business", businessRouter);
   app.use("/ai", aiRouter);

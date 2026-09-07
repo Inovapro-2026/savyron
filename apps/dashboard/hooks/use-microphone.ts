@@ -28,6 +28,14 @@ export interface MicDiagnostic {
   errorCode: MicErrorCode | null;
 }
 
+/** Diagnóstico + stream vivo (quando solicitado com keepStream). */
+export interface MicPermissionResult extends MicDiagnostic {
+  /** Stream capturado — presente apenas quando keepStream=true e concedido. */
+  stream?: MediaStream;
+  /** true quando a captura funciona mas o sinal é silêncio total (mic mudo no SO). */
+  silent?: boolean;
+}
+
 /** Verifica o suporte/estado do microfone sem solicitar permissão. */
 export async function checkMicrophoneAvailability(): Promise<MicDiagnostic> {
   // Contexto inseguro (http, not localhost): getUserMedia não existe.
@@ -76,6 +84,13 @@ export async function checkMicrophoneAvailability(): Promise<MicDiagnostic> {
         };
       }
       if (state === "denied") {
+        // QUIRK DO CHROME: a Permission API reporta o estado do dispositivo
+        // PADRÃO — com múltiplos microfones, o usuário pode ter concedido a
+        // outro e a query retorna 'denied' mesmo com permissão ativa.
+        // Confirma com uma captura real: denied verdadeiro falha na hora
+        // (sem abrir prompt); se capturar, a permissão FUNCIONA.
+        const probe = await probeMicrophoneCapture();
+        if (probe.available) return probe;
         return {
           available: false,
           permission: "denied",
@@ -106,6 +121,55 @@ export async function checkMicrophoneAvailability(): Promise<MicDiagnostic> {
     reason: null,
     errorCode: null,
   };
+}
+
+/**
+ * Probe REAL de captura: abre um stream com o dispositivo PADRÃO, mede RMS e
+ * devolve o diagnóstico verdadeiro. É a única forma confiável de saber se o
+ * microfone funciona — a Permission API pode reportar 'denied' incorretamente
+ * (ex.: 4 dispositivos, usuário concedeu a outro) e o getUserMedia real
+ * resolve a permissão no momento da captura.
+ */
+export async function probeMicrophoneCapture(
+  constraints?: MediaTrackConstraints,
+): Promise<MicPermissionResult> {
+  let stream: MediaStream | null = null;
+  let ctx: AudioContext | null = null;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: constraints ?? true,
+    });
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext })
+        .webkitAudioContext;
+    ctx = new AudioCtx();
+    const source = ctx.createMediaStreamSource(stream);
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 512;
+    source.connect(analyser);
+    const buf = new Float32Array(analyser.fftSize);
+    // ~100ms de medição (2 frames de 50ms) para detectar silêncio total.
+    await new Promise((r) => setTimeout(r, 50));
+    analyser.getFloatTimeDomainData(buf);
+    await new Promise((r) => setTimeout(r, 50));
+    analyser.getFloatTimeDomainData(buf);
+    let sum = 0;
+    for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+    const rms = Math.sqrt(sum / buf.length);
+    return {
+      available: true,
+      permission: "granted",
+      reason: null,
+      errorCode: null,
+      silent: rms < 1e-5,
+    };
+  } catch (error) {
+    return diagnoseMicError(error);
+  } finally {
+    if (ctx) void ctx.close().catch(() => undefined);
+    stream?.getTracks().forEach((t) => t.stop());
+  }
 }
 
 /** Mapeia um erro de getUserMedia para diagnóstico estruturado. */
@@ -231,7 +295,7 @@ export interface UseMicrophoneResult {
   /** true quando já foi solicitada permissão nesta sessão. */
   requested: boolean;
   /** Solicita permissão (deve ser chamado após interação do usuário). */
-  requestPermission: () => Promise<MicDiagnostic>;
+  requestPermission: (options?: { keepStream?: boolean }) => Promise<MicPermissionResult>;
   /** Reavalia o estado atual sem solicitar. */
   refresh: () => Promise<void>;
 }
@@ -260,33 +324,51 @@ export function useMicrophone(): UseMicrophoneResult {
     if (mountedRef.current) setDiagnostic(d);
   }, []);
 
-  const requestPermission = useCallback(async (): Promise<MicDiagnostic> => {
-    setRequested(true);
-    try {
-      if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
-        const d = await checkMicrophoneAvailability();
+  const requestPermission = useCallback(
+    async (options?: { keepStream?: boolean }): Promise<MicPermissionResult> => {
+      setRequested(true);
+      const keepStream = options?.keepStream === true;
+      try {
+        if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+          const d = await checkMicrophoneAvailability();
+          if (mountedRef.current) setDiagnostic(d);
+          return d;
+        }
+        let stream: MediaStream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: { echoCancellation: true, noiseSuppression: true },
+          });
+        } catch (constraintErr) {
+          const errName = (constraintErr as DOMException)?.name;
+          if (errName === "OverconstrainedError" || errName === "TypeError") {
+            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          } else {
+            throw constraintErr;
+          }
+        }
+        // keepStream=true: devolve o stream para o chamador reutilizar
+        // (evita segunda captura e erros transitórios de dispositivo ocupado).
+        if (!keepStream) {
+          stream.getTracks().forEach((t) => t.stop());
+        }
+        const d: MicPermissionResult = {
+          available: true,
+          permission: "granted",
+          reason: null,
+          errorCode: null,
+          ...(keepStream ? { stream } : {}),
+        };
+        if (mountedRef.current) setDiagnostic(d);
+        return d;
+      } catch (error) {
+        const d = diagnoseMicError(error);
         if (mountedRef.current) setDiagnostic(d);
         return d;
       }
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true },
-      });
-      // Concedeu: devolve as tracks imediatamente (o agente re-solicita ao gravar).
-      stream.getTracks().forEach((t) => t.stop());
-      const d: MicDiagnostic = {
-        available: true,
-        permission: "granted",
-        reason: null,
-        errorCode: null,
-      };
-      if (mountedRef.current) setDiagnostic(d);
-      return d;
-    } catch (error) {
-      const d = diagnoseMicError(error);
-      if (mountedRef.current) setDiagnostic(d);
-      return d;
-    }
-  }, []);
+    },
+    [],
+  );
 
   return { diagnostic, requested, requestPermission, refresh };
 }

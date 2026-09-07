@@ -28,6 +28,7 @@ import {
 import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { DashboardShell } from '@/components/layout/shell';
 import { MetricCard } from '@/components/metric-card';
+import { InstallAppCard } from '@/components/pwa/install-app-card';
 import { Progress } from '@/components/ui/progress';
 import { Spinner } from '@/components/ui/button';
 import { useApi, request } from '@/hooks/use-api';
@@ -190,7 +191,7 @@ export default function DashboardPage() {
       ) : (
         <div className="space-y-6 pb-6">
           {/* Cyber AI Hero Section */}
-          <div className="relative overflow-hidden rounded-3xl border border-[#00E5FF]/25 bg-gradient-to-r from-[#050A18]/90 via-[#0A122A]/85 to-[#050A18]/90 p-6 md:p-8 backdrop-blur-xl shadow-[0_0_40px_rgba(0,140,255,0.15)]">
+          <div data-hero-card className="dashboard-hero-cyber relative overflow-hidden rounded-3xl border border-[#00E5FF]/25 bg-gradient-to-r from-[#050A18]/90 via-[#0A122A]/85 to-[#050A18]/90 p-6 md:p-8 backdrop-blur-xl shadow-[0_0_40px_rgba(0,140,255,0.15)]">
             {/* Ambient background glows */}
             <div className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-[#008CFF]/15 blur-3xl" />
             <div className="pointer-events-none absolute -right-20 -bottom-20 h-64 w-64 rounded-full bg-[#7C3CFF]/15 blur-3xl" />
@@ -198,25 +199,25 @@ export default function DashboardPage() {
 
             <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
               <div className="max-w-2xl space-y-2">
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#00E5FF]/30 bg-[#00E5FF]/10 px-3 py-1 text-[11px] font-semibold text-[#00E5FF] shadow-[0_0_12px_rgba(0,229,255,0.25)]">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#00E5FF]/30 bg-[#00E5FF]/10 px-3 py-1 text-[11px] font-semibold text-white shadow-[0_0_12px_rgba(0,229,255,0.25)]">
                   <Sparkles className="h-3.5 w-3.5 animate-pulse text-[#00E5FF]" />
-                  <span className="tracking-wider uppercase">Plataforma Neural Ativa</span>
+                  <span className="hero-text-white tracking-wider uppercase text-white !text-white" style={{ color: '#ffffff' }}>Plataforma Neural Ativa</span>
                   <span className="h-1.5 w-1.5 rounded-full bg-[#00E5A0] shadow-[0_0_8px_#00E5A0]" />
                 </div>
 
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-white">
-                  SAVYRON <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] via-[#008CFF] to-[#7C3CFF]">AI ENGINE</span>
+                <h1 className="hero-text-white text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-white !text-white" style={{ color: '#ffffff' }}>
+                  SAVYRON AI ENGINE
                 </h1>
-                <p className="text-xs md:text-sm text-[#A8B3C7] leading-relaxed">
+                <p className="hero-text-white text-xs md:text-sm text-white !text-white leading-relaxed" style={{ color: '#ffffff' }}>
                   Sistema autônomo de alta performance para prospecção, qualificação neural e conversão de clientes 24 horas por dia.
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
                 {/* Date range picker pill */}
-                <div className="inline-flex items-center gap-2.5 rounded-2xl border border-[#008CFF]/30 bg-[#080E20]/90 px-4 py-2.5 text-xs font-semibold text-white shadow-[0_0_20px_rgba(0,140,255,0.2)] backdrop-blur-md">
+                <div className="inline-flex items-center gap-2.5 rounded-2xl border border-[#008CFF]/30 bg-[#080E20]/90 px-4 py-2.5 text-xs font-semibold text-white !text-white shadow-[0_0_20px_rgba(0,140,255,0.2)] backdrop-blur-md">
                   <Calendar className="h-4 w-4 text-[#00E5FF]" />
-                  <span>{todayFormatted}</span>
+                  <span className="hero-text-white text-white !text-white" style={{ color: '#ffffff' }}>{todayFormatted}</span>
                   <ChevronDown className="h-3.5 w-3.5 text-[#64748B]" />
                 </div>
 
@@ -247,6 +248,9 @@ export default function DashboardPage() {
               </Link>
             </div>
           ) : null}
+
+          {/* Instalação do app (PWA) — some sozinho se instalado/dismissed */}
+          <InstallAppCard />
 
           {/* Row 1: 6 KPI HUD Cards */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
@@ -519,10 +523,10 @@ export default function DashboardPage() {
               </div>
 
               {/* Informative cyber box */}
-              <div className="rounded-2xl border border-[#008CFF]/30 bg-[#008CFF]/10 p-3.5 text-xs text-[#A8B3C7] flex items-start gap-2.5">
+              <div className="rounded-2xl border border-[#008CFF]/30 bg-[#008CFF]/10 p-3.5 text-xs text-black flex items-start gap-2.5">
                 <Sparkles className="h-4 w-4 text-[#00E5FF] shrink-0 mt-0.5" />
                 <span>
-                  <strong className="text-white">Modo Híbrido:</strong> Envia estrategicamente por ambos os canais, priorizando telefone celular para WhatsApp e validando caixas de entrada de e-mail corporativo.
+                  <strong className="text-black">Modo Híbrido:</strong> Envia estrategicamente por ambos os canais, priorizando telefone celular para WhatsApp e validando caixas de entrada de e-mail corporativo.
                 </span>
               </div>
             </div>

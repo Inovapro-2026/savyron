@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { createLogger } from '@prospector/logger';
 import { asyncHandler, ok } from '../lib/http';
-import { requireAuth, requireBusiness } from '../middleware/auth';
+import { requireAuth, requireBusiness, requireRole } from '../middleware/auth';
 import { getDashboardMetrics } from '../services/dashboard-service';
 import { getBusinessSettings, setBusinessSettings } from '../services/settings';
 
@@ -39,6 +39,7 @@ dashboardRouter.get(
 /** PUT /dashboard/settings — atualiza limites diários e intervalo. */
 dashboardRouter.put(
   '/settings',
+  requireRole(['OWNER', 'BUSINESS_ADMIN']),
   asyncHandler(async (req: Request, res: Response) => {
     const businessId = req.user!.businessId!;
     const { whatsapp_daily_limit, email_daily_limit, interval_seconds } = req.body ?? {};

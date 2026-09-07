@@ -48,6 +48,11 @@ export interface AgentContext {
    * A IA usa para avançar dinamicamente pelo funil — não é um roteiro fixo.
    */
   conversationStage?: string | null;
+  /**
+   * Anotações internas da equipe (CRM) sobre o contato — CONFIDENCIAL.
+   * A IA usa como contexto adicional, mas JAMAIS pode revelá-las ao cliente.
+   */
+  internalNotes?: string[];
 }
 
 /** Resultado da classificação da resposta do lead. */

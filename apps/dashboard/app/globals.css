@@ -191,6 +191,59 @@
   animation: savyron-glow 4s ease-in-out infinite;
 }
 
+/* Wordmark SAVYRON — texto neon leve em azul marinho (topo do menu) */
+@keyframes savyron-neon-pulse {
+  0%, 100% {
+    text-shadow:
+      0 0 4px rgba(30, 64, 175, 0.55),
+      0 0 12px rgba(30, 58, 138, 0.45),
+      0 0 24px rgba(30, 64, 175, 0.25);
+  }
+  50% {
+    text-shadow:
+      0 0 6px rgba(59, 130, 246, 0.7),
+      0 0 18px rgba(30, 64, 175, 0.55),
+      0 0 34px rgba(30, 58, 138, 0.35);
+  }
+}
+
+.savyron-wordmark {
+  display: inline-block;
+  font-family: var(--font-space-grotesk), system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  font-size: 22px;
+  line-height: 1;
+  color: #dbeafe;
+  animation: savyron-neon-pulse 3.6s ease-in-out infinite;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.savyron-wordmark--compact {
+  font-size: 13px;
+  letter-spacing: 0.1em;
+}
+
+/* Tema claro: fundo do menu fica branco — wordmark em azul forte com glow escuro */
+@keyframes savyron-neon-pulse-light {
+  0%, 100% {
+    text-shadow:
+      0 0 4px rgba(30, 64, 175, 0.4),
+      0 0 10px rgba(37, 99, 235, 0.28);
+  }
+  50% {
+    text-shadow:
+      0 0 6px rgba(30, 64, 175, 0.55),
+      0 0 16px rgba(37, 99, 235, 0.4);
+  }
+}
+
+html[data-theme='light'] .savyron-wordmark {
+  color: #1D4ED8;
+  animation: savyron-neon-pulse-light 3.6s ease-in-out infinite;
+}
+
 /* Flash sutil quando um card recebe atualização em tempo real */
 @keyframes inbox-flash {
   0% {
@@ -323,20 +376,20 @@ html[data-theme='light'] {
   --muted-foreground: 215 9% 43%;     /* #656D76 */
   --border: 210 18% 87%;              /* #D0D7DE */
   --input: 0 0% 100%;
-  --ring: 212 92% 45%;                /* #0969DA */
-  --primary: 212 92% 45%;             /* #0969DA */
+  --ring: 221 100% 50%;               /* #0052FF — Azul Forte */
+  --primary: 221 100% 50%;            /* #0052FF — Azul Forte */
   --primary-foreground: 0 0% 100%;
   --success: 145 65% 30%;             /* #1A7F37 */
   --warning: 40 78% 30%;              /* #9A6700 */
   --error: 0 72% 47%;                 /* #CF222E */
 
-  /* Tokens SAVYRON no light */
+  /* Tokens SAVYRON no light — azul forte de alto contraste */
   --savyron-bg: #F6F8FA;
   --savyron-surface: #FFFFFF;
   --savyron-surface-hover: #F6F8FA;
   --savyron-border: #D0D7DE;
-  --savyron-neon-blue: #0969DA;
-  --savyron-neon-cyan: #0891B2;
+  --savyron-neon-blue: #0052FF;
+  --savyron-neon-cyan: #0047FF;
   --savyron-neon-purple: #8250DF;
   --savyron-neon-pink: #CF222E;
   --savyron-success: #1A7F37;
@@ -344,7 +397,18 @@ html[data-theme='light'] {
   --savyron-danger: #CF222E;
   --savyron-text: #1F2328;
   --savyron-text-muted: #656D76;
-  --savyron-glow: 0 2px 10px rgba(8, 145, 178, 0.12);
+  --savyron-glow: 0 4px 16px rgba(0, 82, 255, 0.18);
+}
+
+/* Contraste obrigatório do nome do contato nos temas claro e escuro */
+.inbox-contact-name {
+  color: hsl(var(--foreground));
+}
+html[data-theme='light'] .inbox-contact-name {
+  color: #1F2328 !important;
+}
+html:not([data-theme='light']) .inbox-contact-name {
+  color: #FFFFFF !important;
 }
 
 /* Transição curta e sofisticada na troca de tema (só propriedades baratas). */
@@ -360,11 +424,18 @@ html[data-theme='light'] header {
     box-shadow 200ms ease;
 }
 
+/* Wordmark no tema claro: azul forte com alto contraste */
+html[data-theme='light'] .savyron-wordmark {
+  color: #0052FF !important;
+  text-shadow: none !important;
+  animation: none !important;
+}
+
 /* ─── Base ─── */
 html[data-theme='light'] body {
   background-color: #F6F8FA;
   background-image:
-    radial-gradient(circle at 15% 15%, rgba(9, 105, 218, 0.04), transparent 45%),
+    radial-gradient(circle at 15% 15%, rgba(0, 82, 255, 0.05), transparent 45%),
     radial-gradient(circle at 85% 85%, rgba(130, 80, 223, 0.03), transparent 45%);
   background-attachment: fixed;
   color: #1F2328;
@@ -372,6 +443,31 @@ html[data-theme='light'] body {
 
 html[data-theme='light'] * {
   border-color: #D0D7DE;
+}
+
+/* ─── Proteção global contra texto branco em fundo claro ─── */
+html[data-theme='light'] .text-white:not(.btn-primary):not(.btn-danger):not(.btn-success):not([data-keep-white]):not(.badge-solid):not(.hero-text-white):not([data-hero-card]):not([data-hero-card] *),
+html[data-theme='light'] [class*="text-slate-100"]:not([data-hero-card] *),
+html[data-theme='light'] [class*="text-slate-200"]:not([data-hero-card] *),
+html[data-theme='light'] [class*="text-slate-300"]:not([data-hero-card] *),
+html[data-theme='light'] [class*="text-zinc-100"]:not([data-hero-card] *),
+html[data-theme='light'] [class*="text-zinc-200"]:not([data-hero-card] *),
+html[data-theme='light'] [class*="text-zinc-300"]:not([data-hero-card] *),
+html[data-theme='light'] .card h1:not([data-hero-card] *),
+html[data-theme='light'] .card h2:not([data-hero-card] *),
+html[data-theme='light'] .card h3:not([data-hero-card] *),
+html[data-theme='light'] .card h4:not([data-hero-card] *),
+html[data-theme='light'] .card h5:not([data-hero-card] *),
+html[data-theme='light'] .card h6:not([data-hero-card] *) {
+  color: #1F2328;
+}
+
+/* ─── Exceção Hero Card (Dashboard Cyber AI) ─── */
+html[data-theme='light'] [data-hero-card] .hero-text-white,
+html[data-theme='light'] [data-hero-card] h1,
+html[data-theme='light'] [data-hero-card] p,
+html[data-theme='light'] [data-hero-card] span.hero-text-white {
+  color: #FFFFFF !important;
 }
 
 /* ─── Componentes globais ─── */
@@ -398,15 +494,15 @@ html[data-theme='light'] .divider-fluorescent {
   border-bottom-color: #D0D7DE;
 }
 
-/* Botões — hierarquia própria do light */
+/* Botões — azul mais forte */
 html[data-theme='light'] .btn-primary {
-  background: #0969DA;
-  box-shadow: 0 1px 2px rgba(31, 35, 40, 0.12);
-  color: #FFFFFF;
+  background: #0052FF;
+  box-shadow: 0 2px 8px rgba(0, 82, 255, 0.25);
+  color: #FFFFFF !important;
 }
 html[data-theme='light'] .btn-primary:hover:not(:disabled) {
-  background: #0550AE;
-  box-shadow: 0 2px 6px rgba(9, 105, 218, 0.25);
+  background: #0040D9;
+  box-shadow: 0 4px 14px rgba(0, 82, 255, 0.35);
   filter: none;
 }
 
@@ -424,19 +520,20 @@ html[data-theme='light'] .btn-secondary:hover:not(:disabled) {
 
 html[data-theme='light'] .btn-outline {
   border: 1px solid #D0D7DE;
-  color: #656D76;
+  color: #57606A;
   background: #FFFFFF;
 }
 html[data-theme='light'] .btn-outline:hover:not(:disabled) {
   background: #F3F4F6;
-  border-color: #0969DA;
-  color: #0969DA;
+  border-color: #0052FF;
+  color: #0052FF;
   box-shadow: none;
 }
 
 html[data-theme='light'] .btn-danger {
   background: #CF222E;
   box-shadow: 0 1px 2px rgba(31, 35, 40, 0.12);
+  color: #FFFFFF !important;
 }
 html[data-theme='light'] .btn-danger:hover:not(:disabled) {
   box-shadow: 0 2px 8px rgba(207, 34, 46, 0.3);
@@ -446,6 +543,7 @@ html[data-theme='light'] .btn-danger:hover:not(:disabled) {
 html[data-theme='light'] .btn-success {
   background: #1A7F37;
   box-shadow: 0 1px 2px rgba(31, 35, 40, 0.12);
+  color: #FFFFFF !important;
 }
 html[data-theme='light'] .btn-success:hover:not(:disabled) {
   box-shadow: 0 2px 8px rgba(26, 127, 55, 0.3);
@@ -467,8 +565,8 @@ html[data-theme='light'] textarea::placeholder {
 html[data-theme='light'] .input:focus,
 html[data-theme='light'] select:focus,
 html[data-theme='light'] textarea:focus {
-  border-color: #0969DA;
-  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.12);
+  border-color: #0052FF;
+  box-shadow: 0 0 0 3px rgba(0, 82, 255, 0.15);
   background: #FFFFFF;
 }
 
@@ -487,3 +585,33 @@ html[data-theme='light'] ::-webkit-scrollbar-thumb:hover {
   background: #8C959F;
   box-shadow: none;
 }
+
+/* ─── Vitrine adaptável ao tema escuro se o usuário configurar ─── */
+html[data-theme='dark'] .vitrine-container {
+  background-color: #020409 !important;
+  color: #FFFFFF !important;
+}
+html[data-theme='dark'] .vitrine-container header,
+html[data-theme='dark'] .vitrine-container footer {
+  background-color: #080D18 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+html[data-theme='dark'] .vitrine-container .text-slate-900 {
+  color: #FFFFFF !important;
+}
+html[data-theme='dark'] .vitrine-container .text-slate-700,
+html[data-theme='dark'] .vitrine-container .text-slate-600 {
+  color: #A8B3C7 !important;
+}
+html[data-theme='dark'] .vitrine-container .bg-white,
+html[data-theme='dark'] .vitrine-container .bg-slate-50,
+html[data-theme='dark'] .vitrine-container [class*="bg-slate-50"] {
+  background-color: rgba(8, 13, 24, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+html[data-theme='dark'] .vitrine-container .border-slate-200,
+html[data-theme='dark'] .vitrine-container [class*="border-slate-200"],
+html[data-theme='dark'] .vitrine-container .border-slate-300 {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+

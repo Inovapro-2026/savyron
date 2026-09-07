@@ -635,6 +635,36 @@ O worker `conversation-learning` analisa conversas finalizadas e gera:
 
 ---
 
+## Runtime do WhatsApp (conexões por empresa)
+
+O worker detém **uma conexão Baileys por empresa** (`WhatsAppManagerRegistry`
+em `services/whatsapp/src/connection/manager.ts`), com sessão persistente em
+`session/<business_id>` (a sessão "default" mantém compatibilidade com contas
+antigas).
+
+**Fluxo de mensagens recebidas:**
+
+```
+Baileys messages.upsert → parseIncoming (descarta fromMe/grupos/broadcast,
+    extrai texto/áudio/imagem, normaliza JID @lid ↔ @s.whatsapp.net)
+    → handler da conexão → fila message-received → worker processa:
+    idempotência (Redis + external_id) → resolve/cria lead → grava Message
+    (IN) → ensureConversation → notificação + realtime (Início) → fila ai-response
+```
+
+**Hook de setup de conexão (`setConnectionSetupHook`):** o worker registra um
+hook global que aplica os handlers de **ACK de entrega**, **getMessage**
+(retry/prekey) e **mensagens recebidas** em **toda conexão criada sob demanda**
+— boot automático, reconexão via painel (`/whatsapp/connect`) ou recriação
+após **Limpar sessão** (`/whatsapp/clear-session`). Sem isso, a conexão
+recriada recebia `upsert` mas nunca enfileirava as respostas (bug de
+07/09/2026: mensagens não apareciam no Início em contas novas/reconectadas).
+
+Logs de referência: `Handlers de WhatsApp registrados na conexão` (setup ok),
+`Mensagem recebida processada` (fila `message-received` processou).
+
+---
+
 ## Fontes de dados da prospecção e enriquecimento
 
 O campo **Segmento / Nicho** é texto livre — funciona para **qualquer**
@@ -814,6 +844,7 @@ curl http://localhost:4005/health
 ### Troubleshooting
 
 - **WhatsApp desconectado / sem QR**: `/settings` → "Conectar WhatsApp" → escaneie o QR.
+- **Mensagens recebidas não aparecem no Início**: confira no log do worker `Handlers de WhatsApp registrados na conexão` após reconectar/limpar sessão; sem esse log, a conexão foi recriada sem handlers (reinicie o `prospector-worker`).
 - **Mensagens enfileiradas mas não saem**: verifique Redis e worker (`pm2 status`).
 - **Campanha não envia**: se houver `start_hour`, envios só acontecem na janela de Brasília.
 - **Lead sempre em `ERROR`**: fila `dead-letter` após 3 tentativas (ver log).

@@ -158,11 +158,19 @@ export async function createAbacatepayPix(
   });
 }
 
-/** Consulta o status de uma cobrança transparente. */
+/**
+ * Consulta o status REAL de uma cobrança transparente no gateway.
+ * Endpoint correto: GET /transparents/check?id=... (POST /transparents/:id
+ * não existe — retorna 400 "Not found").
+ * Status possíveis: PENDING, PAID, EXPIRED, CANCELLED, UNDER_DISPUTE,
+ * REFUNDED, REDEEMED, APPROVED, FAILED.
+ */
 export async function getAbacatepayTransparentStatus(
   id: string,
 ): Promise<AbacatepayPixData> {
-  return apiFetch<AbacatepayPixData>(`/transparents/${encodeURIComponent(id)}`);
+  return apiFetch<AbacatepayPixData>(
+    `/transparents/check?id=${encodeURIComponent(id)}`,
+  );
 }
 
 // ---------------------------------------------------------------------------

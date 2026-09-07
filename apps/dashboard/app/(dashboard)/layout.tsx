@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
 import './dashboard.css';
 
@@ -7,6 +8,9 @@ export const dynamic = 'force-dynamic';
 
 export default async function DashboardGroupLayout({ children }: { children: ReactNode }) {
   const session = await getSession();
+  if (!session || !session.sub) {
+    redirect('/login');
+  }
 
   return (
     <>

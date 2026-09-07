@@ -27,6 +27,8 @@ export interface IncomingMessage {
   timestamp: number;
   /** true quando o texto veio de uma transcrição de áudio (Whisper). */
   isTranscription?: boolean;
+  /** true quando a mensagem original é uma imagem. */
+  isImage?: boolean;
   raw?: unknown;
 }
 

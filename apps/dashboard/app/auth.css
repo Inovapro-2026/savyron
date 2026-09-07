@@ -58,6 +58,19 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Variante para a etapa de seleção de planos — padding compacto, sem borda excessiva */
+.auth-card.signup-plan-card {
+  padding: 1.75rem 1.75rem;
+}
+
+@media (max-width: 767px) {
+  .auth-card.signup-plan-card {
+    padding: 1.25rem 1rem;
+    border-radius: 16px;
+  }
+}
+
+
 /* 3. TÍTULOS E SUBTÍTULOS */
 .auth-title {
   color: #ffffff;
@@ -271,5 +284,26 @@ html[data-theme='light'] .auth-card .input {
 }
 
 html[data-theme='light'] .auth-card a {
-  color: #0969DA;
+  color: #0052FF;
+}
+
+html[data-theme='light'] .auth-card [style*="rgba(8,13,24"],
+html[data-theme='light'] .auth-card [style*="rgba(8, 13, 24"] {
+  background: #FFFFFF !important;
+  border-color: #D0D7DE !important;
+}
+
+html[data-theme='light'] [role="dialog"] [style*="rgba(6,10,20"],
+html[data-theme='light'] [role="dialog"] [style*="rgba(6, 10, 20"] {
+  background: #FFFFFF !important;
+  border-color: #D0D7DE !important;
+  color: #1F2328 !important;
+}
+
+html[data-theme='light'] [role="dialog"] .text-white {
+  color: #1F2328 !important;
+}
+
+html[data-theme='light'] [role="dialog"] .border-white\/10 {
+  border-color: #D0D7DE !important;
 }

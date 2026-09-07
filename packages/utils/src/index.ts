@@ -9,3 +9,4 @@ export * from "./brasilia";
 export * from "./async";
 export * from "./admin";
 export * from "./deletion";
+export * from "./youtube";

@@ -249,6 +249,46 @@ export class WhatsAppConnection extends EventEmitter {
   }
 
   /**
+   * Envia uma imagem via WhatsApp (Baileys sendMessage com image).
+   * Aceita Buffer + MIME (ex.: image/png) ou data URI direto.
+   * Usa o mesmo pipeline de resolução canônica do JID que o sendText.
+   */
+  async sendImage(
+    phoneE164: string,
+    image: Buffer | string,
+    mimeType: string,
+    caption?: string,
+    remoteJid?: string,
+  ): Promise<string | null> {
+    if (!this.socket || this.state !== 'connected') {
+      throw new Error('WhatsApp não conectado');
+    }
+    const rawJid = (phoneE164 && this.toJid(phoneE164)) || remoteJid;
+    if (!rawJid) throw new Error('Sem destinatário para enviar imagem');
+    const jid = await this.resolveCanonicalJid(rawJid);
+
+    const buffer = Buffer.isBuffer(image) ? image : Buffer.from(image.replace(/^data:image\/[^;]+;base64,/, ''), 'base64');
+    let mime = (Buffer.isBuffer(image) ? mimeType : (mimeType || 'image/jpeg')).toLowerCase();
+    if (mime.includes('jfif') || mime.includes('pjpeg') || mime.includes('jpg')) {
+      mime = 'image/jpeg';
+    }
+
+    const result = (await withTimeout(
+      this.socket.sendMessage(jid, {
+        image: buffer,
+        mimetype: mime,
+        caption: caption || undefined,
+      }) as Promise<any>,
+      SEND_TIMEOUT_MS,
+      `Timeout ao enviar imagem para ${jid}`,
+    )) as { key?: { id?: string } | null } | undefined;
+
+    const id = result?.key?.id ?? null;
+    logger.info('Imagem WhatsApp enviada', { to: jid, id, bytes: buffer.length, mime });
+    return id;
+  }
+
+  /**
    * Confere se um número é usuário registrado do WhatsApp (USync directory).
    *
    * Números não registrados (fixos/inexistentes) aceitam a mensagem no servidor
@@ -587,7 +627,17 @@ export class WhatsAppConnection extends EventEmitter {
           messageTimestamp: Number(msg?.messageTimestamp ?? 0),
         });
         const parsed = this.parseIncoming(msg);
-        if (!parsed) continue;
+        if (!parsed) {
+          logger.warn('WA mensagem descartada no parseIncoming', {
+            id: String(msg?.key?.id ?? ''),
+            msgType,
+            contentKeys: msg?.message ? Object.keys(msg.message) : [],
+            fromMe: Boolean(msg?.key?.fromMe),
+            remoteJid: String(msg?.key?.remoteJid ?? ''),
+            remoteJidAlt: String(msg?.key?.remoteJidAlt ?? ''),
+          });
+          continue;
+        }
         if (parsed.isTranscription) {
           const transcript = await this.transcribeVoiceMessage(msg, parsed);
           if (!transcript) {
@@ -598,6 +648,22 @@ export class WhatsAppConnection extends EventEmitter {
             continue;
           }
           parsed.content = transcript;
+        }
+        if (parsed.isImage) {
+          try {
+            const imgData = await this.downloadImageMedia(msg);
+            if (imgData) {
+              const caption = parsed.content && parsed.content !== '[Imagem]' ? `\n${parsed.content}` : '';
+              parsed.content = `![imagem](${imgData.dataUri})${caption}`;
+              logger.info('Imagem recebida do cliente baixada e formatada', {
+                from: parsed.fromPhone,
+                bytes: imgData.buffer.length,
+                mime: imgData.mime,
+              });
+            }
+          } catch (imgErr) {
+            logger.warn('Falha ao processar mídia de imagem recebida', { error: String(imgErr) });
+          }
         }
         if (this.messageHandler) {
           await this.messageHandler(parsed);
@@ -620,12 +686,21 @@ export class WhatsAppConnection extends EventEmitter {
     if (key.fromMe) return null;
     if (key.remoteJid?.includes('@g.us') || key.remoteJid?.includes('@broadcast')) return null;
 
+    const imgMsg =
+      messageContent.imageMessage ||
+      messageContent.ephemeralMessage?.message?.imageMessage ||
+      messageContent.viewOnceMessage?.message?.imageMessage ||
+      messageContent.viewOnceMessageV2?.message?.imageMessage;
+
     let text: string | null = null;
     let isTranscription = false;
+    let isImage = false;
     if (typeof messageContent.conversation === 'string') text = messageContent.conversation;
     else if (messageContent.extendedTextMessage?.text) text = messageContent.extendedTextMessage.text;
-    else if (messageContent.imageMessage?.caption) text = messageContent.imageMessage.caption;
-    else if (
+    else if (imgMsg) {
+      isImage = true;
+      text = imgMsg.caption ? String(imgMsg.caption).trim() : '[Imagem]';
+    } else if (
       messageContent.audioMessage ||
       messageContent.pttMessage ||
       (messageContent.ephemeralMessage?.message?.audioMessage ?? messageContent.ephemeralMessage?.message?.pttMessage)
@@ -639,7 +714,17 @@ export class WhatsAppConnection extends EventEmitter {
       else if (inner.extendedTextMessage?.text) text = inner.extendedTextMessage.text;
     }
 
-    if (text === null) return null;
+    if (text === null) {
+      logger.warn('WA mensagem descartada: sem texto extraível', {
+        id: String(key?.id ?? ''),
+        msgType: msg?.message ? Object.keys(msg.message) : [],
+        hasExtendedText: Boolean(messageContent.extendedTextMessage),
+        extText: messageContent.extendedTextMessage?.text ?? null,
+        hasEphemeral: Boolean(messageContent.ephemeralMessage),
+        hasConversation: Boolean(messageContent.conversation),
+      });
+      return null;
+    }
 
     // Normaliza o JID (cobre @lid, @s.whatsapp.net, sufixos de device/agent)
     const { jidNormalizedUser, jidDecode, jidEncode } = this.baileys;
@@ -664,8 +749,40 @@ export class WhatsAppConnection extends EventEmitter {
       messageId: key.id ?? null,
       timestamp: Number(msg.messageTimestamp ?? Date.now()),
       isTranscription,
+      isImage,
       raw: msg,
     };
+  }
+
+  /** Baixa a mídia de imagem da mensagem usando o Baileys. */
+  private async downloadImageMedia(msg: any): Promise<{ buffer: Buffer; mime: string; dataUri: string } | null> {
+    try {
+      const baileys = this.baileys ?? (await this.loadBaileys());
+      const { downloadMediaMessage } = baileys;
+      if (typeof downloadMediaMessage !== 'function') return null;
+      const buffer = await downloadMediaMessage(
+        msg,
+        'buffer',
+        {},
+        { reuploadRequest: this.socket ? this.socket.updateMediaMessage : undefined },
+      );
+      if (!Buffer.isBuffer(buffer)) return null;
+      const messageContent = msg.message;
+      const imgMsg =
+        messageContent?.imageMessage ||
+        messageContent?.ephemeralMessage?.message?.imageMessage ||
+        messageContent?.viewOnceMessage?.message?.imageMessage ||
+        messageContent?.viewOnceMessageV2?.message?.imageMessage;
+      let mime = String(imgMsg?.mimetype || 'image/jpeg').toLowerCase();
+      if (mime.includes('jfif') || mime.includes('pjpeg')) mime = 'image/jpeg';
+      const dataUri = `data:${mime};base64,${buffer.toString('base64')}`;
+      return { buffer, mime, dataUri };
+    } catch (error) {
+      logger.warn('Falha ao baixar imagem recebida', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return null;
+    }
   }
 
   /**
@@ -822,6 +939,22 @@ export class WhatsAppConnection extends EventEmitter {
  * businessId, criando sob demanda. `whatsappManager` é o gerente da empresa
  * padrão (backward-compat); usuários novos deveriam usar `getWhatsAppManager()`.
  */
+/**
+ * Hook global de configuração de conexão. O worker registra aqui o setup
+ * (ACK tracking, getMessage, handler de mensagens recebidas) para que TODA
+ * conexão criada sob demanda — inclusive as recriadas depois de
+ * clear-session via painel — tenha os handlers de mensagem registrados.
+ * Sem isso, conexões recriadas recebem messages.upsert mas nunca enfileiram
+ * as mensagens (o Início fica sem as respostas dos clientes).
+ */
+type ConnectionSetupHook = (conn: WhatsAppConnection, businessId?: string) => void;
+let connectionSetupHook: ConnectionSetupHook | null = null;
+
+/** Registra o hook executado na criação de cada nova conexão do registry. */
+export function setConnectionSetupHook(hook: ConnectionSetupHook | null): void {
+  connectionSetupHook = hook;
+}
+
 class WhatsAppManagerRegistry extends EventEmitter {
   private connections = new Map<string, WhatsAppConnection>();
 
@@ -836,7 +969,16 @@ class WhatsAppManagerRegistry extends EventEmitter {
     if (!conn) {
       conn = new WhatsAppConnection(isLegacySession(businessId) ? undefined : businessId);
       this.applyHandlers(conn, k);
+      // Registra ANTES do hook: chamadas reentrantes de get() durante o hook
+      // (ex.: setup de handlers que resolve o manager) retornam esta conexão.
       this.connections.set(k, conn);
+      if (connectionSetupHook) {
+        try {
+          connectionSetupHook(conn, isLegacySession(businessId) ? undefined : businessId);
+        } catch (error) {
+          logger.error('Falha ao aplicar hook de setup da conexão WhatsApp', { business_id: businessId, error });
+        }
+      }
     }
     return conn;
   }

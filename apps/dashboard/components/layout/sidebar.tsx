@@ -9,7 +9,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
-import { Logo } from "@/components/logo";
+import { SavyronWordmark } from "@/components/savyron-wordmark";
 import { useSession } from "@/hooks/use-session";
 import { useApi } from "@/hooks/use-api";
 import {
@@ -44,14 +44,14 @@ function NavItem({
     collapsed ? "justify-center px-2.5" : "px-3.5"
   } ${
     active
-      ? "bg-gradient-to-r from-[#008CFF]/20 to-[#008CFF]/5 text-white font-bold border-l-2 border-[#00E5FF] shadow-[0_0_18px_rgba(0,140,255,0.18)]"
-      : "text-[#A8B3C7] hover:bg-[#008CFF]/8 hover:text-white hover:shadow-[0_0_12px_rgba(0,140,255,0.1)]"
+      ? "nav-item-active bg-gradient-to-r from-[#008CFF]/20 to-[#008CFF]/5 text-[#0052FF] dark:text-white font-bold border-l-2 border-[#0052FF] dark:border-[#00E5FF] shadow-[0_0_18px_rgba(0,140,255,0.18)]"
+      : "text-[#64748B] dark:text-[#A8B3C7] hover:bg-[#0052FF]/8 hover:text-slate-900 dark:hover:text-white hover:shadow-[0_0_12px_rgba(0,82,255,0.1)]"
   }`;
 
   const iconClass = `h-4.5 w-4.5 shrink-0 transition-all ${
     active
-      ? "text-[#00E5FF] drop-shadow-[0_0_6px_rgba(0,229,255,0.6)]"
-      : "text-[#64748B] group-hover:text-[#00E5FF]"
+      ? "text-[#0052FF] dark:text-[#00E5FF] drop-shadow-[0_0_6px_rgba(0,82,255,0.4)]"
+      : "text-[#64748B] group-hover:text-[#0052FF] dark:group-hover:text-[#00E5FF]"
   }`;
 
   if (navigateTo && navigateTo !== href) {
@@ -142,19 +142,19 @@ export function Sidebar({
         collapsed ? "w-20" : "w-64"
       }`}
     >
-      {/* Brand logo + botão recolher/expandir */}
+      {/* Brand wordmark SAVYRON (neon) + botão recolher/expandir */}
       <div className="flex items-center justify-between gap-1 border-b border-[rgba(0,153,255,0.15)] px-4 py-5">
         {!collapsed ? (
-          <Link href="/dashboard" className="inline-block">
-            <Logo compact />
+          <Link href="/dashboard" aria-label="SAVYRON — Início" className="inline-flex">
+            <SavyronWordmark />
           </Link>
         ) : (
           <Link
             href="/dashboard"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#008CFF]/15 text-[#00E5FF] border border-[#008CFF]/30 shadow-[0_0_10px_rgba(0,140,255,0.2)]"
-            aria-label="Início"
+            aria-label="SAVYRON — Início"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl"
           >
-            <Logo compact className="h-6 w-6" />
+            <SavyronWordmark compact />
           </Link>
         )}
         <button
@@ -225,28 +225,28 @@ export function Sidebar({
       {/* Central de ajuda card */}
       <div className={collapsed ? "p-2.5" : "p-3.5"}>
         <div
-          className={`flex items-center gap-3 rounded-2xl bg-[#080D18]/90 border border-[rgba(0,140,255,0.3)] p-3 transition-all hover:border-[rgba(0,229,255,0.5)] shadow-[0_0_15px_rgba(0,140,255,0.1)] ${
+          className={`flex items-center gap-3 rounded-2xl bg-slate-50 dark:bg-[#080D18]/90 border border-slate-200 dark:border-[rgba(0,140,255,0.3)] p-3 transition-all hover:border-[#0052FF]/40 shadow-sm ${
             collapsed ? "justify-center" : ""
           }`}
           title={collapsed ? "Central de ajuda" : undefined}
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#008CFF]/15 border border-[#008CFF]/30 text-[#00E5FF] shadow-[0_0_10px_rgba(0,229,255,0.25)]">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#0052FF]/10 border border-[#0052FF]/25 text-[#0052FF] shadow-sm">
             <HelpCircle className="h-5 w-5" />
           </div>
           {!collapsed ? (
             <div className="min-w-0 flex-1">
-              <div className="text-xs font-bold text-white">Central de ajuda</div>
-              <div className="text-[11px] text-[#A8B3C7] truncate">Tutoriais e suporte</div>
+              <div className="text-xs font-bold text-slate-900 dark:text-white">Central de ajuda</div>
+              <div className="text-[11px] text-slate-500 dark:text-[#A8B3C7] truncate">Tutoriais e suporte</div>
             </div>
           ) : null}
         </div>
       </div>
 
       {/* Footer */}
-      <div className={`border-t border-[rgba(0,153,255,0.15)] py-3 text-[11px] text-[#64748B] ${collapsed ? "px-2 text-center" : "px-5"}`}>
-        <div className="font-bold text-white tracking-wider">{collapsed ? "S" : "SAVYRON"}</div>
+      <div className={`border-t border-slate-200 dark:border-[rgba(0,153,255,0.15)] py-3 text-[11px] text-[#64748B] ${collapsed ? "px-2 text-center" : "px-5"}`}>
+        <div className="font-bold text-slate-900 dark:text-white tracking-wider">{collapsed ? "S" : "SAVYRON"}</div>
         {!collapsed ? (
-          <div className="text-[10px] text-[#64748B]">© 2026 Todos os direitos reservados.</div>
+          <div className="text-[10px] text-slate-500 dark:text-[#64748B]">© 2026 Todos os direitos reservados.</div>
         ) : null}
       </div>
     </aside>

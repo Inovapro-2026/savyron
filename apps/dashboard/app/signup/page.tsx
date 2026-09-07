@@ -164,8 +164,8 @@ export default function SignupPage() {
 
   return (
     <div className="auth-shell auth-page-container">
-      <div className="auth-card max-w-lg">
-      <div className="mb-6 text-center">
+      <div className={`auth-card ${step === "plan" ? "signup-plan-card max-w-5xl" : "max-w-lg"}`}>
+      <div className="mb-5 text-center">
         <Link href="/login">
           <Logo />
         </Link>
@@ -174,7 +174,7 @@ export default function SignupPage() {
         <h1 className="mb-1 text-center font-display text-2xl font-bold tracking-tight text-white">
           Criar conta no SAVYRON
         </h1>
-        <p className="mb-6 text-center text-sm text-slate-400">
+        <p className="mb-5 text-center text-sm text-slate-400">
           Cadastre sua empresa, verifique seu e-mail e escolha seu plano
         </p>
 

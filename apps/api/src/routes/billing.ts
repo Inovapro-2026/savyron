@@ -11,7 +11,10 @@ import {
 import { getPublishableKey, isStripeConfigured } from "../services/stripe";
 import { createCaktoCheckout } from "../services/cakto-billing";
 import { isCaktoConfigured, CaktoNotConfiguredError } from "../services/cakto";
-import { createAbacatepayPixForBusiness } from "../services/abacatepay-billing";
+import {
+  createAbacatepayPixForBusiness,
+  getAbacatepayPixStatus,
+} from "../services/abacatepay-billing";
 import {
   isAbacatepayConfigured,
   AbacatePayNotConfiguredError,
@@ -197,6 +200,33 @@ billingRouter.post(
       return ok(res, result);
     } catch (error) {
       if (error instanceof AbacatePayNotConfiguredError) throw error;
+      throw ApiError.badRequest((error as Error).message);
+    }
+  }),
+);
+
+/**
+ * GET /billing/abacatepay/pix/status — consulta o status REAL da cobrança PIX
+ * existente no gateway (NUNCA cria cobrança e nunca ativa pela confiança no
+ * clique/lado do cliente). Se o gateway confirmar o pagamento, ativa de forma
+ * idempotente e retorna CONFIRMED.
+ */
+billingRouter.get(
+  "/abacatepay/pix/status",
+  asyncHandler(async (req: Request, res: Response) => {
+    const businessId = req.user!.businessId!;
+
+    if (!isAbacatepayConfigured()) {
+      return res.status(503).json({
+        success: false,
+        error: { code: "NOT_CONFIGURED", message: "AbacatePay não configurado" },
+      });
+    }
+
+    try {
+      const result = await getAbacatepayPixStatus(businessId);
+      return ok(res, result);
+    } catch (error) {
       throw ApiError.badRequest((error as Error).message);
     }
   }),

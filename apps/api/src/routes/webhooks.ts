@@ -3,7 +3,8 @@ import { createLogger } from "@prospector/logger";
 import { QUEUE_NAMES } from "@prospector/queues";
 import { asyncHandler, ok } from "../lib/http";
 import { getQueue } from "../services/queues";
-import { parseResendWebhook } from "@prospector/email";
+import { parseResendWebhook, verifyResendSignature } from "@prospector/email";
+import { config } from "@prospector/config";
 import { prisma } from "@prospector/database";
 import { constructStripeEvent, isStripeConfigured } from "../services/stripe";
 import { handleStripeWebhookEvent } from "../services/stripe-billing";
@@ -435,6 +436,22 @@ webhooksRouter.post(
 webhooksRouter.post(
   "/resend",
   asyncHandler(async (req: Request, res: Response) => {
+    const secret = process.env.RESEND_WEBHOOK_SECRET;
+    if (secret) {
+      const signature = (req.headers["svix-signature"] || req.headers["resend-signature"]) as string | undefined;
+      const timestamp = (req.headers["svix-timestamp"] || req.headers["resend-timestamp"]) as string | undefined;
+      const rawBody = (req as Request & { rawBody?: Buffer }).rawBody;
+      const bodyStr = rawBody ? rawBody.toString("utf8") : JSON.stringify(req.body ?? {});
+      const isValid = verifyResendSignature(secret, bodyStr, signature, timestamp);
+      if (!isValid) {
+        logger.warn("Webhook Resend com assinatura inválida", { ip: req.ip });
+        return res.status(401).json({
+          success: false,
+          error: { code: "UNAUTHORIZED", message: "Assinatura inválida" },
+        });
+      }
+    }
+
     const body = req.body ?? {};
     const parsed = parseResendWebhook(body);
 
@@ -471,6 +488,20 @@ webhooksRouter.post(
 webhooksRouter.post(
   "/whatsapp",
   asyncHandler(async (req: Request, res: Response) => {
+    const workerToken = req.headers["x-worker-token"] || (req.headers["authorization"]?.replace(/^Bearer\s+/i, ""));
+    const expectedToken = process.env.WORKER_SECRET_TOKEN || process.env.INTERNAL_API_SECRET;
+    const isLoopback = req.ip === "127.0.0.1" || req.ip === "::1" || req.ip === "::ffff:127.0.0.1";
+
+    if (expectedToken) {
+      if (workerToken !== expectedToken) {
+        logger.warn("Webhook WhatsApp rejeitado: token inválido", { ip: req.ip });
+        return res.status(401).json({ success: false, error: { code: "UNAUTHORIZED", message: "unauthorized" } });
+      }
+    } else if (!isLoopback) {
+      logger.warn("Webhook WhatsApp rejeitado: origem externa não permitida", { ip: req.ip });
+      return res.status(403).json({ success: false, error: { code: "FORBIDDEN", message: "Acesso restrito" } });
+    }
+
     logger.info("Webhook WhatsApp recebido", {
       body_keys: Object.keys(req.body ?? {}),
     });

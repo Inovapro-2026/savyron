@@ -13,6 +13,7 @@ import {
   Activity,
   Settings,
   ArrowLeft,
+  GraduationCap,
 } from "lucide-react";
 
 const NAV = [
@@ -22,6 +23,7 @@ const NAV = [
   { href: "/admin/subscriptions", label: "Assinaturas", icon: Receipt },
   { href: "/admin/payments", label: "Pagamentos", icon: Receipt },
   { href: "/admin/users", label: "Usuários", icon: Users },
+  { href: "/admin/trainings", label: "Treinamentos", icon: GraduationCap },
   { href: "/admin/usage", label: "Uso", icon: Activity },
   { href: "/admin/audit", label: "Auditoria", icon: ScrollText },
   { href: "/admin/settings", label: "Configurações", icon: Settings },
@@ -76,10 +78,10 @@ export default async function AdminLayout({
               {label}
             </Link>
           ))}
-          <div className="pt-4 border-t border-white/10 mt-4">
+          <div className="pt-4 border-t border-slate-200 dark:border-white/10 mt-4">
             <Link
               href="/dashboard"
-              className="flex items-center gap-2.5 rounded-xl border border-[#008CFF]/25 bg-[#008CFF]/10 px-3.5 py-2.5 text-sm font-semibold text-[#00E5FF] transition-all hover:bg-[#008CFF]/20 shadow-[0_0_15px_rgba(0,140,255,0.15)]"
+              className="flex items-center gap-2.5 rounded-xl border border-[#0052FF]/30 bg-[#0052FF]/10 px-3.5 py-2.5 text-sm font-semibold text-[#0052FF] dark:text-[#00E5FF] transition-all hover:bg-[#0052FF]/20 shadow-sm"
             >
               <ArrowLeft className="h-4 w-4" />
               Voltar ao Painel
@@ -88,8 +90,8 @@ export default async function AdminLayout({
         </nav>
       </aside>
 
-      <main className="min-w-0 flex-1 pt-10 lg:pt-0">
-        <div className="border-b border-white/10 bg-[#080D18]/90 backdrop-blur-md px-4 py-3 lg:hidden">
+      <main className="dashboard-dark-theme min-w-0 flex-1 pt-10 lg:pt-0">
+        <div className="border-b border-slate-200 dark:border-white/10 bg-white/90 dark:bg-[#080D18]/90 backdrop-blur-md px-4 py-3 lg:hidden">
           <Logo compact />
         </div>
         <div className="p-4 lg:p-8">{children}</div>

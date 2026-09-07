@@ -7,7 +7,7 @@
    =========================================================================== */
 'use strict';
 
-const CACHE_NAME = 'savyron-v6';
+const CACHE_NAME = 'savyron-v7';
 const STATIC_CACHE = `${CACHE_NAME}-static`;
 const PAGE_CACHE = `${CACHE_NAME}-pages`;
 const API_CACHE = `${CACHE_NAME}-api`;
@@ -71,7 +71,7 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET' || !req.url.startsWith(self.location.origin)) return;
 
-  // 1) Navegação: network-first; offline -> último shell cacheado/offline
+  // 1) Navegação: network-first (sempre tenta a rede para HTML atualizado com os novos chunks do build)
   if (isNavigate(req)) {
     event.respondWith(
       fetch(req)
@@ -112,11 +112,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3) Assets estáticos: stale-while-revalidate
+  // 3) Assets estáticos (_next/static com hash imutável): Cache-First com network fallback
   if (isStaticAsset(req)) {
     event.respondWith(
       caches.match(req).then((cached) => {
-        const fetchPromise = fetch(req)
+        if (cached) return cached;
+        return fetch(req)
           .then((res) => {
             if (res && res.ok) {
               const copy = res.clone();
@@ -124,8 +125,7 @@ self.addEventListener('fetch', (event) => {
             }
             return res;
           })
-          .catch(() => cached || Response.error());
-        return cached || fetchPromise;
+          .catch(() => Response.error());
       })
     );
     return;

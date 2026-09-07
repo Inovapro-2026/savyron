@@ -139,7 +139,10 @@ test("microfone: NotReadableError mostra mensagem de microfone ocupado", () => {
 
 test("microfone: erro genérico não deixa agente silencioso (fallback speak)", () => {
   assert.ok(agentHook.includes("speakWithBrowser"), "fallback de voz do navegador disponível");
-  assert.ok(agentHook.includes("Desculpa, não consegui entender"), "mensagem de erro falada");
+  assert.ok(
+    agentHook.includes("Tive um problema ao processar sua solicitação"),
+    "mensagem de erro falada (atual)",
+  );
 });
 
 // ---------------------------------------------------------------------------
