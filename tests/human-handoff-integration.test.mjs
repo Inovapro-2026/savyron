@@ -86,8 +86,9 @@ test("handoff: multi-tenant — business_id em todas as buscas do serviço", () 
   assert.match(HANDOFF_SVC, /business\.findUnique\(\s*\{\s*where: \{ id: businessId \}/);
 });
 
-test("handoff: reutiliza o sender existente (sem nova conexão WhatsApp)", () => {
-  assert.ok(HANDOFF_SVC.includes("trySendWhatsAppMessage"));
+test("handoff: envia pelo WhatsAppManager DA EMPRESA (registry, não singleton)", () => {
+  assert.ok(HANDOFF_SVC.includes("getWhatsAppManager(businessId)"));
+  assert.ok(HANDOFF_SVC.includes("manager.sendText(phoneE164, text, remoteJid)"));
   assert.ok(!HANDOFF_SVC.includes("new Baileys") && !HANDOFF_SVC.includes("makeWASocket"));
   assert.ok(WA_SENDER.includes("whatsappManager.sendText"), "sender existente intacto");
 });
@@ -101,7 +102,7 @@ test("handoff: falha na notificação NÃO desfaz a transferência", () => {
 });
 
 test("handoff: ORDEM CORRETA — envio ao cliente ANTES de human_handled=true", () => {
-  const sendIdx = HANDOFF_SVC.indexOf("trySendWhatsAppMessage(customerPhone");
+  const sendIdx = HANDOFF_SVC.indexOf("trySendForBusiness(businessId, customerPhone");
   const activateIdx = HANDOFF_SVC.indexOf("human_handled: true, human_handoff_notified_at: null");
   assert.ok(sendIdx > 0 && activateIdx > sendIdx,
     "mensagem ao cliente DEVE ser enviada antes de ativar o modo manual");

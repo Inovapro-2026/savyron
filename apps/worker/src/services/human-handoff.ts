@@ -1,7 +1,7 @@
 import { prisma } from "@prospector/database";
 import { createLogger } from "@prospector/logger";
 import { detectHumanHandoffRequest } from "@prospector/ai";
-import { trySendWhatsAppMessage } from "@prospector/whatsapp";
+import { getWhatsAppManager } from "@prospector/whatsapp";
 import { formatPhone } from "@prospector/utils";
 import { redis } from "./redis";
 import { publishRealtime } from "./realtime";
@@ -57,6 +57,36 @@ export interface HumanHandoffResult {
   customerNotified: boolean;
   ownerNotified: boolean;
   ownerPhoneConfigured: boolean;
+}
+
+interface SendResult {
+  ok: boolean;
+  messageId: string | null;
+  error?: string;
+}
+
+/**
+ * Envio pelo WhatsAppManager DA EMPRESA (registry por tenant).
+ * O sender singleton legado não garante a sessão da empresa — a sessão
+ * conectada vive em getWhatsAppManager(businessId) (mantida pelo runtime).
+ */
+async function trySendForBusiness(
+  businessId: string,
+  phoneE164: string,
+  text: string,
+  remoteJid?: string,
+): Promise<SendResult> {
+  try {
+    const manager = getWhatsAppManager(businessId);
+    const id = await manager.sendText(phoneE164, text, remoteJid);
+    return { ok: true, messageId: id };
+  } catch (error) {
+    return {
+      ok: false,
+      messageId: null,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 /** Confere e libera o lock de transferência em andamento. */
@@ -127,7 +157,7 @@ export async function transferConversationToHuman(
       customer_phone: maskPhoneForLog(customerPhone),
     });
 
-    const send = await trySendWhatsAppMessage(customerPhone, HANDOFF_CUSTOMER_MESSAGE, remoteJid);
+    const send = await trySendForBusiness(businessId, customerPhone, HANDOFF_CUSTOMER_MESSAGE, remoteJid);
 
     if (!send.ok) {
       // ── F) Envio falhou: NÃO ativar modo manual como se tivesse funcionado.
@@ -341,7 +371,7 @@ export async function notifyOwnerAboutHumanHandoff(
   });
 
   // FROM: WhatsApp conectado da empresa → TO: proprietário.
-  const send = await trySendWhatsAppMessage(ownerPhone, message);
+  const send = await trySendForBusiness(businessId, ownerPhone, message);
 
   if (send.ok) {
     await prisma.conversation.update({
