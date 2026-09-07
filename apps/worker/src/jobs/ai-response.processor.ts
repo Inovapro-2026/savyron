@@ -26,6 +26,7 @@ import {
   markAiResponded,
 } from "../services/messages";
 import { publishRealtime } from "../services/realtime";
+import { notifyOwnerAboutHumanHandoff } from "../services/human-handoff";
 import { getLastInboundChannel } from "../services/conversations";
 import { isOptedOut } from "../services/leads";
 import {
@@ -413,9 +414,24 @@ async function processConversationTurn(ctx: TurnContext): Promise<void> {
     };
     if (result.action === "TRANSFER_TO_HUMAN") {
       conversationUpdate.human_handled = true;
+      // Notifica o proprietário (mesmo serviço do handoff por detector).
+      // Best-effort: falha não afeta a resposta em andamento.
+      void notifyOwnerAboutHumanHandoff({
+        businessId: resolvedBusinessId,
+        conversationId,
+        leadId,
+        content: ctx.content,
+        from: lead.phone ?? ctx.remoteJid ?? "",
+      }).catch(() => undefined);
     }
+    // ENCERRAMENTO AUTOMÁTICO DESATIVADO (decisão de produto): a conversa
+    // só é encerrada por ação humana (Inbox → "Encerrar"). A intenção da IA
+    // de encerrar é apenas registrada — nunca aplicada ao banco.
     if (result.action === "CLOSE_CONVERSATION") {
-      conversationUpdate.status = "CLOSED";
+      logger.info("CLOSE_CONVERSATION ignorado: encerramento é ação humana", {
+        conversation_id: conversationId,
+        lead_id: leadId,
+      });
     }
     await prisma.conversation.update({
       where: { id: conversationId },

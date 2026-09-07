@@ -10,7 +10,11 @@
 
 /** Padrões de linha/prefixo que indicam raciocínio interno (chain of thought). */
 export const REASONING_PATTERNS: RegExp[] = [
-  /^okay,?\s*the user\b/i,
+  /^okay[,!.]?\s*(let('s| me| us)?\b|so[,. ]|i\b|the user\b|first\b|looking\b|alright\b|based\b)/i,
+  /^the user\b/i,
+  /^the customer\b/i,
+  /^this user\b/i,
+  /^they (want|asked|are|have|mentioned|said|need|is)\b/i,
   /^the user\s+(is asking|is asking about|asked|wants|needs|is)\b/i,
   /^the s(a|á)vyron asks?\b/i,
   /^o usu[áa]rio\s+(pergunta|perguntou|quer|precisa|est[áa])\b/i,
@@ -19,7 +23,7 @@ export const REASONING_PATTERNS: RegExp[] = [
   /^i need to\b/i,
   /^i should\b/i,
   /^i (will|must|have to|am going to|am|could|can)\s+(check|verify|confirm|provide|look|see|use|call|invoke|retrieve|search|cross|compute|calculate|query|fetch)\b/i,
-  /^let('s| me)\s+(think|step\s*by|analy|analys|confirm|check|verify|consider|look|review|cross|break|understand|see|compute|calculate|query|fetch)\b/i,
+  /^let('s| me| us)\s+(think|step\s*by|analy|analys|confirm|check|verify|consider|look|review|cross|break|understand|see|compute|calculate|query|fetch|unpack|deconstruct|parse|interpret|assess|evaluate|reflect|recall|note|start|address|tackle|walk)\b/i,
   /^(hmm|hum|huh|well)[,!.]?\b/i,
   /^wait[,!.]?\b/i,
   /^looking at\b/i,

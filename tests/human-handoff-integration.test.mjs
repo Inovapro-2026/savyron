@@ -236,3 +236,29 @@ test("handoff: nome — placeholder 'Novo contato' cai no fallback do histórico
   assert.ok(HANDOFF_SVC.includes("Prazer[,.!]?"), "captura do 'Prazer, X!' do assistente");
   assert.ok(HANDOFF_SVC.includes("meu nome (?:é|e)"), "captura do 'meu nome é X'");
 });
+
+
+test("handoff: IA NUNCA encerra a conversa sozinha (só humano via Inbox)", () => {
+  const closeBlock = AI_RESPONSE.slice(
+    AI_RESPONSE.indexOf('if (result.action === "CLOSE_CONVERSATION")'),
+    AI_RESPONSE.indexOf("await prisma.conversation.update({"),
+  );
+  assert.ok(closeBlock.includes("ignorado"), "CLOSE_CONVERSATION deve ser ignorado com log");
+  assert.ok(!closeBlock.includes('status = "CLOSED"'), "não pode setar CLOSED");
+});
+
+test("handoff: TRANSFER_TO_HUMAN do motor também notifica o proprietário", () => {
+  const transferBlock = AI_RESPONSE.slice(
+    AI_RESPONSE.indexOf('if (result.action === "TRANSFER_TO_HUMAN")'),
+    AI_RESPONSE.indexOf('if (result.action === "CLOSE_CONVERSATION")'),
+  );
+  assert.ok(transferBlock.includes("notifyOwnerAboutHumanHandoff"));
+});
+
+
+test("handoff: filtro bloqueia raciocínio em inglês (regex presentes)", () => {
+  const FILTER = read("apps/api/src/services/response-filter.ts");
+  assert.ok(FILTER.includes("/^okay"), "padrão Okay presente");
+  assert.ok(FILTER.includes("/^the user"), "padrão the user presente");
+  assert.ok(FILTER.includes("unpack"), "unpack na lista de verbos");
+});
