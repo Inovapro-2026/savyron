@@ -588,6 +588,17 @@ export class WhatsAppConnection extends EventEmitter {
         });
         const parsed = this.parseIncoming(msg);
         if (!parsed) continue;
+        if (parsed.isTranscription) {
+          const transcript = await this.transcribeVoiceMessage(msg, parsed);
+          if (!transcript) {
+            logger.warn('Áudio recebido mas a transcrição falhou; mensagem ignorada', {
+              from: parsed.fromPhone,
+              message_id: parsed.messageId ?? undefined,
+            });
+            continue;
+          }
+          parsed.content = transcript;
+        }
         if (this.messageHandler) {
           await this.messageHandler(parsed);
         } else {
@@ -610,10 +621,19 @@ export class WhatsAppConnection extends EventEmitter {
     if (key.remoteJid?.includes('@g.us') || key.remoteJid?.includes('@broadcast')) return null;
 
     let text: string | null = null;
+    let isTranscription = false;
     if (typeof messageContent.conversation === 'string') text = messageContent.conversation;
     else if (messageContent.extendedTextMessage?.text) text = messageContent.extendedTextMessage.text;
     else if (messageContent.imageMessage?.caption) text = messageContent.imageMessage.caption;
-    else if (messageContent.ephemeralMessage?.message) {
+    else if (
+      messageContent.audioMessage ||
+      messageContent.pttMessage ||
+      (messageContent.ephemeralMessage?.message?.audioMessage ?? messageContent.ephemeralMessage?.message?.pttMessage)
+    ) {
+      // Áudio de voz: marcado para transcrição assíncrona (Whisper) antes do dispatch.
+      isTranscription = true;
+      text = '[áudio]';
+    } else if (messageContent.ephemeralMessage?.message) {
       const inner = messageContent.ephemeralMessage.message;
       if (typeof inner.conversation === 'string') text = inner.conversation;
       else if (inner.extendedTextMessage?.text) text = inner.extendedTextMessage.text;
@@ -643,8 +663,99 @@ export class WhatsAppConnection extends EventEmitter {
       content: text.trim(),
       messageId: key.id ?? null,
       timestamp: Number(msg.messageTimestamp ?? Date.now()),
+      isTranscription,
       raw: msg,
     };
+  }
+
+  /**
+   * Baixa o áudio da mensagem (Baileys downloadMediaMessage) e transcreve via
+   * Groq Whisper (mesmo provedor do agente de voz). Sem audioMessage baixável
+   * ou sem GROQ_API_KEY → retorna null (mensagem descartada com log).
+   */
+  private async transcribeVoiceMessage(msg: any, parsed: IncomingMessage): Promise<string | null> {
+    try {
+      const config = require('@prospector/config').config;
+      const apiKey = config?.ai?.groqApiKey;
+      if (!apiKey) {
+        logger.error('Transcrição de áudio indisponível: GROQ_API_KEY não configurada', {
+          from: parsed.fromPhone,
+        });
+        return null;
+      }
+
+      const mediaBuffer = await this.downloadVoiceMedia(msg);
+      if (!mediaBuffer || mediaBuffer.length === 0) {
+        logger.warn('Não foi possível baixar o áudio da mensagem', {
+          from: parsed.fromPhone,
+          message_id: parsed.messageId ?? undefined,
+        });
+        return null;
+      }
+
+      logger.info('Transcrevendo áudio recebido (Groq Whisper)', {
+        from: parsed.fromPhone,
+        bytes: mediaBuffer.length,
+      });
+
+      const blob = new Blob([mediaBuffer], { type: 'audio/ogg' });
+      const formData = new FormData();
+      formData.append('file', blob, 'audio.ogg');
+      formData.append('model', 'whisper-large-v3');
+      formData.append('language', 'pt');
+
+      const res = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${apiKey}` },
+        body: formData,
+        signal: AbortSignal.timeout(60000),
+      });
+      const body = await res.text().catch(() => '');
+      let transcript = '';
+      try {
+        transcript = (JSON.parse(body) as { text?: string }).text?.trim() ?? '';
+      } catch {
+        transcript = '';
+      }
+      if (!res.ok || !transcript) {
+        logger.error('Falha na transcrição do áudio (Groq)', {
+          status: res.status,
+          error: body.slice(0, 200),
+        });
+        return null;
+      }
+      logger.info('Áudio transcrito com sucesso', {
+        from: parsed.fromPhone,
+        chars: transcript.length,
+      });
+      return transcript;
+    } catch (error) {
+      logger.error('Erro ao transcrever áudio recebido', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return null;
+    }
+  }
+
+  /** Baixa a mídia de áudio da mensagem usando o Baileys. */
+  private async downloadVoiceMedia(msg: any): Promise<Buffer | null> {
+    try {
+      const baileys = this.baileys ?? (await this.loadBaileys());
+      const { downloadMediaMessage } = baileys;
+      if (typeof downloadMediaMessage !== 'function') return null;
+      const buffer = await downloadMediaMessage(
+        msg,
+        'buffer',
+        {},
+        { reuploadRequest: this.socket ? this.socket.updateMediaMessage : undefined },
+      );
+      return Buffer.isBuffer(buffer) ? buffer : null;
+    } catch (error) {
+      logger.error('Falha ao baixar mídia de áudio', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return null;
+    }
   }
 
   private async renderQrDataUrl(qr: string): Promise<void> {

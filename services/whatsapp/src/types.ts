@@ -25,6 +25,8 @@ export interface IncomingMessage {
   content: string;
   messageId: string | null;
   timestamp: number;
+  /** true quando o texto veio de uma transcrição de áudio (Whisper). */
+  isTranscription?: boolean;
   raw?: unknown;
 }
 
