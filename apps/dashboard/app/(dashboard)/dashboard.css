@@ -637,3 +637,265 @@ html[data-theme='light'] .dashboard-wrapper .backdrop-blur-md {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
+
+/* ==========================================================================
+   TEMA CLARO — CAMADA 2 (auditoria global de cores hardcoded)
+   Cobre páginas/componentes fora do escopo anterior: admin, inbox (chat),
+   toasts, modais, skeleton/vazios, inputs avulsos, overlays, bottom-nav,
+   logo drop-shadows e gradientes "from/to-[#0xxx]".
+   ========================================================================== */
+
+/* ─── 0) Sombra "shadow-black" → sombra neutra clara ─── */
+html[data-theme='light'] .dashboard-wrapper [class*="shadow-black"] {
+  --tw-shadow-color: rgba(31, 35, 40, 0.18);
+}
+
+/* ─── 1) Fundos escuros — TABELA COMPLETA (com variações de alpha) ─── */
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#080D18]"] { background-color: #FFFFFF; }
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#020409]"] { background-color: #F6F8FA; }
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#050914]"] { background-color: #FFFFFF; }
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#0C1427]"] { background-color: #F1F3F5; }
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#0D152A]"] { background-color: #F1F3F5; }
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#0E1A33]"] { background-color: #F1F3F5; }
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#121B32]"] { background-color: #EAEEF2; }
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#1A2647]"] { background-color: #EAEEF2; }
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#0A0F1E]"] { background-color: #F1F3F5; }
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#080E20]"] { background-color: #F1F3F5; }
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#03060C]"] { background-color: #F6F8FA; }
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#05082A]"] { background-color: #F1F3F5; }
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#030B18]"] { background-color: #F6F8FA; }
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#080B35]"] { background-color: #F1F3F5; }
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#070B28]"] { background-color: #F1F3F5; }
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#050A14]"] { background-color: #F6F8FA; }
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#0E1545]"] { background-color: #F1F3F5; }
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#0A0F37]"] { background-color: #F1F3F5; }
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#03050D]"] { background-color: #F6F8FA; }
+
+/* bg-black (overlay/blank) → cinza escuro translúcido */
+html[data-theme='light'] .dashboard-wrapper [class*="bg-black/75"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-black/80"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-black/60"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-black/50"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-black/40"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-black/30"] {
+  background-color: rgba(31, 35, 40, 0.45);
+}
+
+/* ─── 2) Superfícies translúcidas brancas → tons de superfície ─── */
+html[data-theme='light'] .dashboard-wrapper [class*="bg-white/5"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-white/10"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-white/[0.0"] {
+  background-color: #F1F3F5;
+}
+
+/* ─── 3) Textos ─── */
+html[data-theme='light'] .dashboard-wrapper .text-white { color: #1F2328; }
+html[data-theme='light'] .dashboard-wrapper [class*="text-white"] { color: #1F2328; }
+html[data-theme='light'] .dashboard-wrapper [class*="text-slate-100"],
+html[data-theme='light'] .dashboard-wrapper [class*="text-slate-200"],
+html[data-theme='light'] .dashboard-wrapper [class*="text-slate-300"] { color: #1F2328; }
+
+/* Branco permanente sobre fundos de destaque coloridos */
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#008CFF]"] .text-white,
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#00E5FF]"] .text-white,
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#7C3CFF]"] .text-white,
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#A855F7]"] .text-white,
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#FF3366]"] .text-white,
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#00E5A0]"] .text-white,
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#FFB020]"] .text-white,
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#6366F1]"] .text-white,
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#0969DA]"] .text-white,
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#1A7F37]"] .text-white,
+html[data-theme='light'] .dashboard-wrapper [class*="bg-[#CF222E]"] .text-white {
+  color: #FFFFFF !important;
+}
+
+/* Botões do design system continuam com texto branco */
+html[data-theme='light'] .dashboard-wrapper .btn-primary,
+html[data-theme='light'] .dashboard-wrapper .btn-danger,
+html[data-theme='light'] .dashboard-wrapper .btn-success {
+  color: #FFFFFF;
+}
+
+/* gradientes de texto "from/to-[#0xxx] bg-clip-text" → gradiente escuro legível */
+html[data-theme='light'] .dashboard-wrapper [class*="bg-clip-text"][class*="from-[#0"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-clip-text"][class*="via-[#0"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-clip-text"][class*="to-[#0"] {
+  background-image: linear-gradient(135deg, #0969DA, #8250DF) !important;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* ─── 4) Bordas ─── */
+html[data-theme='light'] .dashboard-wrapper [class*="border-white/"],
+html[data-theme='light'] .dashboard-wrapper [class*="border-white "] {
+  border-color: #D0D7DE;
+}
+
+html[data-theme='light'] .dashboard-wrapper [class*="border-[rgba(0,153,255"] {
+  border-color: #D0D7DE;
+}
+
+html[data-theme='light'] .dashboard-wrapper [class*="border-[#008CFF]/"],
+html[data-theme='light'] .dashboard-wrapper [class*="border-[#00E5FF]/"] {
+  border-color: rgba(9, 105, 218, 0.35);
+}
+
+html[data-theme='light'] .dashboard-wrapper [class*="border-[#00E5A0]/"] {
+  border-color: rgba(26, 127, 55, 0.35);
+}
+
+html[data-theme='light'] .dashboard-wrapper [class*="border-[#FF3366]/"],
+html[data-theme='light'] .dashboard-wrapper [class*="border-[#FF2BD6]/"] {
+  border-color: rgba(207, 34, 46, 0.35);
+}
+
+html[data-theme='light'] .dashboard-wrapper [class*="border-[#FFB020]/"] {
+  border-color: rgba(154, 103, 0, 0.35);
+}
+
+html[data-theme='light'] .dashboard-wrapper [class*="border-[#7C3CFF]/"],
+html[data-theme='light'] .dashboard-wrapper [class*="border-[#A855F7]/"],
+html[data-theme='light'] .dashboard-wrapper [class*="border-[#C084FC]/"] {
+  border-color: rgba(130, 80, 223, 0.35);
+}
+
+/* ─── 5) Inputs/skeleton/placeholder genéricos fora do .input ─── */
+html[data-theme='light'] .dashboard-wrapper [class*="placeholder-[#64748B]"]::placeholder,
+html[data-theme='light'] .dashboard-wrapper [class*="placeholder-[#94A3B8]"]::placeholder {
+  color: #656D76;
+}
+
+html[data-theme='light'] .dashboard-wrapper [class*="bg-white/5"][class*="animate-pulse"],
+html[data-theme='light'] .dashboard-wrapper .animate-pulse[class*="bg-white/5"],
+html[data-theme='light'] .dashboard-wrapper [class*="animate-pulse"][class*="bg-white/10"] {
+  background-color: #EAEEF2 !important;
+}
+
+html[data-theme='light'] .dashboard-wrapper [class*="bg-slate-700"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-slate-800"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-zinc-700"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-zinc-800"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-gray-700"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-gray-800"] {
+  background-color: #EAEEF2;
+}
+
+/* ─── 6) FROM/VIA/TO para gradientes de fundo decorativos escuros ─── */
+html[data-theme='light'] .dashboard-wrapper [class*="from-[#0"],
+html[data-theme='light'] .dashboard-wrapper [class*="via-[#0"],
+html[data-theme='light'] .dashboard-wrapper [class*="to-[#0"] {
+  /* substituídos por pares claros equivalentes (superfície → superfície alt) */
+}
+
+html[data-theme='light'] .dashboard-wrapper [class*="bg-gradient-to"][class*="from-[#050914]"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-gradient-to"][class*="from-[#080D18]"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-gradient-to"][class*="from-[#020409]"] {
+  background-image: linear-gradient(to bottom right, #FFFFFF, #F1F3F5);
+}
+
+html[data-theme='light'] .dashboard-wrapper [class*="bg-gradient-to"][class*="to-[#050914]"],
+html[data-theme='light'] .dashboard-wrapper [class*="to-[#080D18]"],
+html[data-theme='light'] .dashboard-wrapper [class*="to-[#020409]"] {
+  background-image: linear-gradient(to bottom right, #F1F3F5, #FFFFFF);
+}
+
+html[data-theme='light'] .dashboard-wrapper [class*="bg-gradient-to"][class*="from-amber-950"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-gradient-to"][class*="from-red-950"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-gradient-to"][class*="from-emerald-950"],
+html[data-theme='light'] .dashboard-wrapper [class*="from-amber-950/"],
+html[data-theme='light'] .dashboard-wrapper [class*="from-red-950/"] {
+  background-image: none;
+  background-color: #FFF8E6;
+}
+
+html[data-theme='light'] .dashboard-wrapper [class*="from-red-950"] {
+  background-color: #FFEBE9;
+}
+
+html[data-theme='light'] .dashboard-wrapper [class*="from-emerald-950"] {
+  background-color: #EAF5EE;
+}
+
+html[data-theme='light'] .dashboard-wrapper [class*="bg-amber-950/"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-red-950/"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-emerald-950/"] {
+  background-color: #FFF8E6;
+}
+
+/* ─── 7) ADMIN — layout próprio usa .dashboard-wrapper (adicionado no componente) ─── */
+html[data-theme='light'] aside[class*="bg-[#080D18]/90"] {
+  background: #FFFFFF;
+  border-color: #D0D7DE;
+  box-shadow: 1px 0 8px rgba(31, 35, 40, 0.05);
+}
+
+/* ─── 8) INBOX CHAT — página de conversa (h-dvh bg-[#020409]) ─── */
+html[data-theme='light'] .dashboard-wrapper div[class*="h-dvh"][class*="bg-[#020409]"] {
+  background-color: #F6F8FA;
+}
+
+html[data-theme='light'] .dashboard-wrapper header[class*="bg-[#080D18]/90"] {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: #D0D7DE;
+}
+
+html[data-theme='light'] .dashboard-wrapper footer[class*="bg-[#080D18]/90"] {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: #D0D7DE;
+}
+
+html[data-theme='light'] .dashboard-wrapper textarea[class*="bg-[#050914]"],
+html[data-theme='light'] .dashboard-wrapper input[class*="bg-[#050914]"] {
+  background-color: #FFFFFF;
+  border-color: #D0D7DE;
+  color: #1F2328;
+}
+
+/* ─── 9) TOASTS (renderizados fora do dashboard-wrapper) ─── */
+html[data-theme='light'] [class*="bg-[#050914]"][class*="backdrop-blur"] {
+  background-color: rgba(255, 255, 255, 0.97);
+  border-color: #D0D7DE;
+  color: #1F2328;
+}
+
+html[data-theme='light'] [class*="text-white"][class*="font-medium"] {
+  color: #1F2328;
+}
+
+/* Toast de sucesso/erro mantém acento: borda/color das variantes */
+html[data-theme='light'] [class*="border-[#00E5A0]/"] {
+  border-color: rgba(26, 127, 55, 0.4);
+  color: #1A7F37;
+}
+
+html[data-theme='light'] [class*="border-[#FF3366]/"] {
+  border-color: rgba(207, 34, 46, 0.4);
+  color: #CF222E;
+}
+
+/* ─── 10) MODAIS — overlay e painel ─── */
+html[data-theme='light'] .dashboard-wrapper [class*="bg-black/75"],
+html[data-theme='light'] .dashboard-wrapper [class*="bg-black/60"] {
+  background-color: rgba(31, 35, 40, 0.35);
+}
+
+html[data-theme='light'] [class*="bg-[#050914]"][class*="max-w-lg"],
+html[data-theme='light'] [class*="bg-[#050914]"][class*="max-h-[90vh]"],
+html[data-theme='light'] [class*="bg-[#050914]"][class*="rounded-2xl"] {
+  background: #FFFFFF;
+  border-color: #D0D7DE;
+  box-shadow: 0 8px 30px rgba(31, 35, 40, 0.12);
+  color: #1F2328;
+}
+
+html[data-theme='light'] [class*="bg-[#050914]"] h3 {
+  color: #1F2328;
+}
+
+/* ─── 11) Páginas de autenticação (login/signup/payment/change-password) ─── */
+html[data-theme='light'] .auth-shell[class*="bg-[#020409]"],
+html[data-theme='light'] .auth-shell[class*="bg-[#0"] {
+  background-color: #F6F8FA;
+  color: #1F2328;
+}

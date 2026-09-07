@@ -43,7 +43,7 @@ export default function ChangePasswordPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center bg-[#020409] px-4 overflow-hidden">
+    <div className="auth-shell relative flex min-h-screen flex-col items-center justify-center bg-[#020409] px-4 overflow-hidden">
       {/* Ambient background glows */}
       <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-96 w-96 rounded-full bg-[#008CFF]/15 blur-[120px]" />
       <div className="pointer-events-none absolute -bottom-40 right-1/4 h-80 w-80 rounded-full bg-[#7C3CFF]/15 blur-[120px]" />

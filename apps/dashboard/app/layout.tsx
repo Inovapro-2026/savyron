@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import Script from 'next/script';
 import { Inter, Space_Grotesk } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
@@ -43,10 +42,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={`${inter.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
-      {/* Anti-flash: aplica data-theme ANTES da primeira pintura (default = dark). */}
-      <Script id="savyron-theme-init" strategy="beforeInteractive">
-        {THEME_INIT_SCRIPT}
-      </Script>
+      <head>
+        {/* Anti-flash: aplica data-theme ANTES da primeira pintura (default = dark).
+            Script raw no <head> — o browser o executa antes do body ser pintado. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="min-h-screen">
         <ChunkErrorBoundary>
           <Providers>{children}</Providers>

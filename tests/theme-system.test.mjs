@@ -98,3 +98,51 @@ test("theme: localStorage é a persistência (sem banco de dados para tema)", ()
   assert.ok(!PROVIDER.includes("apiFetch"));
   assert.ok(!PROVIDER.includes("request("));
 });
+
+// ─── Auditoria global (camada 2) ───────────────────────────────────────────
+
+test("theme: camada 2 cobre inbox chat, admin, toasts, modais e overlays", () => {
+  // inbox chat (h-dvh bg-[#020409]) e footer/composer:
+  assert.ok(DASHBOARD_CSS.includes('footer[class*="bg-[#080D18]/90"]'));
+  assert.ok(DASHBOARD_CSS.includes('div[class*="h-dvh"][class*="bg-[#020409]"]'));
+  // admin (usa .dashboard-wrapper no layout próprio):
+  assert.ok(DASHBOARD_CSS.includes('aside[class*="bg-[#080D18]/90"]'));
+  // toasts fora do wrapper:
+  assert.ok(DASHBOARD_CSS.includes('[class*="bg-[#050914]"][class*="backdrop-blur"]'));
+  // modais: overlay + painel
+  assert.ok(DASHBOARD_CSS.includes('[class*="bg-black/75"]'));
+  assert.ok(DASHBOARD_CSS.includes('[class*="bg-[#050914]"][class*="max-h-[90vh]"]'));
+});
+
+test("theme: todas as superfícies escuras do painel estão remapeadas", () => {
+  // hexes que DEVEM ter remap no light:
+  const required = [
+    "#080D18", "#020409", "#050914", "#0C1427", "#0D152A", "#0E1A33",
+    "#121B32", "#1A2647", "#0A0F1E", "#080E20", "#03060C", "#0E1545",
+  ];
+  for (const hex of required) {
+    assert.ok(
+      DASHBOARD_CSS.includes(`[class*="bg-[${hex}]`),
+      `faltou remap de bg-[${hex}] no dashboard.css`,
+    );
+  }
+});
+
+test("theme: MAICON/agente preservado (fora do escopo light do painel)", () => {
+  // o fullBleed main NÃO tem dashboard-dark-theme (agente mantém cena dark)
+  const SHELL = read("apps/dashboard/components/layout/shell.tsx");
+  assert.ok(SHELL.includes('dashboard-dark-theme flex-1') , "main normal tem dark-theme");
+  const fullBleedMain = SHELL.slice(SHELL.indexOf("fullBleed ? ("), SHELL.indexOf("dashboard-dark-theme flex-1"));
+  assert.ok(!fullBleedMain.includes("dashboard-dark-theme"), "fullBleed (agente) fora do escopo");
+});
+
+test("theme: hidratação — ThemeSelector aguarda mounted antes de mostrar seleção", () => {
+  assert.match(PROVIDER, /mounted/);
+  assert.match(SELECTOR, /mounted \? theme : null/);
+});
+
+test("theme: script anti-flash é <script> raw no <head> (não next/script)", () => {
+  assert.ok(LAYOUT.includes("<head>"));
+  assert.ok(LAYOUT.includes('dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }}'));
+  assert.ok(!LAYOUT.includes("next/script"));
+});

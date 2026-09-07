@@ -20,7 +20,9 @@ const OPTIONS: Array<{
  * Persistência via ThemeProvider (localStorage `savyron-theme`). Apenas visual.
  */
 export function ThemeSelector() {
-  const { theme, setTheme } = useTheme();
+  const { theme, mounted, setTheme } = useTheme();
+  // Pré-mount: nenhum estado selecionado (igual ao SSR) — evita mismatch.
+  const activeTheme = mounted ? theme : null;
 
   return (
     <div
@@ -40,7 +42,7 @@ export function ThemeSelector() {
         className="inline-flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-[#020409]/60 p-1.5"
       >
         {OPTIONS.map(({ value, label, icon: Icon, hint }) => {
-          const selected = theme === value;
+          const selected = activeTheme === value;
           return (
             <button
               key={value}
@@ -66,7 +68,7 @@ export function ThemeSelector() {
       {/* Preview dos dois temas */}
       <div className="mt-5 grid grid-cols-2 gap-3">
         {OPTIONS.map(({ value, label, icon: Icon }) => {
-          const selected = theme === value;
+          const selected = activeTheme === value;
           return (
             <button
               key={value}

@@ -227,3 +227,49 @@
   outline: 2px solid rgba(0, 140, 255, 0.7);
   outline-offset: 2px;
 }
+
+/* ==========================================================================
+   TEMA CLARO — páginas de autenticação (login/signup/payment/change-password)
+   Escopado por [data-theme="light"] — dark permanece intacto.
+   ========================================================================== */
+html[data-theme='light'] .auth-page-container {
+  background-color: #F6F8FA;
+  background-image:
+    radial-gradient(circle at 15% 15%, rgba(9, 105, 218, 0.05), transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(130, 80, 223, 0.04), transparent 45%);
+}
+
+html[data-theme='light'] .auth-page-container::before {
+  background: radial-gradient(ellipse at center, rgba(246, 248, 250, 0.6) 0%, rgba(246, 248, 250, 0.92) 100%);
+}
+
+html[data-theme='light'] .auth-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #D0D7DE;
+  color: #1F2328;
+  box-shadow: 0 4px 24px rgba(31, 35, 40, 0.08);
+}
+
+html[data-theme='light'] .auth-card h1,
+html[data-theme='light'] .auth-card h2 {
+  color: #1F2328;
+}
+
+html[data-theme='light'] .auth-card .text-white {
+  color: #1F2328;
+}
+
+html[data-theme='light'] .auth-card [class*="text-slate-"],
+html[data-theme='light'] .auth-card [class*="text-zinc-"] {
+  color: #656D76;
+}
+
+html[data-theme='light'] .auth-card .input {
+  background: #FFFFFF;
+  border-color: #D0D7DE;
+  color: #1F2328;
+}
+
+html[data-theme='light'] .auth-card a {
+  color: #0969DA;
+}

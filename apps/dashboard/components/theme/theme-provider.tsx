@@ -58,6 +58,9 @@ function readAppliedTheme(): Theme {
 
 interface ThemeContextValue {
   theme: Theme;
+  /** true após o primeiro effect no cliente — evita mismatch de hidratação
+   *  em componentes que renderizam diferente por tema (padrão next-themes). */
+  mounted: boolean;
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
 }
@@ -66,6 +69,13 @@ const ThemeContext = React.createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = React.useState<Theme>(() => readAppliedTheme());
+
+  // `mounted` só vira true no cliente APÓS a hidratação — consumidores que
+  // dependem do tema para renderizar devem aguardá-lo (evita mismatch SSR).
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const setTheme = React.useCallback((next: Theme) => {
     setThemeState(next);
@@ -95,8 +105,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = React.useMemo(
-    () => ({ theme, setTheme, toggleTheme }),
-    [theme, setTheme, toggleTheme],
+    () => ({ theme, mounted, setTheme, toggleTheme }),
+    [theme, mounted, setTheme, toggleTheme],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
@@ -108,6 +118,7 @@ export function useTheme(): ThemeContextValue {
     // Fallback seguro: nunca quebra consumidores fora do provider (testes, V1).
     return {
       theme: readAppliedTheme(),
+      mounted: typeof document !== "undefined",
       setTheme: (next) => {
         applyTheme(document.documentElement, next);
         try {

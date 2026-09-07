@@ -125,7 +125,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="auth-page-container">
+    <div className="auth-shell auth-page-container">
       <div className="auth-card max-w-lg">
       <div className="mb-6 text-center">
         <Link href="/login">

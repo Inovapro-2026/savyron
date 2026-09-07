@@ -46,7 +46,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#020409] text-slate-100 lg:flex">
+    <div className="dashboard-wrapper min-h-screen bg-[#020409] text-slate-100 lg:flex">
       {session.impersonating ? (
         <div className="fixed inset-x-0 top-0 z-50 border-b border-amber-500/40 bg-amber-950/80 px-4 py-2 text-center text-xs font-semibold text-amber-300 backdrop-blur-md shadow-[0_0_20px_rgba(245,158,11,0.2)]">
           Você está acessando esta empresa como administrador da plataforma

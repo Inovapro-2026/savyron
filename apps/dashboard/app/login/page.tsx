@@ -76,7 +76,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="auth-page-container">
+    <div className="auth-shell auth-page-container">
       <div className="auth-card max-w-sm">
         <div className="mb-6 text-center">
           <Logo />

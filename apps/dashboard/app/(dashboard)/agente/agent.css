@@ -603,3 +603,96 @@
     animation: none !important;
   }
 }
+
+/* ==========================================================================
+   TEMA CLARO — /agente (LIGHT TECHNOLOGY)
+   O núcleo MAICON permanece neon/tecnológico (identidade visual).
+   Apenas o AMBIENTE se adapta: fundo claro, controles claros.
+   ========================================================================== */
+
+html[data-theme='light'] #savyron-ai-background-container {
+  background: radial-gradient(ellipse at 50% 45%, #EAF2FB 0%, #F4F7FA 45%, #F6F8FA 100%) !important;
+}
+
+/* Logo watermark fica ainda mais discreto */
+html[data-theme='light'] #savyron-ai-background-container .bg-clip-text {
+  filter: none;
+}
+
+/* Halos decorativos → azuis suaves claros */
+html[data-theme='light'] #savyron-ai-background-container > .bg-blue-900\/15 {
+  background-color: rgba(9, 105, 218, 0.07);
+}
+
+html[data-theme='light'] #savyron-ai-background-container > .bg-violet-900\/15 {
+  background-color: rgba(130, 80, 223, 0.06);
+}
+
+/* Nome gigante SAVYRON → quase invisível, tons de azul claro */
+html[data-theme='light'] #savyron-ai-background-container span[class*="bg-clip-text"] {
+  background-image: linear-gradient(180deg, rgba(9, 105, 218, 0.14) 0%, rgba(130, 80, 223, 0.08) 50%, rgba(130, 80, 223, 0.04) 100%) !important;
+}
+
+/* Pill "CANAL ATIVO" e badges de vidro → branco com borda azul */
+html[data-theme='light'] .agent-glass-card {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(9, 105, 218, 0.25);
+  color: #1F2328;
+}
+
+html[data-theme='light'] .agent-glass-button {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(9, 105, 218, 0.25);
+  color: #57606A;
+}
+
+/* Barra inferior de indicadores */
+html[data-theme='light'] .agent-voice-root [class*="border-t"] {
+  border-color: #D0D7DE;
+}
+
+/* Card de erro */
+html[data-theme='light'] .agent-voice-root [class*="bg-red-950/40"] {
+  background: #FFEBE9;
+  border-color: rgba(207, 34, 46, 0.4);
+}
+
+/* Textos de status nos controles */
+html[data-theme='light'] .agent-voice-root [class*="text-slate-500"],
+html[data-theme='light'] .agent-voice-root [class*="text-slate-400"] {
+  color: #656D76;
+}
+
+/* Globo de pesquisa: rótulo claro */
+html[data-theme='light'] [class*="bg-[#030B18]/90"][class*="border-[#008CFF]/40"] {
+  background: rgba(255, 255, 255, 0.94);
+}
+
+html[data-theme='light'] [class*="bg-[#030B18]/90"] [class*="text-cyan-200"] {
+  color: #0550AE;
+}
+
+/* Card de contexto do agente (AgentContextCard): branco, mantendo neon sutil */
+html[data-theme='light'] [style*="background: rgba(4, 8, 18, 0.92)"] {
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: #1F2328;
+}
+
+html[data-theme='light'] [data-context-card] [class*="text-white"] {
+  color: #1F2328;
+}
+
+html[data-theme='light'] [data-context-card] [class*="text-slate-500"],
+html[data-theme='light'] [data-context-card] [class*="text-slate-400"] {
+  color: #656D76;
+}
+
+html[data-theme='light'] [data-context-card] [class*="bg-white/\[0.03\]"],
+html[data-theme='light'] [data-context-card] [class*="bg-white/\[0.02\]"],
+html[data-theme='light'] [data-context-card] [class*="bg-white/5"] {
+  background-color: #F1F3F5 !important;
+}
+
+html[data-theme='light'] [data-context-card] [class*="border-white/5"] {
+  border-color: #EAEDEF !important;
+}

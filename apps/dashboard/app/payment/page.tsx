@@ -188,7 +188,7 @@ export default function PaymentPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center bg-[#020409] px-4 py-12">
+    <div className="auth-shell relative flex min-h-screen flex-col items-center justify-center bg-[#020409] px-4 py-12">
       {/* Glows ambientais */}
       <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-96 w-96 rounded-full bg-[#008CFF]/15 blur-[120px]" />
       <div className="pointer-events-none absolute -bottom-40 left-1/2 -translate-x-1/2 h-96 w-96 rounded-full bg-[#00E5FF]/10 blur-[120px]" />
