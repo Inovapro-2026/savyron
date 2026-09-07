@@ -210,3 +210,29 @@ test("handoff: cliente recebe confirmação pelo WhatsApp conectado", () => {
     HANDOFF_SVC.includes("Vou transferir seu atendimento para um de nossos atendentes"),
   );
 });
+
+test("handoff: notificação usa o telefone REAL do lead (nunca o LID do WhatsApp)", () => {
+  // `from` pode ser um LID (105167089344717@lid) — o serviço deve preferir
+  // lead.phone (E.164 real) para exibir o número ao proprietário.
+  const notifyBlock = HANDOFF_SVC.slice(
+    HANDOFF_SVC.indexOf("const realPhone"),
+    HANDOFF_SVC.indexOf("empresaNome"),
+  );
+  assert.ok(notifyBlock.includes("lead?.phone || from"), "prefere lead.phone");
+  assert.ok(notifyBlock.includes("formatPhone(realPhone)"));
+});
+
+test("handoff: nome — placeholder 'Novo contato' cai no fallback do histórico", () => {
+  assert.ok(HANDOFF_SVC.includes('leadName !== "Novo contato"'));
+  assert.ok(HANDOFF_SVC.includes("extractNameFromHistory"));
+  // extrai de OUT ("Prazer, X!") e de IN ("meu nome é X" / "me chamo X"):
+  const fnBlock = HANDOFF_SVC.slice(
+    HANDOFF_SVC.indexOf("function extractNameFromHistory"),
+    HANDOFF_SVC.indexOf("/**"),
+    HANDOFF_SVC.indexOf("function extractNameFromHistory") + 1 > 0
+      ? HANDOFF_SVC.indexOf("export async function notifyOwnerAboutHumanHandoff")
+      : undefined,
+  );
+  assert.ok(HANDOFF_SVC.includes("Prazer[,.!]?"), "captura do 'Prazer, X!' do assistente");
+  assert.ok(HANDOFF_SVC.includes("meu nome (?:é|e)"), "captura do 'meu nome é X'");
+});

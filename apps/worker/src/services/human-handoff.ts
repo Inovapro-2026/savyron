@@ -289,6 +289,41 @@ export interface NotifyOwnerInput {
 }
 
 /**
+ * Resolve o nome REAL do cliente para a notificação:
+ * 1. lead.name — se não for o placeholder "Novo contato";
+ * 2. fallback: extrai das mensagens da conversa (a IA confirma "Prazer, X!"
+ *    ou o cliente diz "meu nome é X" / "me chamo X").
+ */
+function extractNameFromHistory(
+  messages: Array<{ direction: string; content: string }>,
+): string | null {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i];
+    const content = m.content.slice(0, 200);
+    if (m.direction === "OUT") {
+      // "Prazer, Maicon!" / "Prazer em te conhecer, Maicon Silva!"
+      const pleasantries = content.match(
+        /(?:Prazer[,.!]?\s*(?:em te conhecer[,.!]?)?\s*|Muito prazer[,.!]?\s*)([A-ZÀ-Ú][\wÀ-ÿ'´`^~]+(?:\s+[A-ZÀ-Ú][\wÀ-ÿ'´`^~]+){0,3})/,
+      );
+      if (pleasantries?.[1]) {
+        const name = pleasantries[1].trim();
+        if (name.length >= 2 && !/^(em|te|de|do|da)$/i.test(name)) return name;
+      }
+    } else {
+      // "meu nome é X" / "me chamo X" / "sou o X" / "pode me chamar de X"
+      const declared = content.match(
+        /(?:meu nome (?:é|e)|me chamo|sou (?:o|a)|pode me chamar de|me chama de)\s+([A-Za-zÀ-ÿ'´`^~]+(?:\s+[A-Za-zÀ-ÿ'´`^~]+){0,3})/i,
+      );
+      if (declared?.[1]) {
+        const name = declared[1].trim();
+        if (name.length >= 2) return name;
+      }
+    }
+  }
+  return null;
+}
+
+/**
  * Notifica o proprietário (human_transfer_owner_phone) — DESTINATÁRIO da
  * notificação, enviada DO WhatsApp conectado da empresa. NUNCA é enviada ao
  * cliente e NUNCA vira conversa/lead no CRM.
@@ -325,16 +360,31 @@ export async function notifyOwnerAboutHumanHandoff(
   }
 
   // Dados REAIS do banco (nunca inventar nome).
-  const [lead, business] = await Promise.all([
+  const [lead, business, recentMessages] = await Promise.all([
     prisma.lead.findUnique({
       where: { id: leadId },
       select: { name: true, phone: true, business_name: true },
     }),
     prisma.business.findUnique({ where: { id: businessId }, select: { name: true } }),
+    prisma.message.findMany({
+      where: { lead_id: leadId, business_id: businessId },
+      orderBy: { created_at: "desc" },
+      take: 14,
+      select: { direction: true, content: true },
+    }),
   ]);
 
-  const clienteNome = lead?.name?.trim() || "Novo contato";
-  const clienteTelefone = formatPhone(from) || from;
+  // Nome: lead.name válido → senão extrai do histórico da conversa.
+  const leadName = lead?.name?.trim();
+  const storedName =
+    leadName && leadName !== "Novo contato" && leadName.length >= 2
+      ? leadName
+      : null;
+  const clienteNome =
+    storedName ?? extractNameFromHistory(recentMessages.reverse()) ?? "Novo contato";
+  // Telefone: SEMPRE o real do lead (o `from` pode ser um LID do WhatsApp).
+  const realPhone = lead?.phone || from;
+  const clienteTelefone = formatPhone(realPhone) || realPhone;
   const empresaNome = business?.name?.trim() || "SAVYRON";
   const horario = new Date().toLocaleString("pt-BR", {
     timeZone: "America/Sao_Paulo",
