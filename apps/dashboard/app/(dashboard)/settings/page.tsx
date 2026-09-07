@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MessageCircle, AlertOctagon, Save, Eraser } from 'lucide-react';
+import { MessageCircle, AlertOctagon, Save, Eraser, Palette } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/shell';
 import { Card, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/toast';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
+import { ThemeSelector } from '@/components/theme/theme-selector';
+import { HumanHandoffCard } from '@/components/settings/human-handoff-card';
 import { useApi, request } from '@/hooks/use-api';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSession, isBusinessOwnerOrAdmin } from '@/hooks/use-session';
@@ -133,9 +135,18 @@ export default function SettingsPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-white">Configurações de Canais & Sistema</h1>
-            <p className="text-xs text-slate-400">Instância WhatsApp Baileys, limites operacionais e parada de emergência</p>
+            <p className="text-xs text-slate-400">Instância WhatsApp Baileys, limites operacionais, aparência e parada de emergência</p>
           </div>
         </div>
+
+        {/* APARÊNCIA — seletor de tema dark/light (persistência local) */}
+        <ThemeSelector />
+
+        {/* ATENDIMENTO HUMANO — pausa a IA e notifica o proprietário */}
+        <HumanHandoffCard
+          whatsappConnected={Boolean(wa.data?.connected)}
+          waPhone={wa.data?.phone ?? null}
+        />
 
         <div className="rounded-2xl border border-white/10 bg-[#080D18]/80 p-6 backdrop-blur-xl shadow-xl">
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-4">

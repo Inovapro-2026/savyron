@@ -1,11 +1,12 @@
 import { prisma } from "@prospector/database";
 import { createLogger } from "@prospector/logger";
 import { QUEUE_NAMES } from "@prospector/queues";
-import { detectOptOut } from "@prospector/ai";
+import { detectOptOut, detectHumanHandoffRequest } from "@prospector/ai";
 import { getWhatsAppManager } from "@prospector/whatsapp";
 import { getWorkerQueue } from "../queues";
 import { redis } from "../services/redis";
 import { publishRealtime } from "../services/realtime";
+import { transferConversationToHuman } from "../services/human-handoff";
 import { createMessage, isUniqueConstraintError } from "../services/messages";
 import {
   ensureConversation,
@@ -254,6 +255,28 @@ export async function processMessageReceived(job: {
       businessId ?? fullLead.business_id,
     );
     logger.info("Opt-out registrado na recepção", { lead_id: leadId });
+    return;
+  }
+
+  // 7b) TRANSFERÊNCIA PARA ATENDIMENTO HUMANO — detecta ANTES de enfileirar
+  //     a resposta da IA. Se detectado: NÃO enfileira AI_RESPONSE; pausa a IA
+  //     (human_handled=true), confirma ao cliente e notifica o proprietário.
+  const handoff = detectHumanHandoffRequest(content);
+  if (handoff.detected) {
+    logger.info("Solicitação de atendimento humano detectada", {
+      conversation_id: conversationId,
+      lead_id: leadId,
+      confidence: handoff.confidence,
+      reason: handoff.reason,
+    });
+    await transferConversationToHuman({
+      businessId: businessId ?? fullLead.business_id,
+      conversationId,
+      leadId,
+      content,
+      from,
+      remoteJid: job.data.remoteJid,
+    });
     return;
   }
 

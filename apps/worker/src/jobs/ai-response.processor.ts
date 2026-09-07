@@ -150,7 +150,7 @@ async function processConversationTurn(ctx: TurnContext): Promise<void> {
     return;
   }
   if (conversation.human_handled) {
-    logger.info("Conversa em modo manual; IA não responde", {
+    logger.info("AI_RESPONSE_CANCELLED_HUMAN_HANDOFF (antes de gerar)", {
       conversation_id: conversationId,
     });
     return;
@@ -452,6 +452,23 @@ async function processConversationTurn(ctx: TurnContext): Promise<void> {
     });
   }
 
+  // PROTEÇÃO CONTRA RACE: a transferência para humano pode ter ocorrido
+  // enquanto esta resposta era gerada. Revalida human_handled no último
+  // momento — se ativa, CANCELA o envio (a mensagem fica registrada, mas
+  // nunca sai enquanto o modo humano estiver ativo).
+  const finalConversationState = await prisma.conversation.findUnique({
+    where: { id: conversationId },
+    select: { human_handled: true },
+  });
+  if (finalConversationState?.human_handled) {
+    logger.warn("AI_RESPONSE_CANCELLED_HUMAN_HANDOFF (antes de enviar)", {
+      conversation_id: conversationId,
+      lead_id: leadId,
+      business_id: resolvedBusinessId,
+    });
+    return;
+  }
+
   // Enfileira o envio da resposta (1ª mensagem). Em reutilização da mensagem
   // (retry), reenfileira o envio pendente — idempotente no envio.
   const queue =
@@ -478,8 +495,22 @@ async function processConversationTurn(ctx: TurnContext): Promise<void> {
   // 2ª mensagem: (a) followUp do primeiro contato (pergunta do nome) OU (b) a
   // resposta dividida em fronteira de frase. Nunca corta palavra. Enviada com
   // um pequeno delay natural após a 1ª.
+  // Revalida o modo humano também aqui (delay pode ser longo o suficiente para
+  // uma transferência acontecer entre a 1ª e a 2ª mensagem).
   const secondPart = result.followUp ?? replyParts[1];
   if (secondPart) {
+    const humanStateBeforeSecond = await prisma.conversation.findUnique({
+      where: { id: conversationId },
+      select: { human_handled: true },
+    });
+    if (humanStateBeforeSecond?.human_handled) {
+      logger.warn("AI_RESPONSE_CANCELLED_HUMAN_HANDOFF (antes de enviar 2ª mensagem)", {
+        conversation_id: conversationId,
+        lead_id: leadId,
+        business_id: resolvedBusinessId,
+      });
+      return;
+    }
     const secondExternalId = ctx.externalId
       ? `reply:${ctx.externalId}:2`
       : undefined;

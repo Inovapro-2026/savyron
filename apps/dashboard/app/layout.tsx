@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import { Inter, Space_Grotesk } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
 import { ServiceWorkerRegister } from '@/components/pwa/service-worker-register';
 import { ChunkErrorBoundary } from '@/components/chunk-error-boundary';
+import { THEME_INIT_SCRIPT } from '@/components/theme/theme-provider';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space-grotesk' });
@@ -40,7 +42,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} ${spaceGrotesk.variable}`}>
+    <html lang="pt-BR" className={`${inter.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
+      {/* Anti-flash: aplica data-theme ANTES da primeira pintura (default = dark). */}
+      <Script id="savyron-theme-init" strategy="beforeInteractive">
+        {THEME_INIT_SCRIPT}
+      </Script>
       <body className="min-h-screen">
         <ChunkErrorBoundary>
           <Providers>{children}</Providers>

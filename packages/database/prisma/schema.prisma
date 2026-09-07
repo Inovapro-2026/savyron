@@ -252,6 +252,12 @@ model BusinessSettings {
   service_area          String?
   business_objectives   String?
   additional_instructions String?
+  /**
+   * ATENDIMENTO HUMANO — telefone (E.164, ex.: +5511999999999) do
+   * proprietário/responsável que recebe a notificação de WhatsApp quando um
+   * cliente solicita falar com um humano. Independente do número conectado.
+   */
+  human_transfer_owner_phone String?
   updated_at            DateTime @updatedAt
   created_at            DateTime @default(now())
 
@@ -568,6 +574,12 @@ model Conversation {
   status          ConversationStatus @default(OPEN)
   ai_provider     String?
   human_handled   Boolean            @default(false)
+  /**
+   * ATENDIMENTO HUMANO — quando o cliente pediu explicitamente para falar com
+   * um humano (detector de handoff). Guarda o timestamp da notificação enviada
+   * ao proprietário para evitar duplicações; limpo ao devolver para a IA.
+   */
+  human_handoff_notified_at DateTime?
   /** Estágio comercial atual, decidido dinamicamente pela IA. */
   stage           ConversationStage  @default(NEW)
   /** Versão do Motor Comercial usada na última resposta (rollout/rollback). */

@@ -4,6 +4,7 @@ export * from "./providers/groq";
 export * from "./providers/openai";
 export * from "./provider-manager";
 export * from "./prompts";
+export * from "./human-handoff";
 export * from "./prompt-assembler";
 export * from "./agent";
 export * from "./classifier";

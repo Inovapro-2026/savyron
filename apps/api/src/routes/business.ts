@@ -5,6 +5,7 @@ import { asyncHandler, ok, ApiError } from "../lib/http";
 import { requireAuth, requireBusiness, requireRole } from "../middleware/auth";
 import { getBusinessSettings, setBusinessSettings } from "../services/settings";
 import { writeAudit } from "../services/audit";
+import { normalizePhone } from "@prospector/utils";
 import {
   applyAIConfiguration,
   getAIConfigurationStatus,
@@ -59,6 +60,7 @@ businessRouter.get(
       service_area: settings?.service_area ?? null,
       business_objectives: settings?.business_objectives ?? null,
       additional_instructions: settings?.additional_instructions ?? null,
+      human_transfer_owner_phone: settings?.human_transfer_owner_phone ?? null,
       limits: {
         whatsapp_daily_limit: settings?.whatsapp_daily_limit ?? 30,
         email_daily_limit: settings?.email_daily_limit ?? 100,
@@ -112,6 +114,16 @@ businessRouter.patch(
       });
     }
 
+    // Validação do número do proprietário (atendimento humano)
+    if (body.human_transfer_owner_phone) {
+      const normalized = normalizePhone(String(body.human_transfer_owner_phone));
+      if (!normalized) {
+        throw ApiError.badRequest(
+          "Número do proprietário inválido. Use um celular brasileiro com DDD, ex.: (11) 99999-9999.",
+        );
+      }
+    }
+
     // Campos do BusinessSettings
     await setBusinessSettings(businessId, {
       ...(body.address !== undefined ? { address: body.address || null } : {}),
@@ -151,6 +163,13 @@ businessRouter.patch(
         : {}),
       ...(body.additional_instructions !== undefined
         ? { additional_instructions: body.additional_instructions || null }
+        : {}),
+      ...(body.human_transfer_owner_phone !== undefined
+        ? {
+            human_transfer_owner_phone: body.human_transfer_owner_phone
+              ? normalizePhone(String(body.human_transfer_owner_phone))
+              : null,
+          }
         : {}),
     });
 

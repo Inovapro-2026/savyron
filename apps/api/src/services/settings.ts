@@ -46,6 +46,7 @@ export interface BusinessSettingsPatch {
   service_area?: string | null;
   business_objectives?: string | null;
   additional_instructions?: string | null;
+  human_transfer_owner_phone?: string | null;
 }
 
 export async function setBusinessSettings(
@@ -72,6 +73,7 @@ export async function setBusinessSettings(
       ...(data.service_area !== undefined ? { service_area: data.service_area } : {}),
       ...(data.business_objectives !== undefined ? { business_objectives: data.business_objectives } : {}),
       ...(data.additional_instructions !== undefined ? { additional_instructions: data.additional_instructions } : {}),
+      ...(data.human_transfer_owner_phone !== undefined ? { human_transfer_owner_phone: data.human_transfer_owner_phone } : {}),
     },
     create: {
       business_id: businessId,
@@ -92,6 +94,7 @@ export async function setBusinessSettings(
       ...(data.service_area !== undefined ? { service_area: data.service_area } : {}),
       ...(data.business_objectives !== undefined ? { business_objectives: data.business_objectives } : {}),
       ...(data.additional_instructions !== undefined ? { additional_instructions: data.additional_instructions } : {}),
+      ...(data.human_transfer_owner_phone !== undefined ? { human_transfer_owner_phone: data.human_transfer_owner_phone } : {}),
     },
   });
 }
