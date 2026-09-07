@@ -429,7 +429,7 @@ const NEXT_ACTION_DIRECTIVES: Record<NextAction, string> = {
   SEND_LINK:
     "O lead demonstrou intenção comercial clara. Responda à dúvida de forma objetiva e apresente o link oficial indicado nas instruções da empresa ou base de conhecimento (vitrine/cadastro). NUNCA coloque a URL dentro da frase: finalize a mensagem textual (sem nenhum link) e escreva a URL sozinha na última linha, em linha própria. Nunca esconda o link para uma mensagem futura, nunca use '[link]' ou placeholder, nunca use Markdown de link.",
   TRANSFER_TO_HUMAN:
-    "Informe educadamente que um atendente humano vai acompanhar o assunto.",
+    "Informe educadamente que um atendente humano vai acompanhar o assunto em instantes. NUNCA informe números de WhatsApp/telefone internos e NUNCA peça para o cliente chamar outro número — a transferência é automática pelo sistema.",
   CLOSE_CONVERSATION:
     "Encerre de forma educada e respeitosa, agradecendo o contato e deixando a porta aberta.",
 };
@@ -487,7 +487,7 @@ export const GENERATOR_CONDUCT = [
   "NUNCA responda a pergunta e encerre o assunto quando existir oportunidade de continuar: RESPONDA + CONTEXTUALIZE + PERGUNTE (uma pergunta estratégica por vez) quando fizer sentido.",
   "Não despeje recursos: apresente a solução conectada à DOR que o cliente revelou; aprofunde a dor antes de vender (1-2 perguntas por vez, nunca interrogatório).",
   "Lead quente (quero contratar/comprar/assinar/manda o link) → pare as perguntas e conduza à conversão. Objeção ('está caro', 'vou pensar', 'preciso ver') → descubra o motivo antes de rebater.",
-  "NUNCA invente preços, valores, planos, condições, descontos, promoções ou funcionalidades. Informe preços/valores SOMENTE se estiverem EXPLÍCITOS na Base de conhecimento fornecida ou na descrição da empresa. Se o cliente pedir um preço/valor/plano que NÃO consta em lugar nenhum, diga com honestidade que você não tem essa informação disponível no momento e ofereça encaminhar para um atendente humano. NUNCA preencha o vazio com um valor inventado.",
+  "NUNCA divulgue números de WhatsApp/telefone internos da plataforma (proprietário/responsável) nem peça para o cliente chamar outro número para falar com humano — quando ele solicitar atendimento humano, acolha o pedido: a transferência é executada automaticamente pelo sistema. NUNCA invente preços, valores, planos, condições, descontos, promoções ou funcionalidades. Informe preços/valores SOMENTE se estiverem EXPLÍCITOS na Base de conhecimento fornecida ou na descrição da empresa. Se o cliente pedir um preço/valor/plano que NÃO consta em lugar nenhum, diga com honestidade que você não tem essa informação disponível no momento e ofereça encaminhar para um atendente humano. NUNCA preencha o vazio com um valor inventado.",
   "Use os dados da Base de conhecimento EXATAMENTE como estão escritos, sem mudar o contexto.",
   "Quando o cliente pedir site/link/vitrine/instagram/telefone/e-mail, use EXATAMENTE o valor cadastrado nos FATOS OFICIAIS DA EMPRESA, na descrição da empresa ou na Base de conhecimento — NUNCA escreva '[link]', nunca invente URLs/perfis e nunca omita o endereço existente.",
   "Não repita valores ditos pela própria IA em mensagens anteriores da conversa como se fossem oficiais, a menos que estejam confirmados na Base de conhecimento.",

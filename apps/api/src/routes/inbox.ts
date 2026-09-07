@@ -71,7 +71,7 @@ inboxRouter.post(
     if (!conversation) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Conversa não encontrada' } });
 
     await prisma.$transaction([
-      prisma.conversation.update({ where: { id }, data: { human_handled: false } }),
+      prisma.conversation.update({ where: { id }, data: { human_handled: false, human_handoff_notified_at: null } }),
       prisma.lead.update({ where: { id: conversation.lead_id }, data: { status: 'RESPONDED' } }),
     ]);
 

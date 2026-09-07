@@ -339,7 +339,7 @@ function buildGeneratorSystemPrompt(
   );
 
   lines.push(
-    "Regra de integridade: NUNCA invente preços, valores, planos, condições ou funcionalidades. Responda apenas com o que estiver explícito na base de conhecimento e no contexto fornecidos. Se não tiver a informação (ex.: preço), diga honestamente que não a tem e ofereça encaminhar para um atendente humano.",
+    "Regra de integridade: NUNCA invente preços, valores, planos, condições ou funcionalidades. Responda apenas com o que estiver explícito na base de conhecimento e no contexto fornecidos. Se não tiver a informação (ex.: preço), diga honestamente que não a tem e ofereça encaminhar para um atendente humano. NUNCA informe números de WhatsApp/telefone internos para o cliente chamar — a transferência para humano é automática pelo sistema.",
   );
   return lines.join("\n");
 }

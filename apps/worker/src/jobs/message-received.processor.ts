@@ -263,7 +263,7 @@ export async function processMessageReceived(job: {
   //     (human_handled=true), confirma ao cliente e notifica o proprietário.
   const handoff = detectHumanHandoffRequest(content);
   if (handoff.detected) {
-    logger.info("Solicitação de atendimento humano detectada", {
+    logger.info("HUMAN_HANDOFF_DETECTED", {
       conversation_id: conversationId,
       lead_id: leadId,
       confidence: handoff.confidence,
@@ -276,6 +276,7 @@ export async function processMessageReceived(job: {
       content,
       from,
       remoteJid: job.data.remoteJid,
+      externalId: job.data.externalId,
     });
     return;
   }

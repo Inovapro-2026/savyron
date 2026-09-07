@@ -1,27 +1,36 @@
 import { prisma } from "@prospector/database";
 import { createLogger } from "@prospector/logger";
 import { detectHumanHandoffRequest } from "@prospector/ai";
-import { trySendWhatsAppMessage, getWhatsAppManager } from "@prospector/whatsapp";
+import { trySendWhatsAppMessage } from "@prospector/whatsapp";
 import { formatPhone } from "@prospector/utils";
+import { redis } from "./redis";
+import { publishRealtime } from "./realtime";
+import { createMessage, isUniqueConstraintError } from "./messages";
 
 const logger = createLogger("worker.human-handoff");
 
 /**
- * TRANSFERÊNCIA PARA ATENDIMENTO HUMANO (WhatsApp).
+ * TRANSFERÊNCIA PARA ATENDIMENTO HUMANO (WhatsApp) — ORDEM CORRETA:
  *
- * Fluxo: cliente pede humano → detector → IA pausada (human_handled=true) →
- * cliente recebe confirmação → proprietário recebe notificação pelo MESMO
- * WhatsApp conectado da empresa (nunca pelo número do proprietário).
+ *   DETECTAR → BLOQUEAR NOVA IA (sem enfileirar AI_RESPONSE)
+ *   → ENVIAR AVISO AO CLIENTE (com human_handled ainda FALSE)
+ *   → CONFIRMAR ENVIO → registrar mensagem SENT no histórico
+ *   → ATIVAR human_handled = true (IA pausada a partir daqui)
+ *   → AVISAR PROPRIETÁRIO
  *
- * Reutiliza: Conversation.human_handled (mecanismo existente), LeadStatus
- * AGENT_ACTIVE, trySendWhatsAppMessage (sender existente), getWhatsAppManager.
+ * REGRA DE OURO: NUNCA ativar human_handled antes de o sender confirmar o
+ * envio — modo manual ativo antes do envio pode bloquear o próprio aviso e o
+ * cliente fica sem resposta (bug original).
  */
 
 export { detectHumanHandoffRequest } from "@prospector/ai";
 
-/** Mensagem enviada ao cliente quando a transferência acontece. */
+/** Mensagem de sistema enviada ao cliente (NUNCA gerada pela IA). */
 export const HANDOFF_CUSTOMER_MESSAGE =
   "Claro! Vou transferir seu atendimento para um de nossos atendentes. Aguarde um momento, por favor.";
+
+/** TTL do lock de concorrência (duas mensagens quase simultâneas). */
+const HANDOFF_LOCK_TTL_SECONDS = 30;
 
 /** Mascara o telefone para logs: +5511999****2222 */
 export function maskPhoneForLog(phone: string | null | undefined): string {
@@ -38,35 +47,54 @@ export interface HumanHandoffInput {
   content: string;
   from: string;
   remoteJid?: string;
+  /** external_id da mensagem recebida — idempotência da resposta. */
+  externalId?: string;
 }
 
 export interface HumanHandoffResult {
   transferred: boolean;
-  /** true quando a conversa JÁ estava em modo humano (sem nova notificação). */
   alreadyHuman: boolean;
+  customerNotified: boolean;
   ownerNotified: boolean;
   ownerPhoneConfigured: boolean;
 }
 
+/** Confere e libera o lock de transferência em andamento. */
+async function acquireHandoffLock(businessId: string, conversationId: string): Promise<boolean> {
+  const key = `handoff:lock:${businessId}:${conversationId}`;
+  const acquired = await redis.set(key, "1", "EX", HANDOFF_LOCK_TTL_SECONDS, "NX");
+  return acquired === "OK";
+}
+
+async function releaseHandoffLock(businessId: string, conversationId: string): Promise<void> {
+  await redis.del(`handoff:lock:${businessId}:${conversationId}`).catch(() => undefined);
+}
+
 /**
- * Executa a transferência da conversa para atendimento humano:
- *  1. Se já está human_handled → não refaz (sem notificação duplicada);
- *     apenas garante que o cliente saiba que será atendido por alguém.
- *  2. Marca human_handled=true + lead AGENT_ACTIVE (status existente).
- *  3. Envia confirmação ao cliente pelo WhatsApp conectado.
- *  4. Notifica o proprietário (se human_transfer_owner_phone configurado),
- *     com proteção de duplicidade via human_handoff_notified_at.
+ * Executa a transferência na ORDEM CORRETA (ver doc do módulo).
+ * Nunca lança — falhas são registradas e o worker segue íntegro.
  */
 export async function transferConversationToHuman(
   input: HumanHandoffInput,
 ): Promise<HumanHandoffResult> {
-  const { businessId, conversationId, leadId, content, from, remoteJid } = input;
+  const { businessId, conversationId, leadId, content, from, remoteJid, externalId } = input;
   const result: HumanHandoffResult = {
     transferred: false,
     alreadyHuman: false,
+    customerNotified: false,
     ownerNotified: false,
     ownerPhoneConfigured: false,
   };
+
+  // ── 0) Proteção de concorrência: apenas UMA transferência por conversa.
+  const locked = await acquireHandoffLock(businessId, conversationId);
+  if (!locked) {
+    logger.info("HUMAN_HANDOFF_PENDING (outro processo transferindo; ignorando duplicata)", {
+      business_id: businessId,
+      conversation_id: conversationId,
+    });
+    return result;
+  }
 
   try {
     const conversation = await prisma.conversation.findFirst({
@@ -78,39 +106,97 @@ export async function transferConversationToHuman(
       return result;
     }
 
-    // ── 1) Conversa já em modo humano: apenas reforça a mensagem ao cliente
-    //       e tenta completar a notificação do proprietário caso o envio
-    //       anterior tenha falhado (1 tentativa por mensagem, sem loop infinito:
-    //       quando notified_at fica preenchido, não tenta mais).
+    // ── A) Já em modo humano: NÃO responder automaticamente (nem reforçar
+    //       mensagem, nem renotificar) — spec: 1 mensagem, 1 notificação.
     if (conversation.human_handled) {
       result.alreadyHuman = true;
-      logger.info("Handoff: conversa já em modo humano; reforçando confirmação ao cliente", {
+      logger.info("HUMAN_HANDOFF_PENDING (conversa já em modo humano; nenhuma ação automática)", {
+        business_id: businessId,
         conversation_id: conversationId,
       });
-      await sendCustomerConfirmation(leadId, remoteJid);
-      const retryNotify = await notifyOwnerAboutHumanHandoff({
-        businessId,
-        conversationId,
-        leadId,
-        content,
-        from,
-      });
-      result.ownerNotified = retryNotify.notified;
-      result.ownerPhoneConfigured = retryNotify.configured;
       return result;
     }
 
-    // ── 2) Transição atômica: human_handled=true + lead AGENT_ACTIVE.
-    //       A atualização condicional evita race com takeover manual
-    //       simultâneo (só escreve se ainda estiver false).
+    const customerPhone = conversation.lead.phone || from;
+
+    // ── B/C/D/E) ENVIA a mensagem de sistema ao cliente ANTES de qualquer
+    //     mudança de modo. human_handled continua FALSE aqui.
+    logger.info("HUMAN_HANDOFF_CUSTOMER_MESSAGE_SENDING", {
+      business_id: businessId,
+      conversation_id: conversationId,
+      customer_phone: maskPhoneForLog(customerPhone),
+    });
+
+    const send = await trySendWhatsAppMessage(customerPhone, HANDOFF_CUSTOMER_MESSAGE, remoteJid);
+
+    if (!send.ok) {
+      // ── F) Envio falhou: NÃO ativar modo manual como se tivesse funcionado.
+      logger.error("HUMAN_HANDOFF_CUSTOMER_NOTIFICATION_FAILED", {
+        business_id: businessId,
+        conversation_id: conversationId,
+        lead_id: leadId,
+        customer_phone: maskPhoneForLog(customerPhone),
+        error: send.error ?? "desconhecido",
+      });
+      return result;
+    }
+
+    logger.info("HUMAN_HANDOFF_CUSTOMER_MESSAGE_SENT", {
+      business_id: businessId,
+      conversation_id: conversationId,
+      customer_phone: maskPhoneForLog(customerPhone),
+      message_id: send.messageId ?? undefined,
+    });
+    result.customerNotified = true;
+
+    // ── G) Registra a mensagem enviada no histórico (idempotente).
+    const handoffExternalId = externalId
+      ? `handoff:reply:${externalId}`
+      : `handoff:reply:${conversationId}:${Date.now()}`;
+    try {
+      const handoffMessage = await createMessage({
+        leadId,
+        businessId,
+        channel: "WHATSAPP",
+        direction: "OUT",
+        content: HANDOFF_CUSTOMER_MESSAGE,
+        status: "SENT",
+        provider: "whatsapp",
+        externalId: handoffExternalId,
+      });
+      publishRealtime({
+        type: "ai_response_generated",
+        conversationId,
+        leadId,
+        businessId,
+        timestamp: new Date().toISOString(),
+        payload: {
+          content: HANDOFF_CUSTOMER_MESSAGE,
+          direction: "OUT",
+          system_message: true,
+          message_id: send.messageId ?? handoffMessage.id,
+        },
+      });
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        // Job reprocessado: mensagem já registrada — segue para ativar modo.
+        logger.info("Handoff: mensagem de transferência já registrada (idempotente)", {
+          conversation_id: conversationId,
+        });
+      } else {
+        throw error;
+      }
+    }
+
+    // ── H) SOMENTE AGORA ativa o modo manual (IA pausada a partir daqui).
+    //    Condicional: se outro processo vencer, já está transferido.
     const updated = await prisma.conversation.updateMany({
       where: { id: conversationId, human_handled: false },
       data: { human_handled: true, human_handoff_notified_at: null },
     });
     if (updated.count === 0) {
-      // Outro processo (takeover/detector concorrente) venceu.
       result.alreadyHuman = true;
-      logger.info("Handoff: conversa já transferida por processo concorrente", {
+      logger.info("HUMAN_HANDOFF_PENDING (já transferido por processo concorrente)", {
         conversation_id: conversationId,
       });
       return result;
@@ -121,21 +207,26 @@ export async function transferConversationToHuman(
     });
     result.transferred = true;
 
-    // Log estruturado do pedido (dados reais, sem PII sensível além do contato).
-    logger.info("HUMAN_HANDOFF_REQUESTED", {
+    logger.info("HUMAN_HANDOFF_ACTIVATED", {
       business_id: businessId,
       conversation_id: conversationId,
       lead_id: leadId,
       cliente: conversation.lead.name?.trim() || "Novo contato",
-      telefone: maskPhoneForLog(from),
+      telefone: maskPhoneForLog(customerPhone),
       mensagem: content.slice(0, 160),
       timestamp: new Date().toISOString(),
     });
 
-    // Confirmação imediata ao cliente pelo WhatsApp conectado.
-    await sendCustomerConfirmation(leadId, remoteJid);
+    publishRealtime({
+      type: "status_changed",
+      conversationId,
+      leadId,
+      businessId,
+      timestamp: new Date().toISOString(),
+      payload: { lead_status: "AGENT_ACTIVE", human_handled: true },
+    });
 
-    // ── 3) Notificação do proprietário (best-effort, nunca quebra o fluxo).
+    // ── I) Notifica o proprietário (best-effort; falha NÃO desfaz nada).
     const notify = await notifyOwnerAboutHumanHandoff({
       businessId,
       conversationId,
@@ -147,37 +238,15 @@ export async function transferConversationToHuman(
     result.ownerPhoneConfigured = notify.configured;
     return result;
   } catch (error) {
-    // Falha NUNCA desfaz a transferência nem quebra o processamento.
-    logger.error("HUMAN_HANDOFF_ERROR", {
+    logger.error("HUMAN_HANDOFF_FAILED", {
       business_id: businessId,
       conversation_id: conversationId,
       lead_id: leadId,
       error: error instanceof Error ? error.message : String(error),
     });
     return result;
-  }
-}
-
-/** Envia a confirmação ao cliente (reutiliza o sender existente). */
-async function sendCustomerConfirmation(leadId: string, remoteJid?: string): Promise<void> {
-  try {
-    const lead = await prisma.lead.findUnique({ where: { id: leadId }, select: { phone: true } });
-    if (!lead?.phone) {
-      logger.warn("Handoff: lead sem telefone para confirmação", { lead_id: leadId });
-      return;
-    }
-    const send = await trySendWhatsAppMessage(lead.phone, HANDOFF_CUSTOMER_MESSAGE, remoteJid);
-    if (!send.ok) {
-      logger.warn("Handoff: falha ao enviar confirmação ao cliente", {
-        lead_id: leadId,
-        error: send.error,
-      });
-    }
-  } catch (error) {
-    logger.warn("Handoff: erro ao enviar confirmação ao cliente", {
-      lead_id: leadId,
-      error: error instanceof Error ? error.message : String(error),
-    });
+  } finally {
+    await releaseHandoffLock(businessId, conversationId);
   }
 }
 
@@ -190,10 +259,9 @@ export interface NotifyOwnerInput {
 }
 
 /**
- * Notifica o proprietário (human_transfer_owner_phone) sobre o handoff.
- * - Proteção de duplicidade: só notifica 1× por transferência
- *   (human_handoff_notified_at). Reset ao devolver para a IA.
- * - Falha de envio não desfaz nada: registra HUMAN_HANDOFF_NOTIFICATION_FAILED.
+ * Notifica o proprietário (human_transfer_owner_phone) — DESTINATÁRIO da
+ * notificação, enviada DO WhatsApp conectado da empresa. NUNCA é enviada ao
+ * cliente e NUNCA vira conversa/lead no CRM.
  */
 export async function notifyOwnerAboutHumanHandoff(
   input: NotifyOwnerInput,
@@ -248,7 +316,7 @@ export async function notifyOwnerAboutHumanHandoff(
   });
 
   const message = [
-    "🚨 *NOVA SOLICITAÇÃO DE ATENDIMENTO HUMANO*",
+    "🚨 *SOLICITAÇÃO DE ATENDIMENTO HUMANO*",
     "",
     "Um cliente solicitou falar com um atendente.",
     "",
@@ -258,15 +326,21 @@ export async function notifyOwnerAboutHumanHandoff(
     "💬 Mensagem:",
     `"${content.slice(0, 300)}"`,
     "",
-    "A IA foi pausada nesta conversa.",
+    "🤖 A IA foi pausada automaticamente.",
     "",
-    "Acesse o SAVYRON para continuar o atendimento.",
+    "Acesse o SAVYRON para assumir a conversa.",
     "",
     `Empresa: ${empresaNome}`,
     `Horário: ${horario}`,
   ].join("\n");
 
-  // Envia DO WhatsApp conectado da empresa PARA o proprietário (destinatário).
+  logger.info("HUMAN_HANDOFF_OWNER_NOTIFICATION_SENDING", {
+    business_id: businessId,
+    conversation_id: conversationId,
+    owner_phone: maskPhoneForLog(ownerPhone),
+  });
+
+  // FROM: WhatsApp conectado da empresa → TO: proprietário.
   const send = await trySendWhatsAppMessage(ownerPhone, message);
 
   if (send.ok) {
@@ -274,7 +348,7 @@ export async function notifyOwnerAboutHumanHandoff(
       where: { id: conversationId },
       data: { human_handoff_notified_at: new Date() },
     });
-    logger.info("HUMAN_HANDOFF_NOTIFIED", {
+    logger.info("HUMAN_HANDOFF_OWNER_NOTIFICATION_SENT", {
       business_id: businessId,
       conversation_id: conversationId,
       owner_phone: maskPhoneForLog(ownerPhone),
@@ -283,9 +357,10 @@ export async function notifyOwnerAboutHumanHandoff(
   }
 
   // Falha no envio: NÃO desfaz a transferência; registra e segue.
-  logger.error("HUMAN_HANDOFF_NOTIFICATION_FAILED", {
+  logger.error("HUMAN_HANDOFF_OWNER_NOTIFICATION_FAILED", {
     business_id: businessId,
     conversation_id: conversationId,
+    lead_id: leadId,
     owner_phone: maskPhoneForLog(ownerPhone),
     error: send.error ?? "desconhecido",
   });

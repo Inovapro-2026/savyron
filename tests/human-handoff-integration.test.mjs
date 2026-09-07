@@ -93,11 +93,66 @@ test("handoff: reutiliza o sender existente (sem nova conexão WhatsApp)", () =>
 });
 
 test("handoff: falha na notificação NÃO desfaz a transferência", () => {
-  assert.ok(HANDOFF_SVC.includes("HUMAN_HANDOFF_NOTIFICATION_FAILED"));
+  assert.ok(HANDOFF_SVC.includes("HUMAN_HANDOFF_OWNER_NOTIFICATION_FAILED"));
   // a transição é condicional e anterior à notificação:
   const transitionIdx = HANDOFF_SVC.indexOf("updateMany");
   const notifyIdx = HANDOFF_SVC.indexOf("const notify = await notifyOwnerAboutHumanHandoff({");
   assert.ok(transitionIdx > 0 && notifyIdx > transitionIdx);
+});
+
+test("handoff: ORDEM CORRETA — envio ao cliente ANTES de human_handled=true", () => {
+  const sendIdx = HANDOFF_SVC.indexOf("trySendWhatsAppMessage(customerPhone");
+  const activateIdx = HANDOFF_SVC.indexOf("human_handled: true, human_handoff_notified_at: null");
+  assert.ok(sendIdx > 0 && activateIdx > sendIdx,
+    "mensagem ao cliente DEVE ser enviada antes de ativar o modo manual");
+  // falha no envio NÃO ativa modo manual:
+  const failBlock = HANDOFF_SVC.slice(
+    HANDOFF_SVC.indexOf("if (!send.ok)"),
+    HANDOFF_SVC.indexOf("HUMAN_HANDOFF_CUSTOMER_MESSAGE_SENT"),
+  );
+  assert.ok(failBlock.includes("return result"), "falha de envio retorna sem ativar modo");
+  assert.ok(!failBlock.includes("human_handled: true"), "falha de envio não ativa modo manual");
+});
+
+test("handoff: concorrência — lock Redis (uma transferência por conversa)", () => {
+  assert.ok(HANDOFF_SVC.includes("handoff:lock:"));
+  assert.ok(HANDOFF_SVC.includes('"NX"'));
+  assert.ok(HANDOFF_SVC.includes("HUMAN_HANDOFF_PENDING"));
+});
+
+test("handoff: já em modo humano → NENHUMA ação automática (sem 2ª msg, sem 2ª notificação)", () => {
+  const alreadyBlock = HANDOFF_SVC.slice(
+    HANDOFF_SVC.indexOf("if (conversation.human_handled)"),
+    HANDOFF_SVC.indexOf("const customerPhone"),
+  );
+  assert.ok(alreadyBlock.includes("result.alreadyHuman = true"));
+  assert.ok(alreadyBlock.includes("return result"));
+  assert.ok(!alreadyBlock.includes("trySendWhatsAppMessage"));
+});
+
+test("handoff: mensagem de transferência registrada como SENT com idempotência", () => {
+  assert.ok(HANDOFF_SVC.includes('status: "SENT"'));
+  assert.ok(HANDOFF_SVC.includes("handoff:reply:"));
+  assert.ok(HANDOFF_SVC.includes("isUniqueConstraintError"));
+});
+
+test("handoff: logs estruturados completos", () => {
+  for (const ev of [
+    "HUMAN_HANDOFF_CUSTOMER_MESSAGE_SENDING",
+    "HUMAN_HANDOFF_CUSTOMER_MESSAGE_SENT",
+    "HUMAN_HANDOFF_CUSTOMER_NOTIFICATION_FAILED",
+    "HUMAN_HANDOFF_ACTIVATED",
+    "HUMAN_HANDOFF_OWNER_NOTIFICATION_SENDING",
+    "HUMAN_HANDOFF_OWNER_NOTIFICATION_SENT",
+    "HUMAN_HANDOFF_OWNER_NOTIFICATION_FAILED",
+    "HUMAN_HANDOFF_FAILED",
+  ]) {
+    assert.ok(HANDOFF_SVC.includes(ev), `faltou log ${ev}`);
+  }
+});
+
+test("handoff: release (Devolver para IA) reseta notified_at", () => {
+  assert.ok(INBOX_ROUTE.includes("human_handoff_notified_at: null"));
 });
 
 test("handoff: número do proprietário não configurado NÃO quebra o fluxo", () => {
@@ -109,12 +164,15 @@ test("handoff: número do proprietário não configurado NÃO quebra o fluxo", (
   assert.ok(!noPhoneBlock.includes("throw"));
 });
 
-test("handoff: logs de pedido/notificação/falha presentes", () => {
-  assert.ok(HANDOFF_SVC.includes("HUMAN_HANDOFF_REQUESTED"));
-  assert.ok(HANDOFF_SVC.includes("HUMAN_HANDOFF_NOTIFIED"));
-  assert.ok(HANDOFF_SVC.includes("HUMAN_HANDOFF_NOTIFICATION_FAILED"));
-  // telefone mascarado nos logs:
+test("handoff: telefone mascarado nos logs", () => {
   assert.ok(HANDOFF_SVC.includes("maskPhoneForLog"));
+});
+
+test("handoff: prompts proíbem divulgar número interno ao cliente", () => {
+  const JARVIS = read("apps/api/src/services/jarvis-service.ts");
+  assert.ok(JARVIS.includes("NUNCA informe números de WhatsApp internos"));
+  const ENGINE = read("services/ai/src/commercial-engine.ts");
+  assert.ok(ENGINE.includes("NUNCA divulgue números de WhatsApp/telefone internos"));
 });
 
 test("handoff: schema — campos por empresa (BusinessSettings) e por conversa", () => {

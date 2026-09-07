@@ -53,6 +53,9 @@ export interface RealtimeEventMessage {
     /** Técnica comercial usada pelo Motor Comercial na última resposta. */
     technique_used?: string;
     notification?: Record<string, unknown>;
+    /** true para mensagens de sistema (ex.: aviso de transferência humana). */
+    system_message?: boolean;
+    message_id?: string;
   };
 }
 

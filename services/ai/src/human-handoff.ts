@@ -36,29 +36,75 @@ export function normalizeHandoffText(input: string): string {
 
 // Verbos/alvos de solicitação.
 const WANT = "(quero|queria|preciso|gostaria|posso|pode|poderia|consegue|consigo|quero saber se)";
-const SPEAK = "(falar|conversar|atender|atendimento|ser atendido|ser atendida)";
+const SPEAK = "(falar|conversar|atender|atendimento|ser atendido|ser atendida|fala|chama|chamar)";
 const HUMAN_TARGET =
-  "(humano|humana|atendente|atendentes|pessoa|pessoa real|pessoas|alguem|algu[eé]m|agente|o agente|dono|proprietario|proprietária|responsavel|suporte humano|atendimento humano)";
+  "(humano|humana|atendente|atendentes|pessoa|pessoa real|pessoas|alguem|algu[eé]m|voces|agente|o agente|dono|proprietario|proprietária|responsavel|suporte humano|atendimento humano|equipe)";
 
 const HIGH_PATTERNS: Array<{ re: RegExp; reason: string }> = [
   { re: new RegExp(`${WANT}\\s+(?:a|o|de|de um|de uma|um|uma|com o|com a|com)?\\s*${SPEAK}[^.]{0,40}?${HUMAN_TARGET}`), reason: "solicitação explícita de falar/conversar com humano" },
-  { re: new RegExp(`${WANT}\\s+(?:falar|conversar)\\s+com\\s+(?:alguem|algu[eé]m)`), reason: "solicitação para falar com alguém" },
+  { re: new RegExp(`${WANT}\\s+(?:falar|conversar)\\s+com\\s+(?:alguem|algu[eé]m|voces)`), reason: "solicitação para falar com alguém/equipe" },
+  { re: new RegExp(`\\bfal[ae]\\s+com\\s+(?:um|uma|o|a)?\\s*(?:atendente|humano|pessoa|alguem|agente|dono|proprietario|responsavel|voces)`), reason: "imperativo: fala/chama com atendente" },
   { re: new RegExp(`\\bme\\s+(?:transfere|transferir|passe|passa|coloca|coloque|chama|chame|encaminh[ae])\\b[^.]{0,40}?(?:para|pro|com)?\\s*(?:um|uma|o|a)?\\s*(?:atendente|humano|pessoa|alguem|suporte)`), reason: "pedido de transferência" },
   { re: new RegExp(`\\b(?:transfere|transfira|encaminh[ae])\\s+(?:para|pro)\\s+(?:um|uma|o|a)?\\s*(?:atendente|humano|pessoa|alguem)`), reason: "pedido de transferência direto" },
-  { re: new RegExp(`\\bfalar\\s+com\\s+(?:o|a|um|uma)?\\s*(?:dono|proprietario|proprietária|responsavel|atendente|atendentes|humano|pessoa real|agente)`), reason: "falar com dono/atendente/agente" },
+  { re: new RegExp(`\\bfalar\\s+com\\s+(?:o|a|um|uma)?\\s*(?:dono|proprietario|proprietária|responsavel|atendente|atendentes|humano|pessoa real|agente|voces)`), reason: "falar com dono/atendente/agente" },
   { re: new RegExp(`\\b(?:quero|preciso|posso|pode|gostaria)\\b[^.]{0,30}?\\batendimento\\s+humano\\b`), reason: "pedido de atendimento humano" },
   { re: new RegExp(`\\batendimento\\s+humano\\b`), reason: "expressão explícita de atendimento humano" },
   { re: new RegExp(`\\bpreciso\\s+(?:de\\s+)?(?:um|uma)?\\s*(?:atendente|humano|pessoa)\\b`), reason: "preciso de um atendente" },
   { re: new RegExp(`\\b(?:atendente|humano|pessoa)\\s*(?:por favor|pfv|porfavor|agora|urgente)\\b`), reason: "palavra humana com pedido direto" },
   { re: new RegExp(`${WANT}\\s+(?:um|uma)?\\s*(?:atendente|humano|pessoa real)\\b`), reason: "quero/preciso de um atendente" },
+  { re: new RegExp(`\\b(?:chama|chamar|chame)\\s+(?:o|a|um|uma)?\\s*(?:atendente|humano|pessoa|alguem|dono|responsavel|agente)\\b`), reason: "chamar atendente" },
 ];
 
 // MÉDIA: frases curtas sem ambiguidade ("quero atendimento", "falar com alguém")
 const MEDIUM_PATTERNS: Array<{ re: RegExp; reason: string }> = [
   { re: new RegExp(`\\b(?:quero|preciso|gostaria de|posso|pode)\\s+(?:um|uma)?\\s*atendimento\\b(?!\\s+(?:online|digital|automat|telefônico|telefonico))`), reason: "quero atendimento (sem contexto automatizado)" },
   { re: new RegExp(`\\b(?:falar|conversar)\\s+com\\s+alguem\\b`), reason: "falar com alguém" },
-  { re: new RegExp(`\\b(?:quero|preciso)\\s+(?:falar\\s+)?com\\s+(?:um|uma)?\\s*(?:humano|atendente|pessoa)\\b`), reason: "quero falar com humano/pessoa" },
+  { re: new RegExp(`\\b(?:quero|preciso)\\s+(?:falar\\s+)?com\\s+(?:um|uma)?\\s*(?:humano|atendente|pessoa|voces)\\b`), reason: "quero falar com humano/pessoa" },
 ];
+
+/**
+ * Fuzzy: tolera erros de digitação comuns em "atendente"
+ * (atentende, atendete, atendende, aendente...).
+ * Levenshtein ≤ 2 para tokens com tamanho próximo.
+ */
+function looksLikeAtendente(token: string): boolean {
+  if (token.length < 8 || token.length > 11) return false;
+  const target = "atendente";
+  if (token === target) return true;
+  // distância de edição barata (duas linhas)
+  const m = target.length;
+  const n = token.length;
+  let prev = Array.from({ length: m + 1 }, (_, i) => i);
+  for (let i = 1; i <= n; i++) {
+    const curr = [i];
+    for (let j = 1; j <= m; j++) {
+      curr[j] = Math.min(
+        prev[j] + 1,
+        curr[j - 1] + 1,
+        prev[j - 1] + (token[i - 1] === target[j - 1] ? 0 : 1),
+      );
+    }
+    prev = curr;
+  }
+  return prev[m] <= 2;
+}
+
+/** true se o texto contém um typo de "atendente" perto de intenção de fala. */
+function fuzzyAtendenteRequest(normalized: string): boolean {
+  const words = normalized.split(" ");
+  for (let i = 0; i < words.length; i++) {
+    if (looksLikeAtendente(words[i])) {
+      // Janela ±3 tokens com verbo de fala/solicitação ou "com"
+      const from = Math.max(0, i - 3);
+      const to = Math.min(words.length, i + 4);
+      const window = words.slice(from, to).join(" ");
+      if (/\b(quero|queria|preciso|posso|pode|gostaria|falar|conversar|fala|chama|chamar|chame|com|transfere|passe|passa|transferir|atendimento|me|pfv|por\s*favor|agora)\b/.test(window)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
 
 // Negação: "não quero falar com atendente" etc. — NÃO é handoff.
 const NEGATION_PATTERN =
@@ -97,5 +143,12 @@ export function detectHumanHandoffRequest(text: string): HumanHandoffMatch {
       return { detected: true, confidence: "medium", reason };
     }
   }
+
+  // Fuzzy: erros de digitação comuns em "atendente" (atentende, atendete,
+  // atendende, aendente...) próximos de verbo de fala/solicitação.
+  if (fuzzyAtendenteRequest(haystack)) {
+    return { detected: true, confidence: "high", reason: "atendente (typo tolerado)" };
+  }
+
   return { detected: false, confidence: "high" };
 }
