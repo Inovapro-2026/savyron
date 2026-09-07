@@ -4,7 +4,7 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Bot, User, Send } from 'lucide-react';
+import { ArrowLeft, Bot, User, Send, Pencil, X, Check } from 'lucide-react';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import { useToast } from '@/components/ui/toast';
 import { useApi, request } from '@/hooks/use-api';
 import { useRealtime } from '@/hooks/use-realtime';
 import { useQueryClient } from '@tanstack/react-query';
+import { hasRealLeadName } from '@prospector/utils';
 import { MessageBubble, ChatMessage } from '@/components/chat/message-bubble';
 import { TypingIndicator } from '@/components/chat/typing-indicator';
 
@@ -33,6 +34,9 @@ export default function ConversationDetailPage() {
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [showTyping, setShowTyping] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState('');
+  const [savingName, setSavingName] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const prevLen = useRef(0);
@@ -43,6 +47,7 @@ export default function ConversationDetailPage() {
   const invalidate = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['conversation', id] });
     queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    queryClient.invalidateQueries({ queryKey: ['clients'] });
   }, [queryClient, id]);
 
   // Atualização em tempo real: invalida quando a conversa recebe evento.
@@ -84,6 +89,32 @@ export default function ConversationDetailPage() {
   useEffect(() => {
     if (showTyping) scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [showTyping]);
+
+  /** Edição do nome do contato (fonte oficial: Lead.name no banco). */
+  const startEditName = () => {
+    if (!data) return;
+    const fallback = hasRealLeadName(data.lead.name) ? (data.lead.name ?? '') : '';
+    setNameDraft(fallback);
+    setEditingName(true);
+  };
+
+  const saveName = async () => {
+    if (!data) return;
+    setSavingName(true);
+    try {
+      await request(`leads/${data.lead.id}/name`, {
+        method: 'PATCH',
+        body: { name: nameDraft },
+      });
+      success('Nome atualizado');
+      setEditingName(false);
+      invalidate();
+    } catch (e) {
+      toastError(e instanceof Error ? e.message : 'Falha ao salvar nome');
+    } finally {
+      setSavingName(false);
+    }
+  };
 
   const takeover = async () => {
     try {
@@ -167,19 +198,73 @@ export default function ConversationDetailPage() {
                   {/* Identidade */}
                   <div className="flex min-w-0 flex-1 items-center gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#00E5FF]/30 bg-gradient-to-tr from-[#008CFF] to-[#7C3CFF] text-sm font-black text-white shadow-[0_0_12px_rgba(0,140,255,0.3)]">
-                      {(data.lead.name?.[0] ?? '?').toUpperCase()}
+                      {(hasRealLeadName(data.lead.name) ? data.lead.name! : '?').slice(0, 1).toUpperCase()}
                     </div>
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="truncate font-bold text-white">{data.lead.name ?? 'Contato'}</span>
-                        <Badge tone={data.human_handled ? 'blue' : 'violet'} className="px-2 py-0.5">
-                          {data.human_handled ? <User className="mr-1 inline h-2.5 w-2.5" /> : <Bot className="mr-1 inline h-2.5 w-2.5" />}
-                          {data.human_handled ? 'Manual' : `IA (${data.ai_provider ?? '—'})`}
-                        </Badge>
-                        <Badge tone={data.status === 'OPEN' ? 'emerald' : 'zinc'} className="hidden px-2 py-0.5 sm:inline-flex">
-                          {data.status === 'OPEN' ? 'Aberta' : 'Encerrada'}
-                        </Badge>
-                      </div>
+                      {editingName ? (
+                        /* Popover inline de edição (discreto, cabe no mobile) */
+                        <div className="flex flex-col gap-1.5 rounded-xl border border-[#008CFF]/30 bg-[#0C1427]/90 p-2 shadow-lg backdrop-blur-md max-sm:w-[calc(100vw-140px)]">
+                          <label className="text-[10px] font-semibold uppercase tracking-wider text-[#A8B3C7]">
+                            Nome do contato
+                          </label>
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              autoFocus
+                              value={nameDraft}
+                              onChange={(e) => setNameDraft(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') void saveName();
+                                if (e.key === 'Escape') setEditingName(false);
+                              }}
+                              maxLength={80}
+                              placeholder="Nome do contato"
+                              aria-label="Nome do contato"
+                              className="input !py-1.5 !px-2.5 text-xs"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => void saveName()}
+                              disabled={savingName}
+                              aria-label="Salvar nome"
+                              title="Salvar"
+                              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[#00E5A0]/40 bg-[#00E5A0]/10 text-[#00E5A0] transition-colors hover:bg-[#00E5A0]/20 disabled:opacity-50"
+                            >
+                              <Check className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingName(false)}
+                              aria-label="Cancelar edição"
+                              title="Cancelar"
+                              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[#A8B3C7] transition-colors hover:bg-white/10"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <span className="truncate font-bold text-white">
+                            {hasRealLeadName(data.lead.name) ? data.lead.name : 'Novo contato'}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={startEditName}
+                            aria-label="Editar nome do contato"
+                            title="Editar nome"
+                            className="shrink-0 rounded-lg p-1 text-[#94A3B8] opacity-70 transition-all hover:bg-white/10 hover:text-[#00E5FF] hover:opacity-100"
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </button>
+                          <Badge tone={data.human_handled ? 'blue' : 'violet'} className="px-2 py-0.5">
+                            {data.human_handled ? <User className="mr-1 inline h-2.5 w-2.5" /> : <Bot className="mr-1 inline h-2.5 w-2.5" />}
+                            {data.human_handled ? 'Manual' : 'IA SAVYRON'}
+                          </Badge>
+                          <Badge tone={data.status === 'OPEN' ? 'emerald' : 'zinc'} className="hidden px-2 py-0.5 sm:inline-flex">
+                            {data.status === 'OPEN' ? 'Aberta' : 'Encerrada'}
+                          </Badge>
+                        </div>
+                      )}
                       <div className="truncate text-xs text-[#A8B3C7]">
                         {data.lead.business_name ? `${data.lead.business_name} · ` : ''}
                         {data.lead.phone ?? data.lead.email ?? ''}

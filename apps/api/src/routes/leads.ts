@@ -25,6 +25,47 @@ leadsRouter.use(requireAuth);
 leadsRouter.use(requireBusiness);
 
 /**
+ * PATCH /leads/:id/name — renomeia o contato (fonte oficial do nome).
+ *
+ * - Multi-tenant: lead localizado por (id, business_id do token);
+ * - Altera SOMENTE `name` — nunca phone/business_id/remoteJid;
+ * - String vazia → name = null (Inbox volta ao fallback "Novo contato");
+ * - Validação: trim, máx. 80 chars, aceita acentos/Unicode.
+ */
+leadsRouter.patch(
+  '/:id/name',
+  requireAuth,
+  requireBusiness,
+  asyncHandler(async (req: Request, res: Response) => {
+    const businessId = req.user!.businessId!;
+    const id = String(req.params.id);
+
+    const raw = req.body?.name;
+    if (raw !== undefined && raw !== null && typeof raw !== 'string') {
+      throw ApiError.badRequest('Nome inválido');
+    }
+    const trimmed = typeof raw === 'string' ? raw.replace(/\s+/g, ' ').trim() : '';
+    if (trimmed.length > 80) {
+      throw ApiError.badRequest('Nome muito longo (máximo 80 caracteres)');
+    }
+
+    const lead = await prisma.lead.findFirst({
+      where: { id, business_id: businessId },
+      select: { id: true, name: true, phone: true },
+    });
+    if (!lead) throw ApiError.notFound('Lead não encontrado');
+
+    const updated = await prisma.lead.update({
+      where: { id: lead.id },
+      data: { name: trimmed.length > 0 ? trimmed : null },
+      select: { id: true, name: true, phone: true },
+    });
+
+    return ok(res, { lead: updated });
+  }),
+);
+
+/**
  * POST /leads/import/preview
  * Multipart com campo "file" OU JSON { text: "...CSV colado..." }.
  * Retorna a prévia com contagens (total, válidos, duplicados, inválidos, novos).

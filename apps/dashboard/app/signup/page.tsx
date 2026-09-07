@@ -16,6 +16,11 @@ import {
   OnboardingPlan,
 } from "@/lib/onboarding";
 import "../auth.css";
+import {
+  validateBrazilianPhone,
+  validateCPFOrCNPJ,
+  cpfCnpjErrorMessage,
+} from "@prospector/utils";
 
 type Step = "email" | "details" | "plan";
 
@@ -35,6 +40,8 @@ export default function SignupPage() {
   const [responsibleName, setResponsibleName] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [docError, setDocError] = useState<string | null>(null);
   const [segment, setSegment] = useState("");
   const [cpfCnpj, setCpfCnpj] = useState("");
 
@@ -86,8 +93,39 @@ export default function SignupPage() {
     }
   };
 
+  /** Valida telefone (se preenchido) — usado em blur e no submit. */
+  const validatePhone = (): boolean => {
+    if (!phone.trim()) {
+      setPhoneError(null); // opcional: vazio é permitido
+      return true;
+    }
+    if (!validateBrazilianPhone(phone)) {
+      setPhoneError("Digite um telefone/WhatsApp válido.");
+      return false;
+    }
+    setPhoneError(null);
+    return true;
+  };
+
+  /** Valida CPF/CNPJ (obrigatório, algoritmo de dígitos verificadores). */
+  const validateDocument = (): boolean => {
+    if (!cpfCnpj.trim()) {
+      setDocError(null);
+      return true;
+    }
+    if (!validateCPFOrCNPJ(cpfCnpj)) {
+      setDocError(cpfCnpjErrorMessage(cpfCnpj));
+      return false;
+    }
+    setDocError(null);
+    return true;
+  };
+
   const submitDetails = (e: React.FormEvent) => {
     e.preventDefault();
+    const okPhone = validatePhone();
+    const okDoc = validateDocument();
+    if (!okPhone || !okDoc) return; // NÃO avança com dados inválidos
     setStep("plan");
   };
 
@@ -253,7 +291,10 @@ export default function SignupPage() {
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
+                onBlur={validatePhone}
                 placeholder="(11) 99999-0000"
+                error={phoneError ?? undefined}
+                aria-invalid={phoneError ? true : undefined}
               />
               <Input
                 label="Segmento (opcional)"
@@ -265,7 +306,10 @@ export default function SignupPage() {
                 label="CPF/CNPJ (necessário para pagamento)"
                 value={cpfCnpj}
                 onChange={(e) => setCpfCnpj(e.target.value)}
-                placeholder="000.000.000-00"
+                onBlur={validateDocument}
+                placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                error={docError ?? undefined}
+                aria-invalid={docError ? true : undefined}
               />
               <Input
                 label="Senha (mín. 8, com maiúscula, número e especial)"
@@ -283,7 +327,9 @@ export default function SignupPage() {
                 disabled={
                   !businessName.trim() ||
                   !responsibleName.trim() ||
-                  password.length < 8
+                  password.length < 8 ||
+                  Boolean(phoneError) ||
+                  Boolean(docError)
                 }
               >
                 Continuar

@@ -11,6 +11,11 @@ import { createLogger } from "@prospector/logger";
 import { ApiError } from "../lib/http";
 import { hashPassword } from "./password";
 import { writeAudit } from "./audit";
+import {
+  validateBrazilianPhone,
+  validateCPFOrCNPJ,
+  normalizeBrazilianPhone,
+} from "@prospector/utils";
 
 const logger = createLogger("api.onboarding");
 
@@ -173,6 +178,23 @@ export async function createBusinessFromSignup(
   if (!input.businessName?.trim())
     throw ApiError.badRequest("Informe o nome da empresa");
 
+  // VALIDAÇÃO REAL (revalida mesmo com bypass do frontend):
+  // telefone opcional — se preenchido, deve ser um celular BR válido.
+  let normalizedPhone: string | null = null;
+  if (input.phone?.trim()) {
+    if (!validateBrazilianPhone(input.phone)) {
+      throw ApiError.badRequest("Digite um telefone/WhatsApp válido.");
+    }
+    normalizedPhone = normalizeBrazilianPhone(input.phone);
+  }
+  // CPF/CNPJ obrigatório para pagamento — valida algoritmo de dígitos.
+  if (!input.cpfCnpj?.trim()) {
+    throw ApiError.badRequest("Informe o CPF/CNPJ (necessário para pagamento)");
+  }
+  if (!validateCPFOrCNPJ(input.cpfCnpj)) {
+    throw ApiError.badRequest("Digite um CPF ou CNPJ válido.");
+  }
+
   // E-mail precisa ter sido verificado
   const verified = await prisma.emailVerification.findFirst({
     where: { email, verified_at: { not: null } },
@@ -221,7 +243,7 @@ export async function createBusinessFromSignup(
         status: "PENDING_PAYMENT",
         segment: input.segment?.trim() || null,
         email,
-        phone: input.phone?.trim() || null,
+        phone: normalizedPhone,
         cnpj: input.cpfCnpj ? input.cpfCnpj.replace(/\D/g, "") : null,
         created_at: now,
         updated_at: now,
